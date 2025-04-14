@@ -81,15 +81,14 @@ Plugins/**/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-Content/SwordAndShield/AnimSequence/*
-Content/StylizedProvencal/*
-
+Content/Audio/*
+Content/Effects/*
+Content/Free_Sounds_Pack/*
+Content/Greatsword_Anims/*
 Content/InfinityBladeWeapons/*
-!Content/InfinityBladeWeapons/Weapons/
-Content/InfinityBladeWeapons/Weapons/*
-!Content/InfinityBladeWeapons/Weapons/Blade
-Content/InfinityBladeWeapons/Weapons/Blade/*
-!Content/InfinityBladeWeapons/Weapons/Blade/Swords/
-Content/InfinityBladeWeapons/Weapons/Blade/Swords/*
-!Content/InfinityBladeWeapons/Weapons/Blade/Swords/Blade_Fencer/
-!Content/InfinityBladeWeapons/Weapons/Blade/Swords/Blade_Glimmer/
+Content/LevelPrototyping/*
+Content/Meshes/*
+Content/StylizedProvencal/*
+Content/SwordAndShield/*
+Content/SwordVFX/*
+Content/VFX/*

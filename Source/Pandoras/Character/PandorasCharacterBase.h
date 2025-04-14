@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Interface/ItemWielderInterface.h"
+
 #include "PandorasCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -12,11 +14,14 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
+class UInputComponent;
+class UBaseActorAttributes;
+class UAbilitySystemComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class APandorasCharacterBase : public ACharacter
+class APandorasCharacterBase : public ACharacter, public IItemWielderInterface
 {
 	GENERATED_BODY()
 
@@ -61,12 +66,24 @@ protected:
 
 	virtual void NotifyControllerChanged() override;
 
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 public:
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+protected:
+	virtual void PostInitializeComponents() override;
+
+	virtual void CollectItem(AActor* item) override;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Actor Attributes")
+	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Actor Attributes")
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 };
 

@@ -13,9 +13,6 @@ class UHudInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class PANDORAS_API IHudInterface
 {
 	GENERATED_BODY()

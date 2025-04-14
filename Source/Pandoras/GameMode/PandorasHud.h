@@ -16,7 +16,7 @@ class PANDORAS_API APandorasHud : public AHUD, public IHudInterface
 {
 	GENERATED_BODY()
 		
-public:
+private:
 	virtual void SwitchToInventory(bool b_enable, AActor* inventory_room) override;
 	virtual void ToggleUIInput(bool b_input) override;
 	virtual void ToggleWeaponList(bool b_enable) override;

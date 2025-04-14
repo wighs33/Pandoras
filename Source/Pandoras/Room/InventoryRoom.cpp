@@ -8,7 +8,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
 #include "EnhancedInputComponent.h"
-#include "GameMode/PandorasHud.h"
+#include "GameFramework/HUD.h"
+#include "Interface/HudInterface.h"
 
 // Sets default values
 AInventoryRoom::AInventoryRoom()
@@ -66,7 +67,9 @@ void AInventoryRoom::EnterInventoryMode()
 
     pc->SetViewTargetWithBlend(this);
 
-    APandorasHud* hud = CastChecked<APandorasHud>(pc->GetHUD());
+    pc->GetHUD()->bLostFocusPaused = true;
+
+    IHudInterface* hud = CastChecked<IHudInterface>(pc->GetHUD());
     hud->SwitchToInventory(true, this);
     hud->ToggleUIInput(true);
 }
@@ -85,9 +88,9 @@ void AInventoryRoom::ExitInventoryMode()
 
     bInventoryOpen = false;
 
-    APandorasHud* hud = CastChecked<APandorasHud>(pc->GetHUD());
-    hud->SwitchToInventory(false, this);
-    hud->ToggleUIInput(false);
+	IHudInterface* hud = CastChecked<IHudInterface>(pc->GetHUD());
+	hud->SwitchToInventory(false, this);
+	hud->ToggleUIInput(false);
 }
 
 void AInventoryRoom::ChangeFocusPoint(ECharacterFocusPoint focus_point)
