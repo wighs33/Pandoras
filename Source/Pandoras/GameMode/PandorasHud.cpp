@@ -67,6 +67,9 @@ void APandorasHud::ToggleWeaponList(bool b_enable)
 			check(WeaponListWidget);
 		}
 		WeaponListWidget->AddToViewport();
+
+		BP_InitItems();
+
 		SwitchToInventory(false, nullptr);
 
 		check(InventoryRoom);

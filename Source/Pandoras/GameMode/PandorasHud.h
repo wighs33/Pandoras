@@ -36,4 +36,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AInventoryRoom> InventoryRoom;
+
+protected:
+	// hook ¿Ã∫•∆Æ
+	UFUNCTION(BlueprintImplementableEvent, Category = "Hook")
+	void BP_InitItems();
 };
