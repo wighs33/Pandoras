@@ -14,13 +14,13 @@ class PANDORAS_API UWeaponListWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
-protected:
-	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Back;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUniformGridPanel> ItemPanel;
+//protected:
+//	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
+//	UPROPERTY(meta = (BindWidget))
+//	TObjectPtr<UButton> Back;
+//
+//	UPROPERTY(meta = (BindWidget))
+//	TObjectPtr<UUniformGridPanel> ItemPanel;
 
 //private:
 //	// 블루프린트에서 클래스 지정
