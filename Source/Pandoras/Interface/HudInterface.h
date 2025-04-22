@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// HUD의 인터페이스
 
 #pragma once
 
@@ -19,11 +19,14 @@ class PANDORAS_API IHudInterface
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void SwitchToInventory(bool b_enable, AActor* inventory_room) = 0;
+	virtual void SwitchToInventoryUI(AActor* inventory_room) = 0;
 
 	UFUNCTION(BlueprintCallable, Category = "C++")
 	virtual void ToggleUIInput(bool bInput) = 0;
 
 	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void ToggleWeaponList(bool b_enable) = 0;
+	virtual void SwitchToWeaponListUI() = 0;
+
+	UFUNCTION(BlueprintCallable, Category = "C++")
+	virtual void SwitchToInGameHud() = 0;
 };

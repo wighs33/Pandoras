@@ -53,7 +53,7 @@ private:
 	TObjectPtr<UStaticMeshComponent> DomeMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<ACharacter> Player;
+	TObjectPtr<ACharacter> PlayerCharacter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	bool bInventoryOpen = false;

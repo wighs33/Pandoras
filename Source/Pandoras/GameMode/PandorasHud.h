@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// HUD
 
 #pragma once
 
@@ -8,37 +8,46 @@
 
 #include "PandorasHud.generated.h"
 
-class UUserWidget;
+class UMainUIWidget;
 class AInventoryRoom;
 
 UCLASS()
 class PANDORAS_API APandorasHud : public AHUD, public IHudInterface
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void BeginPlay() override;
 		
 private:
-	virtual void SwitchToInventory(bool b_enable, AActor* inventory_room) override;
+	virtual void SwitchToInventoryUI(AActor* inventory_room) override;
 	virtual void ToggleUIInput(bool b_input) override;
-	virtual void ToggleWeaponList(bool b_enable) override;
+	virtual void SwitchToWeaponListUI() override;
+	virtual void SwitchToInGameHud() override;
 
-private:
+private:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UUserWidget> InventoryMainWidgetClass;
+	TSubclassOf<UMainUIWidget> MainUIWidgetClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UUserWidget> InventoryMainWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UUserWidget> WeaponListWidgetClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UUserWidget> WeaponListWidget;
+	TObjectPtr<UMainUIWidget> MainUIWidget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AInventoryRoom> InventoryRoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UUserWidget> WDG_InGameHud;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UUserWidget> WDG_InventoryMain;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UUserWidget> WDG_WeaponList;
 
 protected:
 	// hook ¿Ã∫•∆Æ
 	UFUNCTION(BlueprintImplementableEvent, Category = "Hook")
 	void BP_InitItems();
+
+	void InitWidget();
 };

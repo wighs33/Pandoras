@@ -18,6 +18,9 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 //////////////////////////////////////////////////////////////////////////
 // APandorasCharacterBase
 
+// 생성자
+// Skeletal Mesh 및 애니메이션 블루프린트 참조는 블루프린트에서 설정
+// 어빌리티 시스템 컴포넌트 생성, 리플리케이션 허용
 APandorasCharacterBase::APandorasCharacterBase()
 {
 	// Set size for collision capsule
@@ -52,10 +55,22 @@ APandorasCharacterBase::APandorasCharacterBase()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbiliitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
 }
+
+// 컴포넌트 초기화 직후
+// ASC의 어트리뷰트 세트 설정
+void APandorasCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (IsValid(AbilitySystemComponent))
+	{
+		BaseActorAttributes = AbilitySystemComponent->GetSet<UBaseActorAttributes>();
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -128,16 +143,6 @@ void APandorasCharacterBase::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
-	}
-}
-
-void APandorasCharacterBase::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	if (IsValid(AbilitySystemComponent))
-	{
-		BaseActorAttributes = AbilitySystemComponent->GetSet<UBaseActorAttributes>();
 	}
 }
 

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// 캐릭터의 아이템 사용 관련 인터페이스
 
 #pragma once
 

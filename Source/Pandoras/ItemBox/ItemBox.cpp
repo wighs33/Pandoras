@@ -1,15 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ItemBox/ItemBox.h"
 
-// Sets default values
+// 생성자
+// 리플리케이션 허용
 AItemBox::AItemBox()
 {
 	bReplicates = true;
 }
 
-// Called when the game starts or when spawned
+// 플레이 시작
 void AItemBox::BeginPlay()
 {
 	Super::BeginPlay();
