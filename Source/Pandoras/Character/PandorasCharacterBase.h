@@ -79,11 +79,17 @@ protected:
 
 	virtual void CollectItem(AActor* item) override;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Default")
+	void ForceUnequip() override;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Actor Attributes")
 	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Actor Attributes")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<AActor> Weapon;
 };
 

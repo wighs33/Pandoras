@@ -149,3 +149,10 @@ void APandorasCharacterBase::Look(const FInputActionValue& Value)
 void APandorasCharacterBase::CollectItem(AActor* item)
 {
 }
+
+//void APandorasCharacterBase::ForceUnequip()
+//{
+//	if (!ensure(Weapon)) return;
+//
+//	Weapon->GetWeaponTag()
+//}
