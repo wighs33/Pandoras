@@ -11,6 +11,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class UCapsuleComponent;
 
 UCLASS()
 class PANDORAS_API AInventoryRoom : public AActor
@@ -33,6 +34,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "C++")
 	void ChangeFocusPoint(ECharacterFocusPoint focus_point);
 
+	UFUNCTION(BlueprintCallable, Category = "C++")
+	void OnCapsuleClicked(UPrimitiveComponent* ClickedComp, FKey ButtonPressed);
+
+	UFUNCTION(BlueprintCallable, Category = "C++")
+	void OnCapsuleReleased(UPrimitiveComponent* ClickedComp, FKey ButtonPressed);
+	
+	UFUNCTION(BlueprintCallable, Category = "C++")
+	void ResetMeshRotation();
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> DefaultSceneRoot;
@@ -46,12 +56,19 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> Camera;
 
+	// 회전하는 캡슐
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCapsuleComponent> RotateCapsule;
+
+	// 이 위치로 캐릭터 소환
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> PlayerPosition;
 
+	// 배경 돔 메시
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> DomeMesh;
 
+	// 캐릭터 저장
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ACharacter> PlayerCharacter;
 
@@ -63,4 +80,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	FTransform MeshRelativeTransformInventory = FTransform();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	bool bMeshRotating = false;
 };

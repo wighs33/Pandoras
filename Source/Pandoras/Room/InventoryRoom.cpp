@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/HUD.h"
 #include "Interface/HudInterface.h"
@@ -16,6 +17,7 @@ AInventoryRoom::AInventoryRoom()
     WeaponSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Weapon"));
     DomeMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Dome"));
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+    RotateCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RotateCapsule"));
     PlayerPosition = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerPosition"));
 
     RootComponent = DefaultSceneRoot;
@@ -24,6 +26,11 @@ AInventoryRoom::AInventoryRoom()
     MainSpringArm->SetupAttachment(PlayerPosition);
     WeaponSpringArm->SetupAttachment(PlayerPosition);
     Camera->SetupAttachment(MainSpringArm);
+    RotateCapsule->SetupAttachment(Camera);
+
+    // 캡슐 클릭 시점 바인딩
+    RotateCapsule->OnClicked.AddDynamic(this, &AInventoryRoom::OnCapsuleClicked);
+    RotateCapsule->OnReleased.AddDynamic(this, &AInventoryRoom::OnCapsuleReleased);
 }
 
 // 플레이 시작 시 플레이어 컨트롤러의 입력 활성화
@@ -80,6 +87,7 @@ void AInventoryRoom::EnterInventoryMode()
 // [플레이어 캐릭터]의 입력 다시 활성화하고 뷰타겟을 [캐릭터의 카메라]로 복귀
 // [인벤토리 오픈 상태] false
 // HUD를 통해 인벤토리 UI를 화면에서 제거하고 UI 입력을 비활성화
+// 컨트롤러의 [클릭 이벤트]가 비활성화
 void AInventoryRoom::ExitInventoryMode()
 {
     if (!PlayerCharacter) return;
@@ -99,6 +107,8 @@ void AInventoryRoom::ExitInventoryMode()
 	IHudInterface* hud = CastChecked<IHudInterface>(player_controller->GetHUD());
     hud->SwitchToInGameHud();
 	hud->ToggleUIInput(false);
+
+    player_controller->bEnableClickEvents = false;
 }
 
 // 카메라 포커싱 변경
@@ -107,6 +117,8 @@ void AInventoryRoom::ExitInventoryMode()
 // 카메라를 원래 위치에서 [스프링암의 부착 원점]으로 0.4초동안 자연스럽게 이동
 void AInventoryRoom::ChangeFocusPoint(ECharacterFocusPoint focus_point)
 {
+    ResetMeshRotation();
+
     USpringArmComponent* current_sp_arm = nullptr;
 
     if (focus_point == ECharacterFocusPoint::Main)
@@ -129,11 +141,12 @@ void AInventoryRoom::ChangeFocusPoint(ECharacterFocusPoint focus_point)
 
     Camera->AttachToComponent(current_sp_arm, AttachmentRules);
 
-    FLatentActionInfo latent_info;
-    latent_info.CallbackTarget = this; // 현재 액터를 콜백 대상
-    latent_info.ExecutionFunction = FName("OnCameraMoveFinished"); // 이동 완료 후 호출될 함수 이름
-    latent_info.UUID = 1; // 고유 식별자 (여러 액션이 있을 경우 서로 달라야 함)
-    latent_info.Linkage = 0;
+    FLatentActionInfo latent_info(
+        __LINE__,       /* Linkage */
+        __LINE__,              /* UUID */
+        TEXT(__FUNCTION__), /* ExecutionFunction */
+        this            /* CallbackTarget */
+    );
 
     UKismetSystemLibrary::MoveComponentTo(
         Camera,
@@ -142,6 +155,47 @@ void AInventoryRoom::ChangeFocusPoint(ECharacterFocusPoint focus_point)
         true,
         false,
         0.4f,
+        false,
+        EMoveComponentAction::Move,
+        latent_info
+    );
+}
+
+// 캡슐을 마우스로 누르고 있을 때
+void AInventoryRoom::OnCapsuleClicked(UPrimitiveComponent* ClickedComp, FKey ButtonPressed)
+{
+    bMeshRotating = true;
+}
+
+// 캡슐을 눌렀던 걸 뗄 때
+void AInventoryRoom::OnCapsuleReleased(UPrimitiveComponent* ClickedComp, FKey ButtonPressed)
+{
+    bMeshRotating = false;
+}
+
+void AInventoryRoom::ResetMeshRotation()
+{
+    if (!bInventoryOpen) return;
+
+    if (!ensure(PlayerCharacter)) return;
+    USkeletalMeshComponent* player_mesh = PlayerCharacter->GetMesh();
+    FVector inventory_loc = MeshRelativeTransformInventory.GetLocation();
+    FRotator inventory_rot = MeshRelativeTransformInventory.GetRotation().Rotator();
+
+    FLatentActionInfo latent_info(
+        __LINE__,       /* Linkage */
+        __LINE__,              /* UUID */
+        TEXT(__FUNCTION__), /* ExecutionFunction */
+        this            /* CallbackTarget */
+    );
+
+    UKismetSystemLibrary::MoveComponentTo(
+        player_mesh,
+        inventory_loc,
+        inventory_rot,
+        true,
+        true,
+        0.8f,
         false,
         EMoveComponentAction::Move,
         latent_info
