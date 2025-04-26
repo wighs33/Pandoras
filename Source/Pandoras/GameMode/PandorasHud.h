@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
 #include "Interface/HudInterface.h"
+#include "Item/ItemBase.h"
 
 #include "PandorasHud.generated.h"
 
@@ -47,7 +48,7 @@ private:
 protected:
 	// hook ¿Ã∫•∆Æ
 	UFUNCTION(BlueprintImplementableEvent, Category = "Hook")
-	void BP_InitItems();
+	void BP_InitItems(const TArray<TSubclassOf<AItemBase>>& ItemClasses);
 
 	void InitWidget();
 };

@@ -22,8 +22,8 @@ class PANDORAS_API IItemWielderInterface
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void CollectItem(AActor* item) = 0;
+	virtual void ForceUnequip() = 0;
 
 	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void ForceUnequip() = 0;
+	virtual void EquipItem(AActor* item) = 0;
 };

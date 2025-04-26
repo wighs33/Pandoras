@@ -2,6 +2,9 @@
 #include "Blueprint/UserWidget.h"
 #include "Room/InventoryRoom.h"
 #include "UI/MainUIWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Interface/PlayerStateInterface.h"
+#include "GameMode/PandorasPlayerState.h"
 
 // 플레이 시작
 void APandorasHud::BeginPlay()
@@ -73,7 +76,9 @@ void APandorasHud::ToggleUIInput(bool b_input)
 void APandorasHud::SwitchToWeaponListUI()
 {
 	MainUIWidget->SwitchWidget(WDG_WeaponList);
-	BP_InitItems();
+	IPlayerStateInterface* player_state = Cast<IPlayerStateInterface>(Cast<APandorasPlayerState>(UGameplayStatics::GetPlayerState(GetWorld(), 0)));
+	TArray<TSubclassOf<AItemBase>> ItemClasses = player_state->GetItemClasses();
+	BP_InitItems(ItemClasses);
 	InventoryRoom->ChangeFocusPoint(ECharacterFocusPoint::Weapon);
 }
 

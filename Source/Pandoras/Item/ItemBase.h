@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ItemBase.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class PANDORAS_API AItemBase : public AActor
 {
 	GENERATED_BODY()

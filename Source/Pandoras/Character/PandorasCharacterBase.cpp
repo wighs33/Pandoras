@@ -145,14 +145,3 @@ void APandorasCharacterBase::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
-
-void APandorasCharacterBase::CollectItem(AActor* item)
-{
-}
-
-//void APandorasCharacterBase::ForceUnequip()
-//{
-//	if (!ensure(Weapon)) return;
-//
-//	Weapon->GetWeaponTag()
-//}
