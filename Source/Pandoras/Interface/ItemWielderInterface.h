@@ -6,8 +6,10 @@
 #include "UObject/Interface.h"
 #include "ItemWielderInterface.generated.h"
 
+class AItemBase;
+
 // This class does not need to be modified.
-UINTERFACE(NotBlueprintable)
+UINTERFACE(Blueprintable, BlueprintType)
 class UItemWielderInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -21,9 +23,12 @@ class PANDORAS_API IItemWielderInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void ForceUnequip() = 0;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void ForceUnequip();
 
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void EquipItem(AActor* item) = 0;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void EquipItem(AItemBase* item);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (AllowAbstract = "false"))
+	void AddItemToInventory(TSubclassOf<AItemBase> itemClass);
 };

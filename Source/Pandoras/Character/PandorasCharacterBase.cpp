@@ -57,6 +57,7 @@ APandorasCharacterBase::APandorasCharacterBase()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbiliitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
+	// AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal); 
 }
 
 // 컴포넌트 초기화 직후

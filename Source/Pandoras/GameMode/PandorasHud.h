@@ -19,12 +19,6 @@ class PANDORAS_API APandorasHud : public AHUD, public IHudInterface
 
 protected:
 	virtual void BeginPlay() override;
-		
-private:
-	virtual void SwitchToInventoryUI(AActor* inventory_room) override;
-	virtual void ToggleUIInput(bool b_input) override;
-	virtual void SwitchToWeaponListUI() override;
-	virtual void SwitchToInGameHud() override;
 
 private:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
@@ -46,8 +40,16 @@ private:
 	TObjectPtr<UUserWidget> WDG_WeaponList;
 
 protected:
-	// hook 이벤트
-	UFUNCTION(BlueprintImplementableEvent, Category = "Hook")
+	// 인터페이스 함수들 C++ 구현
+	virtual void SwitchToInventoryUI_Implementation(AActor* InventoryRoom) override;
+	virtual void ToggleUIInput_Implementation(bool bInput) override;
+	virtual void SwitchToWeaponListUI_Implementation() override;
+	virtual void SwitchToInGameHud_Implementation() override;
+
+	UFUNCTION(BlueprintImplementableEvent, Category="C++")
+	void ShowRightNotification(const FNotification& NotificationData);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "C++")
 	void BP_InitItems(const TArray<TSubclassOf<AItemBase>>& ItemClasses);
 
 	void InitWidget();

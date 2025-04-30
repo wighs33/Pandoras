@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Common/Structs.h"
 #include "HudInterface.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(NotBlueprintable)
+UINTERFACE(Blueprintable, BlueprintType)
 class UHudInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -18,15 +19,18 @@ class PANDORAS_API IHudInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void SwitchToInventoryUI(AActor* inventory_room) = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
+	void SwitchToInventoryUI(AActor* inventory_room);
 
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void ToggleUIInput(bool bInput) = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
+	void ToggleUIInput(bool bInput);
 
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void SwitchToWeaponListUI() = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
+	void SwitchToWeaponListUI();
 
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void SwitchToInGameHud() = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
+	void SwitchToInGameHud();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
+	void ShowRightNotification(FNotification NotificationData);
 };

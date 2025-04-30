@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "Interface/ItemWielderInterface.h"
+#include "Interface/CharacterInterface.h"
 
 #include "PandorasCharacterBase.generated.h"
 
@@ -34,7 +35,7 @@ class APandorasCharacterBase : public ACharacter, public IItemWielderInterface
 	UCameraComponent* FollowCamera;
 	
 	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
 	/** Jump Input Action */
@@ -77,17 +78,11 @@ public:
 protected:
 	virtual void PostInitializeComponents() override;
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Default")
-	void ForceUnequip() override;
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Default")
-	void EquipItem(AActor* item) override;
-
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Actor Attributes")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
 	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Actor Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))

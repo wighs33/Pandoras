@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class PANDORAS_API APandorasCharacterPlayer : public APandorasCharacterBase
+class PANDORAS_API APandorasCharacterPlayer : public APandorasCharacterBase, public ICharacterInterface
 {
 	GENERATED_BODY()
 	
