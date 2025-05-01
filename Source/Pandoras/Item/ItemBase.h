@@ -11,8 +11,18 @@ UCLASS(Blueprintable, BlueprintType)
 class PANDORAS_API AItemBase : public AActor, public IItemInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AItemBase();
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	UTexture2D* Icon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	FGameplayTagContainer Tag;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	FString Name;
 };

@@ -14,9 +14,6 @@ class UCharacterInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class PANDORAS_API ICharacterInterface
 {
 	GENERATED_BODY()
@@ -25,4 +22,7 @@ class PANDORAS_API ICharacterInterface
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void ShowCharacterNotification(FNotification NotificationData);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	bool IsAlive();
 };

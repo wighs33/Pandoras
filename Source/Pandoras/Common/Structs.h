@@ -1,3 +1,5 @@
+// Common/Structs.h
+// 구조체 모음
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,12 +15,6 @@ struct PANDORAS_API FNotification
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
     UTexture2D* Icon;
-
-    // 기본 생성자에서 초기값 설정
-    FNotification()
-        : Text()
-        , Icon()
-    {}
 };
 
 USTRUCT(BlueprintType)
@@ -37,12 +33,4 @@ struct PANDORAS_API FMontage
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
     float TriggerTime;
-
-    // 기본 생성자에서 초기값 설정
-    FMontage()
-        : AnimMontage()
-        , InPlayRate()
-        , StartSectionName()
-        , TriggerTime()
-    {}
 };

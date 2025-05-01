@@ -8,33 +8,41 @@
 
 class UButton;
 class UUniformGridPanel;
+class UItemButtonWidget;
+class AItemBase;
 
 UCLASS()
 class PANDORAS_API UWeaponListWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
-//protected:
-//	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
-//	UPROPERTY(meta = (BindWidget))
-//	TObjectPtr<UButton> Back;
-//
-//	UPROPERTY(meta = (BindWidget))
-//	TObjectPtr<UUniformGridPanel> ItemPanel;
+	protected:
+	virtual void NativeConstruct() override;
 
-//private:
-//	// 블루프린트에서 클래스 지정
-//	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
-//	TSubclassOf<UEquipmentButtonWidget> EquipmentButtonClass;
-//
-//	// 생성된 버튼을 보관
-//	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Default", meta = (AllowPrivateAccess = "true"))
-//	TArray<UEquipmentButtonWidget*> ItemButtons;
+public:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnBackButtonClicked();
 
-//protected:
-//
-//	virtual void NativeConstruct() override;
-//
-//private:
-//	void InitializeItems();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void InitItems(const TArray<TSubclassOf<AItemBase>>& item_classes);
+
+	// 위젯
+protected:
+	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UButton> Back;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UUniformGridPanel> ItemPanel;
+
+	// 변수
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TArray<UItemButtonWidget*> ItemButtons;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UItemButtonWidget> ItemButton;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TArray<TSubclassOf<AItemBase>> ItemClasses;
 };

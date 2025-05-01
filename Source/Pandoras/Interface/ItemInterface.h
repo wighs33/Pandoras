@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// 아이템 인터페이스
 
 #pragma once
 
@@ -14,14 +14,10 @@ class UItemInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class PANDORAS_API IItemInterface
 {
 	GENERATED_BODY()
-
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+	
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	FGameplayTagContainer GetItemTag();

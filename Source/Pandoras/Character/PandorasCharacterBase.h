@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// 판도라즈 전용 캐릭터의 베이스
 
 #pragma once
 
@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "Interface/ItemWielderInterface.h"
 #include "Interface/CharacterInterface.h"
+#include "Common/Structs.h"
 
 #include "PandorasCharacterBase.generated.h"
 
@@ -21,71 +22,103 @@ class UAbilitySystemComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
+// 캐릭터, 아이템 사용 인터페이스, 캐릭터 관련 인터페이스 상속
 UCLASS(config=Game)
-class APandorasCharacterBase : public ACharacter, public IItemWielderInterface
+class APandorasCharacterBase : public ACharacter, public IItemWielderInterface, public ICharacterInterface
 {
 	GENERATED_BODY()
 
-	/** Camera boom positioning the camera behind the character */
+protected:	
+	// 스프링암
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
-	/** Follow camera */
+	// 카메라
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 	
-	/** MappingContext */
+	// 매핑 컨텍스트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
-	/** Jump Input Action */
+	// 점프 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
 
-	/** Move Input Action */
+	// 이동 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
-	/** Look Input Action */
+	// 시선 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
 public:
+	// 생성자
 	APandorasCharacterBase();
 	
-
 protected:
-
-	/** Called for movement input */
+	// 이동
 	void Move(const FInputActionValue& Value);
 
-	/** Called for looking input */
+	// 시선
 	void Look(const FInputActionValue& Value);
 			
-
 protected:
-
+	// 컨트롤러의 설정이 변경될 때 호출
 	virtual void NotifyControllerChanged() override;
 
+	// 폰이 컨트롤러에 소유될 때 호출
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 public:
-	/** Returns CameraBoom subobject **/
+	// 스프링암 리턴
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
+
+	// 카메라 리턴
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-protected:
-	virtual void PostInitializeComponents() override;
+//---------------------------------------------------------------------------------------------------------
 
 protected:
+	// 컴포넌트 생성 직후 호출
+	virtual void PostInitializeComponents() override;
+
+	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+// OnRep_X: 값 변경 시 클라에서 호출
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_Dead();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_MontageData();
+
+// 리플리케이션
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void PlayMontageReplicated(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None"));
+
+protected:
+	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
 	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;
 
+	// 게임 어빌리티 시스템 컴포넌트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	// 아이템
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	TObjectPtr<AActor> Item;
+
+	// 사망상태
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Dead, Category = "C++")
+	bool bDead;
+
+	// 몽타주 데이터
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_MontageData, Category = "C++")
+	FMontage MontageData;
 };
 

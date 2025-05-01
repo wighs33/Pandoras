@@ -7,6 +7,9 @@
 #include "MainUIWidget.generated.h"
 
 class UWidgetSwitcher;
+class UInGameHudWidget;
+class UInventoryMainWidget;
+class UWeaponListWidget;
 
 UCLASS()
 class PANDORAS_API UMainUIWidget : public UUserWidget
@@ -18,23 +21,29 @@ class PANDORAS_API UMainUIWidget : public UUserWidget
 
 protected:
 	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UWidgetSwitcher> WidgetSwitcher;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUserWidget> WDG_InGameHud;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UInGameHudWidget> WDG_InGameHud;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUserWidget> WDG_InventoryMain;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UInventoryMainWidget> WDG_InventoryMain;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UUserWidget> WDG_WeaponList;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UWeaponListWidget> WDG_WeaponList;
 
 public:
-	FORCEINLINE UUserWidget* GetInGameHud() { return WDG_InGameHud; }
-	FORCEINLINE UUserWidget* GetInventoryMain() { return WDG_InventoryMain; }
-	FORCEINLINE UUserWidget* GetWeaponList() { return WDG_WeaponList; }
+	UFUNCTION(BlueprintPure, Category = "C++")
+	FORCEINLINE UInGameHudWidget* GetInGameHud() const { return WDG_InGameHud; }
 
-	UFUNCTION()
+	UFUNCTION(BlueprintPure, Category = "C++")
+	FORCEINLINE UInventoryMainWidget* GetInventoryMainUI() const { return WDG_InventoryMain; }
+
+	UFUNCTION(BlueprintPure, Category = "C++")
+	FORCEINLINE UWeaponListWidget* GetWeaponListUI() const { return WDG_WeaponList; }
+
+public:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void SwitchWidget(UUserWidget* wdg);
 };

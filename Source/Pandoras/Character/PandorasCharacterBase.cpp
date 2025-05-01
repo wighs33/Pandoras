@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "PandorasCharacterBase.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
@@ -10,13 +8,12 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+
 #include "AbilitySystemComponent.h"
 #include "AttributeSet/BaseActorAttributes.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
-
-//////////////////////////////////////////////////////////////////////////
-// APandorasCharacterBase
 
 // 생성자
 // Skeletal Mesh 및 애니메이션 블루프린트 참조는 블루프린트에서 설정
@@ -70,6 +67,16 @@ void APandorasCharacterBase::PostInitializeComponents()
 	{
 		BaseActorAttributes = AbilitySystemComponent->GetSet<UBaseActorAttributes>();
 	}
+}
+
+// 이 클래스가 네트워크에 올라가는 시점에 호출
+void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// ItemClasses 변수를 복제 목록에 추가
+	DOREPLIFETIME(APandorasCharacterBase, bDead);
+	DOREPLIFETIME(APandorasCharacterBase, MontageData);
 }
 
 

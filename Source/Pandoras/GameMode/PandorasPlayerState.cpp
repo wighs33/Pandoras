@@ -5,16 +5,16 @@
 #include "Item/ItemBase.h"
 #include "Net/UnrealNetwork.h"
 
-TArray<TSubclassOf<AItemBase>> APandorasPlayerState::GetItemClasses()
-{
-    return ItemClasses;
-}
-
-void APandorasPlayerState::AddItemClass(TSubclassOf<AItemBase> item)
-{
-    ItemClasses.AddUnique(item);
-    //__debugbreak();
-}
+//TArray<TSubclassOf<AItemBase>> APandorasPlayerState::GetItemClasses()
+//{
+//    return ItemClasses;
+//}
+//
+//void APandorasPlayerState::AddItemClass(TSubclassOf<AItemBase> item)
+//{
+//    ItemClasses.AddUnique(item);
+//    //__debugbreak();
+//}
 
 void APandorasPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

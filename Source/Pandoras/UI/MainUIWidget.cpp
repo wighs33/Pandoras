@@ -4,15 +4,10 @@
 #include "UI/MainUIWidget.h"
 #include "Components/WidgetSwitcher.h"
 
-//void UMainUIWidget::NativeConstruct()
+//void UMainUIWidget::SwitchWidget(UUserWidget* wdg)
 //{
-//	Super::NativeConstruct();
+//	if (WidgetSwitcher && wdg)
+//	{
+//		WidgetSwitcher->SetActiveWidget(wdg);
+//	}
 //}
-
-void UMainUIWidget::SwitchWidget(UUserWidget* wdg)
-{
-	if (WidgetSwitcher && wdg)
-	{
-		WidgetSwitcher->SetActiveWidget(wdg);
-	}
-}

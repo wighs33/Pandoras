@@ -8,8 +8,7 @@
 
 class AItemBase;
 
-// This class does not need to be modified.
-UINTERFACE(NotBlueprintable)
+UINTERFACE(Blueprintable, BlueprintType)
 class UPlayerStateInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -22,11 +21,12 @@ class PANDORAS_API IPlayerStateInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual TArray<TSubclassOf<AItemBase>> GetItemClasses() = 0;
+	// 아이템 클래스 배열 반환
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	TArray<TSubclassOf<AItemBase>> GetItemClasses();
 
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	virtual void AddItemClass(TSubclassOf<AItemBase> item) = 0;
+	// 배열에 아이템 클래스 저장
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void AddItemClass(TSubclassOf<AItemBase> item);
 };

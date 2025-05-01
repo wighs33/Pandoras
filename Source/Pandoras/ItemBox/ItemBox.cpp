@@ -1,10 +1,30 @@
 #include "ItemBox/ItemBox.h"
+#include "Components/BoxComponent.h"
 
 // 생성자
 // 리플리케이션 허용
 AItemBox::AItemBox()
 {
+    DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
+    Chest = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Chest"));
+    PlayerCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("PlayerCollider"));
+    Lid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Lid"));
+
+    RootComponent = DefaultSceneRoot;
+    Chest->SetupAttachment(DefaultSceneRoot);
+    PlayerCollider->SetupAttachment(Chest);
+    Lid->SetupAttachment(Chest);
+
 	bReplicates = true;
+}
+
+void AItemBox::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    // 캡슐 클릭 시점 바인딩
+    PlayerCollider->OnComponentBeginOverlap.AddDynamic(this, &AItemBox::OnColliderBeginOverlap);
+    PlayerCollider->OnComponentEndOverlap.AddDynamic(this, &AItemBox::OnColliderEndOverlap);
 }
 
 // 플레이 시작
