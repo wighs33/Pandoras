@@ -20,10 +20,6 @@ class PANDORAS_API IItemWielderInterface
 	GENERATED_BODY()
 
 public:
-	// 아이템 강제 해제
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
-	void ForceUnequip();
-
 	// 아이템 장착
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void EquipItem(AItemBase* item);

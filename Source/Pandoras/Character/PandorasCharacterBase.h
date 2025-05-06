@@ -29,7 +29,68 @@ class APandorasCharacterBase : public ACharacter, public IItemWielderInterface, 
 {
 	GENERATED_BODY()
 
-protected:	
+public:
+	// 생성자
+	APandorasCharacterBase();
+			
+protected:
+	// 컴포넌트 생성 직후 호출
+	virtual void PostInitializeComponents() override;
+
+	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// 컨트롤러의 설정이 변경될 때 호출
+	virtual void NotifyControllerChanged() override;
+
+	// 폰이 컨트롤러에 소유될 때 호출
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+public:
+	// 스프링암 리턴
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	// 카메라 리턴
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+// 액션
+protected:
+	// 이동
+	void Move(const FInputActionValue& Value);
+
+	// 시선
+	void Look(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void Attack();
+
+// OnRep_X: 값 변경 시 클라에서 호출
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_Dead();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_MontageData();
+
+// RPC
+protected:
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
+	void DestroyItem_Server(EItem ItemType);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_DestroyItem_Server(EItem ItemType);
+
+    UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
+    void DestroyItem_Multicast(EItem ItemType);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_DestroyItem_Multicast(EItem ItemType);
+
+	bool DestroyItem_Server_Validate(EItem ItemType);
+	void DestroyItem_Server_Implementation(EItem ItemType);
+	void DestroyItem_Multicast_Implementation(EItem ItemType);
+
+protected:
 	// 스프링암
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -54,72 +115,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
-public:
-	// 생성자
-	APandorasCharacterBase();
-	
-protected:
-	// 이동
-	void Move(const FInputActionValue& Value);
+	// 시선 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* AttackAction;
 
-	// 시선
-	void Look(const FInputActionValue& Value);
-			
-protected:
-	// 컨트롤러의 설정이 변경될 때 호출
-	virtual void NotifyControllerChanged() override;
-
-	// 폰이 컨트롤러에 소유될 때 호출
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-public:
-	// 스프링암 리턴
-	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-
-	// 카메라 리턴
-	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-//---------------------------------------------------------------------------------------------------------
-
-protected:
-	// 컴포넌트 생성 직후 호출
-	virtual void PostInitializeComponents() override;
-
-	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-// OnRep_X: 값 변경 시 클라에서 호출
-protected:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void OnRep_Dead();
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void OnRep_MontageData();
-
-// 리플리케이션
-protected:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void PlayMontageReplicated(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None"));
-
-// RPC
-protected:
-	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
-	void DestroyItem_Server(EItem ItemType);
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_DestroyItem_Server(EItem ItemType);
-
-    UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
-    void DestroyItem_Multicast(EItem ItemType);
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_DestroyItem_Multicast(EItem ItemType);
-
-	bool DestroyItem_Server_Validate(EItem ItemType);
-	void DestroyItem_Server_Implementation(EItem ItemType);
-	void DestroyItem_Multicast_Implementation(EItem ItemType);
-
-protected:
 	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
 	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;

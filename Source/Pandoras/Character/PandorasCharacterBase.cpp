@@ -111,6 +111,9 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APandorasCharacterBase::Look);
+
+		// Custom
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Attack);
 	}
 	else
 	{

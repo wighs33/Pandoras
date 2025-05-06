@@ -18,8 +18,11 @@ class PANDORAS_API ICharacterInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	// 몽타주를 동기화하며 실행
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void PlayMontageReplicated(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None"));
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void ShowCharacterNotification(FNotification NotificationData);
 

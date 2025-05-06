@@ -20,6 +20,6 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 private:	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<AItemBase>> ItemClasses;
 };
