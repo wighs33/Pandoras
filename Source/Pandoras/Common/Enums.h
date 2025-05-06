@@ -15,3 +15,16 @@ enum class ECharacterFocusPoint : uint8
     Center UMETA(DisplayName = "Center"),
     Feet UMETA(DisplayName = "Feet"),
 };
+
+// æ∆¿Ã≈€
+UENUM(BlueprintType)
+enum class EItem : uint8
+{
+    UnArmed UMETA(DisplayName = "UnArmed"),
+    Gauntlet UMETA(DisplayName = "Gauntlet"),
+    Sword UMETA(DisplayName = "Sword"),
+    Bow UMETA(DisplayName = "Bow"),
+    Helmet UMETA(DisplayName = "Helmet"),
+    Armor UMETA(DisplayName = "Armor"),
+    Shoes UMETA(DisplayName = "Shoes"),
+};

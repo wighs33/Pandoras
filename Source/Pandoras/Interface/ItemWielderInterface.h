@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Common/Enums.h"
 #include "ItemWielderInterface.generated.h"
 
 class AItemBase;
@@ -30,4 +31,8 @@ public:
 	// 아이템을 인벤토리로 추가
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (AllowAbstract = "false"))
 	void AddItemToInventory(TSubclassOf<AItemBase> itemClass);
+
+	// 아이템 파괴
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void DestroyItem(EItem ItemType);
 };

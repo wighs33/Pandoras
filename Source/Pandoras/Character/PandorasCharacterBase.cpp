@@ -153,3 +153,18 @@ void APandorasCharacterBase::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+
+bool APandorasCharacterBase::DestroyItem_Server_Validate(EItem ItemType)
+{
+	return true;
+}
+
+void APandorasCharacterBase::DestroyItem_Server_Implementation(EItem ItemType)
+{
+	BP_DestroyItem_Server(ItemType);
+}
+
+void APandorasCharacterBase::DestroyItem_Multicast_Implementation(EItem ItemType)
+{
+	BP_DestroyItem_Multicast(ItemType);
+}

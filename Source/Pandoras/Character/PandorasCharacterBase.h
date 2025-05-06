@@ -8,6 +8,7 @@
 #include "Interface/ItemWielderInterface.h"
 #include "Interface/CharacterInterface.h"
 #include "Common/Structs.h"
+#include "Common/Enums.h"
 
 #include "PandorasCharacterBase.generated.h"
 
@@ -100,6 +101,24 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void PlayMontageReplicated(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None"));
 
+// RPC
+protected:
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
+	void DestroyItem_Server(EItem ItemType);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_DestroyItem_Server(EItem ItemType);
+
+    UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
+    void DestroyItem_Multicast(EItem ItemType);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_DestroyItem_Multicast(EItem ItemType);
+
+	bool DestroyItem_Server_Validate(EItem ItemType);
+	void DestroyItem_Server_Implementation(EItem ItemType);
+	void DestroyItem_Multicast_Implementation(EItem ItemType);
+
 protected:
 	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
@@ -109,9 +128,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-	// 아이템
+	// 무기
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AActor> Item;
+	TObjectPtr<AActor> Weapon;
+
+	// 투구
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<AActor> Helmet;
+
+	// 갑옷
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<AActor> Armor;
+
+	// 신발
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<AActor> Shoes;
 
 	// 사망상태
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Dead, Category = "C++")

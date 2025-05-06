@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void InitItems(const TArray<TSubclassOf<AItemBase>>& item_classes);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ChangeSelectedItem(UItemButtonWidget* NewSelectedItem);
+
 	// 위젯
 protected:
 	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
@@ -45,4 +48,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<TSubclassOf<AItemBase>> ItemClasses;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UItemButtonWidget> SelectedItem;
 };
