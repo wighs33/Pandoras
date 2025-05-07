@@ -10,6 +10,8 @@
 #include "Common/Structs.h"
 #include "Common/Enums.h"
 
+//#include "MotionTrajectory/CharacterTrajectoryComponent.h"
+
 #include "PandorasCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -20,6 +22,7 @@ struct FInputActionValue;
 class UInputComponent;
 class UBaseActorAttributes;
 class UAbilitySystemComponent;
+class UCharacterTrajectoryComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -127,21 +130,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
+	// 게임 어빌리티 시스템 컴포넌트
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
+	TObjectPtr<UCharacterTrajectoryComponent> CharacterTrajectory;
+
 	// 무기
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AActor> Weapon;
+	TObjectPtr<AItemBase> Weapon;
 
 	// 투구
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AActor> Helmet;
+	TObjectPtr<AItemBase> Helmet;
 
 	// 갑옷
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AActor> Armor;
+	TObjectPtr<AItemBase> Armor;
 
 	// 신발
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AActor> Shoes;
+	TObjectPtr<AItemBase> Shoes;
 
 	// 사망상태
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Dead, Category = "C++")

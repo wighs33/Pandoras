@@ -12,6 +12,7 @@
 #include "AbilitySystemComponent.h"
 #include "AttributeSet/BaseActorAttributes.h"
 #include "Net/UnrealNetwork.h"
+#include "CharacterTrajectoryComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -55,6 +56,8 @@ APandorasCharacterBase::APandorasCharacterBase()
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbiliitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
 	// AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal); 
+
+	CharacterTrajectory = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("CharacterTrajectory"));
 }
 
 // 컴포넌트 초기화 직후
