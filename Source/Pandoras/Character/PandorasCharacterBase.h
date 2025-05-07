@@ -67,6 +67,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Attack();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void UpdateWeapon();
+
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")

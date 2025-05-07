@@ -8,6 +8,8 @@
 #include "Common/Enums.h"
 #include "ItemBase.generated.h"
 
+class USkeletalMeshComponent;
+
 UCLASS(Blueprintable, BlueprintType)
 class PANDORAS_API AItemBase : public AActor, public IItemInterface
 {
@@ -18,6 +20,9 @@ public:
 	AItemBase();
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> SK_Item;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	UTexture2D* Icon;
 

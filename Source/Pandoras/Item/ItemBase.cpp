@@ -6,5 +6,6 @@
 // Sets default values
 AItemBase::AItemBase()
 {
+	SK_Item = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Item"));
 }
 
