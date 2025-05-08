@@ -20,5 +20,8 @@ class PANDORAS_API IItemInterface
 	
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void ToggleSwordTrail(bool Enable);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	FGameplayTagContainer GetItemTag();
 };

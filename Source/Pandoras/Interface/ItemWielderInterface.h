@@ -31,4 +31,8 @@ public:
 	// 아이템 파괴
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void DestroyItem(EItem ItemType);
+
+	// 아이템 반환
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	AItemBase* GetWeapon();
 };
