@@ -7,6 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "Interface/ItemWielderInterface.h"
 #include "Interface/CharacterInterface.h"
+#include "Interface/CharacterGameAbilityInterface.h"
 #include "Common/Structs.h"
 #include "Common/Enums.h"
 #include "AttributeSet/BaseActorAttributes.h"
@@ -25,9 +26,9 @@ class UGameplayAbility;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-// 캐릭터, 아이템 사용 인터페이스, 캐릭터 관련 인터페이스 상속
+// 캐릭터, 아이템 사용 인터페이스, 캐릭터 관련 인터페이스, 캐릭터의 어빌리티 관련 인터페이스 상속
 UCLASS(config=Game)
-class APandorasCharacterBase : public ACharacter, public IItemWielderInterface, public ICharacterInterface
+class APandorasCharacterBase : public ACharacter, public IItemWielderInterface, public ICharacterInterface, public ICharacterGameAbilityInterface
 {
 	GENERATED_BODY()
 
