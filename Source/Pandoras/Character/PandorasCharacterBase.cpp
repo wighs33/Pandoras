@@ -10,7 +10,6 @@
 #include "InputActionValue.h"
 
 #include "AbilitySystemComponent.h"
-#include "AttributeSet/BaseActorAttributes.h"
 #include "Net/UnrealNetwork.h"
 #include "CharacterTrajectoryComponent.h"
 
@@ -69,6 +68,8 @@ void APandorasCharacterBase::PostInitializeComponents()
 	if (IsValid(AbilitySystemComponent))
 	{
 		BaseActorAttributes = AbilitySystemComponent->GetSet<UBaseActorAttributes>();
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetHealthAttribute()).AddUObject(this, &APandorasCharacterBase::HealthChanged);
 	}
 }
 
@@ -173,4 +174,10 @@ void APandorasCharacterBase::DestroyItem_Server_Implementation(EItem ItemType)
 void APandorasCharacterBase::DestroyItem_Multicast_Implementation(EItem ItemType)
 {
 	BP_DestroyItem_Multicast(ItemType);
+}
+
+void APandorasCharacterBase::HealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Health = Data.NewValue;
+	UpdateHealth(Health);
 }

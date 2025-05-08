@@ -18,33 +18,14 @@ class PANDORAS_API UBaseActorAttributes : public UAttributeSet
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Base Actor Attributes")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Health, Category = "Base Actor Attributes")
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UBaseActorAttributes, Health)
 
-//public:
-//    // === Health ==========================================================
-//    UPROPERTY(BlueprintReadOnly, ReplicatedUsing = GAMEPLAYATTRIBUTE_REPNOTIFY_FUNC(UBaseActorAttributes, Health), Category = "Base")
-//    FGameplayAttributeData Health;
-//    ATTRIBUTE_ACCESSORS(UBaseActorAttributes, Health)
-//
-//    // === Overrides =======================================================
-//    virtual void PreAttributeChange(const FGameplayAttribute& Attr, float NewValue) override;
-//    virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-//
-//protected:
-//    UFUNCTION()
-//    void OnRep_Health(const FGameplayAttributeData& OldHealth)
-//    {
-//        GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Health, OldHealth);
-//    }
-//
-//void UBaseActorAttributes::PreAttributeChange(const FGameplayAttribute& Attr, float NewValue)
-//	{
-//		if (Attr == GetHealthAttribute())
-//		{
-//			// 예: 최대체력 클램프
-//			NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
-//		}
-//	}
+protected:
+	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+    UFUNCTION()
+    void OnRep_Health(const FGameplayAttributeData& OldHealth) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Health, OldHealth);}
 };

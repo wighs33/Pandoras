@@ -9,8 +9,7 @@
 #include "Interface/CharacterInterface.h"
 #include "Common/Structs.h"
 #include "Common/Enums.h"
-
-//#include "MotionTrajectory/CharacterTrajectoryComponent.h"
+#include "AttributeSet/BaseActorAttributes.h"
 
 #include "PandorasCharacterBase.generated.h"
 
@@ -20,7 +19,6 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 class UInputComponent;
-class UBaseActorAttributes;
 class UAbilitySystemComponent;
 class UCharacterTrajectoryComponent;
 class UGameplayAbility;
@@ -93,6 +91,13 @@ protected:
 	bool DestroyItem_Server_Validate(EItem ItemType);
 	void DestroyItem_Server_Implementation(EItem ItemType);
 	void DestroyItem_Multicast_Implementation(EItem ItemType);
+
+// 어트리뷰트
+protected:
+	virtual void HealthChanged(const FOnAttributeChangeData& Data);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	void UpdateHealth(const float NewHealth);
 
 // 미분류
 protected:
