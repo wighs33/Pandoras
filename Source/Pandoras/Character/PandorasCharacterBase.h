@@ -23,6 +23,7 @@ class UInputComponent;
 class UBaseActorAttributes;
 class UAbilitySystemComponent;
 class UCharacterTrajectoryComponent;
+class UGameplayAbility;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -67,9 +68,6 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Attack();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void UpdateWeapon();
-
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
@@ -95,6 +93,14 @@ protected:
 	bool DestroyItem_Server_Validate(EItem ItemType);
 	void DestroyItem_Server_Implementation(EItem ItemType);
 	void DestroyItem_Multicast_Implementation(EItem ItemType);
+
+// 미분류
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void UpdateWeapon();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void GiveDefaultAbilities();
 
 protected:
 	// 스프링암
@@ -160,5 +166,8 @@ protected:
 	// 몽타주 데이터
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_MontageData, Category = "C++")
 	FMontage MontageData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 };
 
