@@ -64,8 +64,13 @@ protected:
 	// 시선
 	void Look(const FInputActionValue& Value);
 
+	// 공격
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Attack();
+
+	// 락온
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void LockOn();
 
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
@@ -108,6 +113,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void GiveDefaultAbilities();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void FocusOnEnemy();
+
 protected:
 	// 스프링암
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -133,9 +141,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
-	// 시선 액션
+	// 공격 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* AttackAction;
+
+	// 락온 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* LockOnAction;
 
 	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
@@ -173,7 +185,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_MontageData, Category = "C++")
 	FMontage MontageData;
 
+	// 기본시작 어빌리티
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
+
+	// 락 타겟
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
+	AActor* LockTarget;
 };
 

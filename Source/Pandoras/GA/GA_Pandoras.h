@@ -15,6 +15,9 @@ class PANDORAS_API UGA_Pandoras : public UGameplayAbility
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
 	void GetClosestEnemy(AActor*& ClosestEnemy, bool& bLeftOrRight);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++", meta = (ReturnDisplayName = "Character"))
+	ACharacter* GetCharacter();
 	
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")

@@ -118,6 +118,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Custom
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Attack);
+		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &APandorasCharacterBase::LockOn);
 	}
 	else
 	{
