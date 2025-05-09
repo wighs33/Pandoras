@@ -33,6 +33,6 @@ public:
 	void DestroyItem(EItem ItemType);
 
 	// 아이템 반환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "Weapon"))
 	AItemBase* GetWeapon();
 };

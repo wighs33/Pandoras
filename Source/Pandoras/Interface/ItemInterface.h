@@ -23,5 +23,8 @@ public:
 	void ToggleSwordTrail(bool Enable);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void TriggerBlood();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	FGameplayTagContainer GetItemTag();
 };
