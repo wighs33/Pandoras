@@ -12,6 +12,10 @@ class PANDORAS_API UGA_Pandoras : public UGameplayAbility
 {
 	GENERATED_BODY()
 
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
+	void GetClosestEnemy(AActor*& ClosestEnemy, bool& bLeftOrRight);
+	
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
