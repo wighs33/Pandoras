@@ -116,6 +116,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void FocusOnEnemy();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void AddDefaultWeaponAbilities();
+
 protected:
 	// 스프링암
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -192,5 +195,9 @@ protected:
 	// 락 타겟
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
 	AActor* LockTarget;
+
+	// 기본시작 무기의 장착 어빌리티
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TArray<TSubclassOf<UGameplayAbility>> DefaultWeaponAbilities;
 };
 

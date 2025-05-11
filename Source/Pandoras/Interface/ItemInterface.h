@@ -25,6 +25,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void TriggerBlood();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "WeaponTag"))
 	FGameplayTagContainer GetItemTag();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "WeaponType"))
+	EItem GetItemType();
 };

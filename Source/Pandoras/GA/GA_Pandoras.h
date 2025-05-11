@@ -18,6 +18,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++", meta = (ReturnDisplayName = "Character"))
 	ACharacter* GetCharacter();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void GrantAbilities();
 	
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
