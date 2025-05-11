@@ -24,6 +24,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void EquipItem(AItemBase* item);
 
+	// 아이템 장착 해제
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void UnequipItem();
+
 	// 아이템을 인벤토리로 추가
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (AllowAbstract = "false"))
 	void AddItemToInventory(TSubclassOf<AItemBase> itemClass);

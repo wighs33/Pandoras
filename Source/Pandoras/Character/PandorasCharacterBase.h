@@ -108,7 +108,7 @@ protected:
 // ¹ÌºÐ·ù
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void UpdateWeapon();
+	void UpdateWeapon(EItem ItemType);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void GiveDefaultAbilities();
