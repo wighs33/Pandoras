@@ -22,4 +22,7 @@ class PANDORAS_API ICharacterGameAbilityInterface
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void SendGameplayEvent_Replicated(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ExecuteGameplayCue_Replicated(AActor* TargetActor, FGameplayTag GamplayCueTag, FGameplayCueParameters Parameters);
 };

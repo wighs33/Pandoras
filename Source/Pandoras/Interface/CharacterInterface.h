@@ -30,7 +30,7 @@ public:
 	bool IsAlive();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void SetLockTarget(AActor* LockTarget);
+	void SetLockTarget(AActor* LockTarget);						
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ClearLockTarget();
