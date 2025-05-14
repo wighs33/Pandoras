@@ -5,12 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
-#include "Interface/ItemWielderInterface.h"
-#include "Interface/CharacterInterface.h"
-#include "Interface/CharacterGameAbilityInterface.h"
 #include "Common/Structs.h"
 #include "Common/Enums.h"
 #include "AttributeSet/BaseActorAttributes.h"
+
+#include "Interface/ItemWielderInterface.h"
+#include "Interface/CharacterInterface.h"
+#include "Interface/CharacterGameAbilityInterface.h"
+#include "Interface/FactionsInterface.h"
 
 #include "PandorasCharacterBase.generated.h"
 
@@ -26,9 +28,17 @@ class UGameplayAbility;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-// 캐릭터, 아이템 사용 인터페이스, 캐릭터 관련 인터페이스, 캐릭터의 어빌리티 관련 인터페이스 상속
 UCLASS(config=Game)
-class APandorasCharacterBase : public ACharacter, public IItemWielderInterface, public ICharacterInterface, public ICharacterGameAbilityInterface
+class APandorasCharacterBase : 
+	public ACharacter, 
+	// 아이템 사용 인터페이스
+	public IItemWielderInterface, 
+	// 캐릭터 관련 인터페이스
+	public ICharacterInterface,
+	// 캐릭터의 어빌리티 관련 인터페이스
+	public ICharacterGameAbilityInterface,
+	// 파벌 인터페이스
+	public IFactionsInterface
 {
 	GENERATED_BODY()
 
@@ -71,6 +81,14 @@ protected:
 	// 락온
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void LockOn();
+
+	// 블로킹
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void Block();
+
+	// 블로킹 중지
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void StopBlocking();
 
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
@@ -152,6 +170,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* LockOnAction;
 
+	// 블로킹 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* BlockAction;
+
 	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
 	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;
@@ -199,5 +221,9 @@ protected:
 	// 기본시작 무기의 장착 어빌리티
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultWeaponAbilities;
+
+	// 파벌 아이디
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	int32 FactionId;
 };
 
