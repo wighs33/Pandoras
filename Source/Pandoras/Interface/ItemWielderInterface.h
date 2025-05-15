@@ -33,7 +33,7 @@ public:
 	void AddItemToInventory(TSubclassOf<AItemBase> itemClass);
 
 	// 아이템 파괴
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")	
 	void DestroyItem(EItem ItemType);
 
 	// 아이템 반환

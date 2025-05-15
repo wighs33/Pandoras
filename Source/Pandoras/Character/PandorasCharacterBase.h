@@ -187,7 +187,7 @@ protected:
 	TObjectPtr<UCharacterTrajectoryComponent> CharacterTrajectory;
 
 	// 무기
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
 	TObjectPtr<AItemBase> Weapon;
 
 	// 투구
