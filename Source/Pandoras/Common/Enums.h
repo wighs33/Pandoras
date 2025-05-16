@@ -28,3 +28,11 @@ enum class EItem : uint8
     Armor UMETA(DisplayName = "Armor"),
     Shoes UMETA(DisplayName = "Shoes"),
 };
+
+// 공격 중 검 위치
+UENUM(BlueprintType)
+enum class EAttackState : uint8
+{
+    Right UMETA(DisplayName = "Right"),
+    Left UMETA(DisplayName = "Left")
+};

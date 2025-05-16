@@ -225,5 +225,9 @@ protected:
 	// 파벌 아이디
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	int32 FactionId;
+
+	// 공격 중 검 좌우 위치
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	EAttackState AttackState;
 };
 
