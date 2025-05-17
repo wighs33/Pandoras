@@ -40,11 +40,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "Weapon"))
 	AItemBase* GetWeapon();
 
-	// 아이템 반환
+	// 공격 중 검 위치 반환
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "AttackState"))
 	EAttackState GetAttackState();
 
-	// 아이템 반환
+	// 공격 중 곰 위치 설정
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void SetAttackState(EAttackState AttackState);
+
+	// 공격 예고 알림
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void NotifyAttack(bool IsNonBlockable);
 };
