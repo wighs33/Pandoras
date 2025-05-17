@@ -25,4 +25,7 @@ protected:
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<TSubclassOf<UGameplayAbility>> GrantedAbilities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	int32 FactionId;
 };
