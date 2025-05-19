@@ -16,7 +16,6 @@ class PANDORAS_API AItemBase : public AActor, public IItemInterface
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AItemBase();
 
 protected:

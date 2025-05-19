@@ -107,6 +107,7 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void DestroyItem_Server(EItem ItemType);
 
+	// 게임 완성 전엔 임시로 블루르린트에서 진행
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_DestroyItem_Server(EItem ItemType);
 
@@ -116,6 +117,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_DestroyItem_Multicast(EItem ItemType);
 
+	// 선언만 .h에 정의는 무조건 .cpp에서 진행
 	bool DestroyItem_Server_Validate(EItem ItemType);
 	void DestroyItem_Server_Implementation(EItem ItemType);
 	void DestroyItem_Multicast_Implementation(EItem ItemType);
