@@ -34,3 +34,15 @@ struct PANDORAS_API FMontage
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Default")
     float TriggerTime;
 };
+
+USTRUCT(BlueprintType)
+struct PANDORAS_API FPairedMontages
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+    TObjectPtr<UAnimMontage> Attacker;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+    TObjectPtr<UAnimMontage> Victim;
+};

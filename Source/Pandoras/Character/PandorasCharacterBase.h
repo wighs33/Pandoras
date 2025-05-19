@@ -90,6 +90,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void StopBlocking();
 
+	// 피니셔 공격
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void FinishAttack();
+
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
@@ -173,6 +177,10 @@ protected:
 	// 블로킹 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* BlockAction;
+
+	// 피니셔 공격 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* FinishAttackAction;
 
 	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
