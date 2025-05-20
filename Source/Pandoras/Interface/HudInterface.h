@@ -35,4 +35,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void ShowRightNotification(FNotification NotificationData);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void UpdateHealth(float Health);
 };
