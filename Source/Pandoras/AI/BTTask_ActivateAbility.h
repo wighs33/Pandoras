@@ -23,12 +23,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	FGameplayTagContainer AbilityTags;
 
-	UPROPERTY(BlueprintReadWrite, Category = "C++", meta = (HideInDetailPanel))
+	UPROPERTY(BlueprintReadWrite, Category = "C++")
 	int32 TargetActivateCount;
 
-	UPROPERTY(BlueprintReadWrite, Category = "C++", meta = (HideInDetailPanel))
+	UPROPERTY(BlueprintReadWrite, Category = "C++")
 	int32 ActivatedCount;
 
-	UPROPERTY(BlueprintReadWrite, Category = "C++", meta = (HideInDetailPanel))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	int32 MaxActivateCount;
 };
