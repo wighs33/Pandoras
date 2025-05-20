@@ -43,4 +43,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "LockedEnemy"))
 	AActor* GetLockedEnemy();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Stamina"))
+	float GetStamina();
 };

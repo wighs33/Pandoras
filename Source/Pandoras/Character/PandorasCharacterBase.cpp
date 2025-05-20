@@ -70,6 +70,7 @@ void APandorasCharacterBase::PostInitializeComponents()
 		BaseActorAttributes = AbilitySystemComponent->GetSet<UBaseActorAttributes>();
 
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetHealthAttribute()).AddUObject(this, &APandorasCharacterBase::HealthChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetStaminaAttribute()).AddUObject(this, &APandorasCharacterBase::StaminaChanged);
 	}
 }
 
@@ -184,4 +185,10 @@ void APandorasCharacterBase::HealthChanged(const FOnAttributeChangeData& Data)
 {
 	float Health = Data.NewValue;
 	UpdateHealth(Health);
+}
+
+void APandorasCharacterBase::StaminaChanged(const FOnAttributeChangeData& Data)
+{
+	float Stamina = Data.NewValue;
+	UpdateStamina(Stamina);
 }

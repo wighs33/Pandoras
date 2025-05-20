@@ -38,4 +38,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void UpdateHealth(float Health);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void UpdateStamina(float Stamina);
 };

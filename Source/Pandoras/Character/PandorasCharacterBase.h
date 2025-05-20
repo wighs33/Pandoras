@@ -125,9 +125,13 @@ protected:
 // 어트리뷰트
 protected:
 	virtual void HealthChanged(const FOnAttributeChangeData& Data);
+	virtual void StaminaChanged(const FOnAttributeChangeData& Data);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
 	void UpdateHealth(const float NewHealth);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	void UpdateStamina(const float NewStamina);
 
 // 미분류
 protected:
