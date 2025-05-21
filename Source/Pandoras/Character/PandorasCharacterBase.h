@@ -8,6 +8,7 @@
 #include "Common/Structs.h"
 #include "Common/Enums.h"
 #include "AttributeSet/BaseActorAttributes.h"
+#include "GameplayTagContainer.h"
 
 #include "Interface/ItemWielderInterface.h"
 #include "Interface/CharacterInterface.h"
@@ -78,6 +79,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Attack();
 
+	// 공격 중지
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void StopAttack();
+
 	// 락온
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void LockOn();
@@ -102,25 +107,39 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnRep_MontageData();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_WeaponType();
+
 // RPC
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void DestroyItem_Server(EItem ItemType);
-
 	// 게임 완성 전엔 임시로 블루르린트에서 진행
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_DestroyItem_Server(EItem ItemType);
-
-    UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
-    void DestroyItem_Multicast(EItem ItemType);
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_DestroyItem_Multicast(EItem ItemType);
-
 	// 선언만 .h에 정의는 무조건 .cpp에서 진행
 	bool DestroyItem_Server_Validate(EItem ItemType);
 	void DestroyItem_Server_Implementation(EItem ItemType);
+
+    UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
+    void DestroyItem_Multicast(EItem ItemType);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_DestroyItem_Multicast(EItem ItemType);
 	void DestroyItem_Multicast_Implementation(EItem ItemType);
+
+	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = "C++")
+	void ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
+	bool ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass);
+	void ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass);
+
+	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = "C++")
+	void ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
+	bool ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags);
+	void ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags);
 
 // 어트리뷰트
 protected:
@@ -202,7 +221,7 @@ protected:
 
 	// 무기
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
-	TObjectPtr<AItemBase> Weapon;
+	TObjectPtr<AItemBase> CurrentWeapon;
 
 	// 투구
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
@@ -251,5 +270,9 @@ protected:
 	// 원래 이동 모드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	ECustomMovementMode OriginalMovementMode;
+
+	// 몽타주 데이터
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_WeaponType, Category = "C++")
+	EItem WeaponType;
 };
 

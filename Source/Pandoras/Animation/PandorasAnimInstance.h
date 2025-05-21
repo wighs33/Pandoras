@@ -15,6 +15,7 @@ class PANDORAS_API UPandorasAnimInstance : public UAnimInstance, public ICharact
 {
 	GENERATED_BODY()
 
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	EItem Weapon;

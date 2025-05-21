@@ -80,8 +80,10 @@ void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// ItemClasses 변수를 복제 목록에 추가
+	DOREPLIFETIME(APandorasCharacterBase, CurrentWeapon);
 	DOREPLIFETIME(APandorasCharacterBase, bDead);
 	DOREPLIFETIME(APandorasCharacterBase, MontageData);
+	DOREPLIFETIME(APandorasCharacterBase, WeaponType);
 }
 
 
@@ -119,6 +121,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Custom
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Attack);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::StopAttack);
 		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &APandorasCharacterBase::LockOn);
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Block);
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::StopBlocking);
@@ -179,6 +182,26 @@ void APandorasCharacterBase::DestroyItem_Server_Implementation(EItem ItemType)
 void APandorasCharacterBase::DestroyItem_Multicast_Implementation(EItem ItemType)
 {
 	BP_DestroyItem_Multicast(ItemType);
+}
+
+bool APandorasCharacterBase::ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	return true;
+}
+
+void APandorasCharacterBase::ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	BP_ApplyGameplayEffect_Server(GameplayEffectClass);
+}
+
+bool APandorasCharacterBase::ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags)
+{
+	return true;
+}
+
+void APandorasCharacterBase::ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags)
+{
+	BP_ClearGameplayEffect_Server(GameplayTags);
 }
 
 void APandorasCharacterBase::HealthChanged(const FOnAttributeChangeData& Data)

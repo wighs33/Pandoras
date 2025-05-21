@@ -38,4 +38,8 @@ public:
 	// ¹«±â ¶³¾î¶ß¸®±â
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Drop();
+
+	// ¹«±â Â÷Â¡
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ChargeWeapon();
 };
