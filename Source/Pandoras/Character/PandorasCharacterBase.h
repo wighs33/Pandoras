@@ -243,5 +243,13 @@ protected:
 	// 공격 중 검 좌우 위치
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	EAttackState AttackState;
+
+	// 현재 이동 모드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	ECustomMovementMode CurrentMovementMode = ECustomMovementMode::Run;
+
+	// 원래 이동 모드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	ECustomMovementMode OriginalMovementMode;
 };
 

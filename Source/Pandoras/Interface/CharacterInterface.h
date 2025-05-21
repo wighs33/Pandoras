@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "Common/Structs.h"
+#include "Common/Enums.h"
 #include "CharacterInterface.generated.h"
 
 // This class does not need to be modified.
@@ -46,4 +47,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Stamina"))
 	float GetStamina();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void SetMovementMode(ECustomMovementMode MovementMode);
 };

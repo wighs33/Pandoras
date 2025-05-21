@@ -36,3 +36,13 @@ enum class EAttackState : uint8
     Right UMETA(DisplayName = "Right"),
     Left UMETA(DisplayName = "Left")
 };
+
+// 이동 모드
+UENUM(BlueprintType)
+enum class ECustomMovementMode : uint8
+{
+    Crouch UMETA(DisplayName = "Crouch"),
+    Walk UMETA(DisplayName = "Walk"),
+    Run UMETA(DisplayName = "Run"),
+    Sprint UMETA(DisplayName = "Sprint"),
+};
