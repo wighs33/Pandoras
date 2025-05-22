@@ -30,5 +30,5 @@ protected:
 	int32 ActivatedCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-	int32 MaxActivateCount;
+	int32 MaxActivateCount = 1;
 };
