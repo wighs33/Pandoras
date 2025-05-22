@@ -126,6 +126,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Block);
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::StopBlocking);
 		EnhancedInputComponent->BindAction(FinishAttackAction, ETriggerEvent::Started, this, &APandorasCharacterBase::FinishAttack);
+		EnhancedInputComponent->BindAction(EvadeAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Evade);
 	}
 	else
 	{
