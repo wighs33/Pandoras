@@ -21,4 +21,8 @@ public:
 	// 무기 변수 업데이트
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void UpdateWeapon(EItem NewWeapon);
+
+	// 이동 모드 갱신
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void UpdateMovementMode(ECustomMovementMode Mode);
 };

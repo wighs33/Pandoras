@@ -19,4 +19,13 @@ class PANDORAS_API UPandorasAnimInstance : public UAnimInstance, public ICharact
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	EItem Weapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	ECustomMovementMode CurrentMovementMode = ECustomMovementMode::Walk;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	float CrouchAlpha;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	float CrouchDelayedSpeed;
 };

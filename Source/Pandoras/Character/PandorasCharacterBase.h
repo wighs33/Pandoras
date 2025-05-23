@@ -103,6 +103,14 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Evade();
 
+	// 걷기 전환
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ToggleWalk();
+
+	// 쪼그려 앉기 전환
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ToggleCrouch();
+
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
@@ -215,6 +223,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* EvadeAction;
 
+	// 걷기 전환 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* ToggleWalkAction;
+
+	// 쪼그려 앉기 전환 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* ToggleCrouchAction;
+
 	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
 	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;
@@ -277,7 +293,7 @@ protected:
 
 	// 원래 이동 모드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-	ECustomMovementMode OriginalMovementMode;
+	ECustomMovementMode OriginalMovementMode = ECustomMovementMode::Crouch;
 
 	// 몽타주 데이터
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_WeaponType, Category = "C++")
