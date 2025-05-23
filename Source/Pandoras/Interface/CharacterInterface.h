@@ -48,6 +48,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Stamina"))
 	float GetStamina();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
+	ECustomMovementMode GetMovementMode();
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void SetMovementMode(ECustomMovementMode MovementMode);
 
