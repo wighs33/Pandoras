@@ -22,6 +22,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void UpdateStamina(float InPercent);
 	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ShowTip(const FText& TipText);
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void HideTip();
+	
 // À§Á¬
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))

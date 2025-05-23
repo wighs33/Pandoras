@@ -4,13 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Interface/PlayerControllerInterface.h"
 #include "PandorasPlayerController.generated.h"
 
 UCLASS()
-class PANDORAS_API APandorasPlayerController : public APlayerController
+class PANDORAS_API APandorasPlayerController : 
+	public APlayerController,
+	// 컨트롤러 인터페이스
+	public IPlayerControllerInterface
 {
 	GENERATED_BODY()
 	
 //protected:
 //	virtual void BeginPlay() override;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	FString KeyNames;
 };

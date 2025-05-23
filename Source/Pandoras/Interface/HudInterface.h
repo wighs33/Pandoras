@@ -41,4 +41,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void UpdateStamina(float Stamina);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void ShowTip(const FString& TipText, float DisplayTime = 2.0);
 };
