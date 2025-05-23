@@ -50,4 +50,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void SetMovementMode(ECustomMovementMode MovementMode);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ResetMovementMode();
 };

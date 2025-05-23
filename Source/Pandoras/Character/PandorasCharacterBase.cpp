@@ -84,6 +84,7 @@ void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME(APandorasCharacterBase, bDead);
 	DOREPLIFETIME(APandorasCharacterBase, MontageData);
 	DOREPLIFETIME(APandorasCharacterBase, WeaponType);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentMovementMode);
 }
 
 
@@ -207,6 +208,16 @@ bool APandorasCharacterBase::ClearGameplayEffect_Server_Validate(FGameplayTagCon
 void APandorasCharacterBase::ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags)
 {
 	BP_ClearGameplayEffect_Server(GameplayTags);
+}
+
+bool APandorasCharacterBase::SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode)
+{
+	return true;
+}
+
+void APandorasCharacterBase::SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode)
+{
+	BP_SetMovementMode_Server(NewMovementMode);
 }
 
 void APandorasCharacterBase::HealthChanged(const FOnAttributeChangeData& Data)

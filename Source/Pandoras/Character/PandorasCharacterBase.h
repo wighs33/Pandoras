@@ -126,6 +126,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnRep_WeaponType();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_CurrentMovementMode();
+
 // RPC
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
@@ -143,19 +146,26 @@ protected:
 	void BP_DestroyItem_Multicast(EItem ItemType);
 	void DestroyItem_Multicast_Implementation(EItem ItemType);
 
-	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = "C++")
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 	bool ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 	void ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
-	UFUNCTION(Server, Unreliable, WithValidation, BlueprintCallable, Category = "C++")
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
 	bool ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags);
 	void ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags);
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
+	void SetMovementMode_Server(ECustomMovementMode NewMovementMode);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_SetMovementMode_Server(ECustomMovementMode NewMovementMode)	;
+	bool SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode);
+	void SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode);
 
 // 어트리뷰트
 protected:
@@ -181,6 +191,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void AddDefaultWeaponAbilities();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
+	float CalculateMovementSpeed();
 
 protected:
 	// 스프링암
@@ -296,7 +309,7 @@ protected:
 	EAttackState AttackState;
 
 	// 현재 이동 모드
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentMovementMode, Category = "C++")
 	ECustomMovementMode CurrentMovementMode = ECustomMovementMode::Run;
 
 	// 원래 이동 모드
