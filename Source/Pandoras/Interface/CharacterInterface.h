@@ -53,4 +53,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ResetMovementMode();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void NotifyFootstep(bool LeftOrRight);
 };
