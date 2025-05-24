@@ -59,4 +59,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void NotifyFootstep(bool LeftOrRight);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void LockOffEnemy();
 };

@@ -13,11 +13,6 @@ UCLASS()
 class PANDORAS_API UBTTask_ActivateAbility : public UBTTask_BlueprintBase
 {
 	GENERATED_BODY()
-	
-	//virtual EBTNodeResult::Type ExecuteTask(
-	//	UBehaviorTreeComponent& OwnerComp,
-	//	uint8* NodeMemory
-	//) override
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
