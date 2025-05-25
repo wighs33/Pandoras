@@ -18,10 +18,18 @@ class PANDORAS_API AItemBase : public AActor, public IItemInterface
 public:
 	AItemBase();
 
+// 컴포넌트
 protected:
+	// 루트
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USceneComponent> DefaultSceneRoot;
+
+	// 아이템 스켈레탈 메시
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> SK_Item;
 
+// 변수
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	UTexture2D* Icon;
 

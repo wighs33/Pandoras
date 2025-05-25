@@ -7,6 +7,7 @@
 #include "PandorasAIController.generated.h"
 
 class UAIPerceptionComponent;
+class ALastSeen;
 
 UCLASS()
 class PANDORAS_API APandorasAIController : public ADetourCrowdAIController
@@ -21,6 +22,14 @@ protected:
 	// 타겟 갱신
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "ClosestActor"))
 	AActor* GetClosestDetectedActor();
+
+	// 마지막 스냅샷 보여주기
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "ClosestActor"))
+	void ToggleLastSnapshot(AActor* TargetActor, bool ShowOrHide);
+
+	// 가까이 있는 npc들에게 경고
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "ClosestActor"))
+	void AlertNearbyNPCs(AActor* DetectedEnemy);
 
 // 컴포넌트
 protected:
@@ -39,4 +48,8 @@ protected:
 	// 감지된 모든 타겟
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<AActor*> DetectedTargets;
+
+	// 마지막으로 본 위치 스냅샷
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<ALastSeen> LastSeenSnapshot;
 };

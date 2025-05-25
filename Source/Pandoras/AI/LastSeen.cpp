@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/ItemBase.h"
+#include "AI/LastSeen.h"
 
 // Sets default values
-AItemBase::AItemBase()
+ALastSeen::ALastSeen()
 {
     DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
-	SK_Item = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Item"));
+	SK_Snapshot = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Snapshot"));
 
     RootComponent = DefaultSceneRoot;
-    SK_Item->SetupAttachment(DefaultSceneRoot);
+    SK_Snapshot->SetupAttachment(DefaultSceneRoot);
 }
 

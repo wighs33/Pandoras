@@ -21,4 +21,8 @@ public:
 	// 타겟 갱신
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void UpdateTargetActor();
+
+	// 적 감지 알림
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void NotifyDetectedEnemy(AActor* Enemy);
 };
