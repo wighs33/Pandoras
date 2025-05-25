@@ -7,5 +7,6 @@
 AItemBase::AItemBase()
 {
 	SK_Item = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Item"));
+	RootComponent = SK_Item;
 }
 
