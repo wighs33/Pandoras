@@ -16,12 +16,8 @@ class PANDORAS_API UGA_Pandoras : public UGameplayAbility
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tag);
-
-	// 임시
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tag);
-
-	// 선언만 .h에 정의는 무조건 .cpp에서 진행
 	bool ActivateAbilityOnServer_Validate(AActor* TargetActor, FGameplayTagContainer Tag);
 	void ActivateAbilityOnServer_Implementation(AActor* TargetActor, FGameplayTagContainer Tag);
 
@@ -34,6 +30,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void GrantAbilities();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ApplyGameplayEffects();
 	
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
@@ -41,4 +40,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	int32 FactionId;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TArray<TSubclassOf<UGameplayEffect>> AppliedGameplayEffects;
 };
