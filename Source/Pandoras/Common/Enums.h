@@ -23,6 +23,7 @@ enum class EItem : uint8
     UnArmed UMETA(DisplayName = "UnArmed"),
     Gauntlet UMETA(DisplayName = "Gauntlet"),
     Sword UMETA(DisplayName = "Sword"),
+    GreatSword UMETA(DisplayName = "GreatSword"),
     Bow UMETA(DisplayName = "Bow"),
     Helmet UMETA(DisplayName = "Helmet"),
     Armor UMETA(DisplayName = "Armor"),
