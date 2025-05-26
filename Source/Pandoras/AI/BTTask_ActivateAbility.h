@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// 어빌리티 실행 태스크
 
 #pragma once
 
@@ -6,9 +6,6 @@
 #include "BehaviorTree/Tasks/BTTask_BlueprintBase.h"
 #include "BTTask_ActivateAbility.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PANDORAS_API UBTTask_ActivateAbility : public UBTTask_BlueprintBase
 {
