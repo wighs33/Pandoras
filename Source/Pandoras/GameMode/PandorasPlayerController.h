@@ -14,11 +14,4 @@ class PANDORAS_API APandorasPlayerController :
 	public IPlayerControllerInterface
 {
 	GENERATED_BODY()
-	
-//protected:
-//	virtual void BeginPlay() override;
-
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-	FString KeyNames;
 };
