@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "WeaponListWidget.generated.h"
+#include "GA/GA_Equip.h"
+#include "ItemListWidget.generated.h"
 
 class UButton;
 class UUniformGridPanel;
@@ -12,7 +13,7 @@ class UItemButtonWidget;
 class AItemBase;
 
 UCLASS()
-class PANDORAS_API UWeaponListWidget : public UUserWidget
+class PANDORAS_API UItemListWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
@@ -24,10 +25,13 @@ public:
 	void OnBackButtonClicked();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void InitItems(const TArray<TSubclassOf<AItemBase>>& item_classes);
+	void InitItems(const TArray<TSubclassOf<UGA_Equip>>& New_GA_Equip_Classes);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ChangeSelectedItem(UItemButtonWidget* NewSelectedItem);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
+	bool IsAlreadyEquipped(TSubclassOf<UGA_Equip> EquipGA);
 
 	// À§Á¬
 protected:
@@ -47,8 +51,11 @@ protected:
 	TObjectPtr<UItemButtonWidget> ItemButton;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TArray<TSubclassOf<AItemBase>> ItemClasses;
+	TArray<TSubclassOf<UGA_Equip>> GA_Equip_Classes;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	TObjectPtr<UItemButtonWidget> SelectedItem;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TSubclassOf<UGA_Equip> Selected_GA_Equip;
 };

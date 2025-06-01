@@ -7,9 +7,8 @@
 #include "Interface/PlayerStateInterface.h"
 #include "PandorasPlayerState.generated.h"
 
-/**
- * 
- */
+class UGA_Equip;
+
 UCLASS()
 class PANDORAS_API APandorasPlayerState : public APlayerState, public IPlayerStateInterface
 {
@@ -21,5 +20,11 @@ protected:
 
 private:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
-	TArray<TSubclassOf<AItemBase>> ItemClasses;
+	TArray<TSubclassOf<UGA_Equip>> SwordAbilityClasses;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGA_Equip>> BowAbilityClasses;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGA_Equip>> GloveAbilityClasses;
 };

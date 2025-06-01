@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "Common/Structs.h"
+#include "Common/Enums.h"
 #include "HudInterface.generated.h"
 
 class AInventoryRoom;
@@ -28,7 +29,7 @@ public:
 	void ToggleUIInput(bool bInput);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
-	void SwitchToWeaponListUI();
+	void SwitchToItemListUI(EItem ItemType);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void SwitchToInGameHud();

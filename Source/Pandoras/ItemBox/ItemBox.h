@@ -7,6 +7,8 @@
 #include "ItemBox.generated.h"
 
 class UBoxComponent;
+class UGA_Equip;
+class AItemBase;
 
 UCLASS()
 class PANDORAS_API AItemBox : public AActor
@@ -43,7 +45,8 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Collect(AActor* tmp_actor);
 
-private:
+// ÄÄÆ÷³ÍÆ®
+protected:
 	// ·çÆ®
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USceneComponent> DefaultSceneRoot;
@@ -59,4 +62,15 @@ private:
 	// ¶Ñ²±
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> Lid;
+
+// º¯¼ö
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TArray<TSubclassOf<UGA_Equip>> ItemAbilityClasses;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<AItemBase> SpawnedActor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<AActor> InteractingActor;
 };

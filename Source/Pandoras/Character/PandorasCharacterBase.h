@@ -14,6 +14,7 @@
 #include "Interface/CharacterInterface.h"
 #include "Interface/CharacterGameAbilityInterface.h"
 #include "Interface/FactionsInterface.h"
+#include "Interface/GASInterface.h"
 
 #include "PandorasCharacterBase.generated.h"
 
@@ -39,7 +40,9 @@ class APandorasCharacterBase :
 	// 캐릭터의 어빌리티 관련 인터페이스
 	public ICharacterGameAbilityInterface,
 	// 파벌 인터페이스
-	public IFactionsInterface
+	public IFactionsInterface,
+	// 어빌리티 시스템 인터페이스
+	public IGASInterface
 {
 	GENERATED_BODY()
 
@@ -163,9 +166,16 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void SetMovementMode_Server(ECustomMovementMode NewMovementMode);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_SetMovementMode_Server(ECustomMovementMode NewMovementMode)	;
+	void BP_SetMovementMode_Server(ECustomMovementMode NewMovementMode);
 	bool SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode);
 	void SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode);
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
+	void GiveAndActivateAbility_Server(TSubclassOf<UGameplayAbility> Ability);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_GiveAndActivateAbility_Server(TSubclassOf<UGameplayAbility> Ability);	
+	bool GiveAndActivateAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability);
+	void GiveAndActivateAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability);
 
 // 어트리뷰트
 protected:

@@ -9,7 +9,7 @@
 class UWidgetSwitcher;
 class UInGameHudWidget;
 class UInventoryMainWidget;
-class UWeaponListWidget;
+class UItemListWidget;
 
 UCLASS()
 class PANDORAS_API UMainUIWidget : public UUserWidget
@@ -31,7 +31,7 @@ protected:
 	TObjectPtr<UInventoryMainWidget> WDG_InventoryMain;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UWeaponListWidget> WDG_WeaponList;
+	TObjectPtr<UItemListWidget> WDG_ItemList;
 
 public:
 	UFUNCTION(BlueprintPure, Category = "C++")
@@ -41,7 +41,7 @@ public:
 	FORCEINLINE UInventoryMainWidget* GetInventoryMainUI() const { return WDG_InventoryMain; }
 
 	UFUNCTION(BlueprintPure, Category = "C++")
-	FORCEINLINE UWeaponListWidget* GetWeaponListUI() const { return WDG_WeaponList; }
+	FORCEINLINE UItemListWidget* GetItemListUI() const { return WDG_ItemList; }
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")

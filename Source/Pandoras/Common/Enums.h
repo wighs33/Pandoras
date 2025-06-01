@@ -21,7 +21,7 @@ UENUM(BlueprintType)
 enum class EItem : uint8
 {
     UnArmed UMETA(DisplayName = "UnArmed"),
-    Gauntlet UMETA(DisplayName = "Gauntlet"),
+    Glove UMETA(DisplayName = "Glove"),
     Sword UMETA(DisplayName = "Sword"),
     GreatSword UMETA(DisplayName = "GreatSword"),
     Bow UMETA(DisplayName = "Bow"),

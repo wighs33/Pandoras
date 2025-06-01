@@ -31,7 +31,7 @@ protected:
 	TObjectPtr<UVerticalBox> VerticalBox;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UNotificationIconWidget> WDG_NotificationIcon;
+	TObjectPtr<UNotificationIconWidget> WDG_NotificationIcon_0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UNotificationIconWidget> WDG_NotificationIcon_1;

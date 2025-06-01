@@ -42,6 +42,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Player"))
 	bool IsPlayer();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Player"))
+	bool IsLocalCharacter();
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "LockedEnemy"))
 	AActor* GetLockedEnemy();
 

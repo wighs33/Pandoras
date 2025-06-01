@@ -13,7 +13,7 @@ class UMainUIWidget;
 class AInventoryRoom;
 class UInGameHudWidget;
 class UInventoryMainWidget;
-class UWeaponListWidget;
+class UItemListWidget;
 
 UCLASS()
 class PANDORAS_API APandorasHud : public AHUD, public IHudInterface
@@ -24,23 +24,23 @@ class PANDORAS_API APandorasHud : public AHUD, public IHudInterface
 //	virtual void BeginPlay() override;
 
 private:	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UMainUIWidget> MainUIWidgetClass;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UMainUIWidget> MainUIWidget;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<AInventoryRoom> InventoryRoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInGameHudWidget> WDG_InGameHud;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInventoryMainWidget> WDG_InventoryMain;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UWeaponListWidget> WDG_WeaponList;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UItemListWidget> WDG_ItemList;
 
 protected:
 	//// 인터페이스 함수들 C++ 구현
@@ -51,9 +51,6 @@ protected:
 
 	//UFUNCTION(BlueprintImplementableEvent, Category="C++")
 	//void ShowRightNotification(const FNotification& NotificationData);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "C++")
-	void BP_InitItems(const TArray<TSubclassOf<AItemBase>>& ItemClasses);
 
 	//void InitWidget();
 };

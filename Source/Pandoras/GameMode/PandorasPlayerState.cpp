@@ -21,5 +21,7 @@ void APandorasPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     // ItemClasses 변수를 복제 목록에 추가
-    DOREPLIFETIME(APandorasPlayerState, ItemClasses);
+    DOREPLIFETIME(APandorasPlayerState, SwordAbilityClasses);
+    DOREPLIFETIME(APandorasPlayerState, BowAbilityClasses);
+    DOREPLIFETIME(APandorasPlayerState, GloveAbilityClasses);
 }

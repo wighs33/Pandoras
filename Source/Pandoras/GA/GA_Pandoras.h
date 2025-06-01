@@ -15,23 +15,21 @@ class PANDORAS_API UGA_Pandoras : public UGameplayAbility
 // RPC
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
-	void ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tag);
+	void ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tags);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tag);
-	bool ActivateAbilityOnServer_Validate(AActor* TargetActor, FGameplayTagContainer Tag);
-	void ActivateAbilityOnServer_Implementation(AActor* TargetActor, FGameplayTagContainer Tag);
+	void BP_ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tags);
 
 protected:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "C++")
 	void GetClosestEnemy(AActor*& ClosestEnemy, bool& bLeftOrRight);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++", meta = (ReturnDisplayName = "Character"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "C++", meta = (ReturnDisplayName = "Character"))
 	ACharacter* GetCharacter();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void GrantAbilities();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ApplyGameplayEffects();
 	
 protected:	

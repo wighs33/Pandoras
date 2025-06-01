@@ -7,7 +7,7 @@
 #include "Common/Enums.h"
 #include "ItemWielderInterface.generated.h"
 
-class AItemBase;
+class UGA_Equip;
 
 UINTERFACE(Blueprintable, BlueprintType)
 class UItemWielderInterface : public UInterface
@@ -28,9 +28,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void UnequipItem();
 
-	// 아이템을 인벤토리로 추가
+	// 아이템을 플레이어 스테이트에 저장
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (AllowAbstract = "false"))
-	void AddItemToInventory(TSubclassOf<AItemBase> itemClass);
+	void AddItemToPlayerState(TSubclassOf<UGA_Equip> itemAbilityClass);
 
 	// 아이템 파괴
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")	

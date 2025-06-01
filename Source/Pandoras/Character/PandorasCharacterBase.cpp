@@ -220,6 +220,16 @@ void APandorasCharacterBase::SetMovementMode_Server_Implementation(ECustomMoveme
 	BP_SetMovementMode_Server(NewMovementMode);
 }
 
+bool APandorasCharacterBase::GiveAndActivateAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability)
+{
+	return true;
+}
+
+void APandorasCharacterBase::GiveAndActivateAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability)
+{
+	BP_GiveAndActivateAbility_Server(Ability);
+}
+
 void APandorasCharacterBase::HealthChanged(const FOnAttributeChangeData& Data)
 {
 	float Health = Data.NewValue;
