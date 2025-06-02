@@ -42,4 +42,8 @@ public:
 	// 무기 차징
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ChargeWeapon();
+
+	// 아이템 데이터 반환
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void GetItemData(float& DamageRadius, TSubclassOf<UGameplayEffect>& GE_Damage_Charged, TSubclassOf<UGameplayEffect>& GE_Damage_lite, TSubclassOf<UGameplayEffect>& GE_Stun);
 };
