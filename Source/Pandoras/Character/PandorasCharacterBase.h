@@ -205,6 +205,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
 	float CalculateMovementSpeed();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ClearItemAbilities(AActor* Item);
+
 protected:
 	// 스프링암
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
