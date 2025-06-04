@@ -132,6 +132,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnRep_CurrentMovementMode();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_Armor();
+
 // RPC
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
@@ -286,7 +289,7 @@ protected:
 	TObjectPtr<AItemBase> CurrentHelmet;
 
 	// °©¿Ê
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Armor, Category = "C++")
 	TObjectPtr<AItemBase> CurrentArmor;
 
 	// ½Å¹ß

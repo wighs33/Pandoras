@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// 플레이어 스테이트 (아이템 데이터 저장)
 
 #pragma once
 
@@ -30,4 +30,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UGA_Equip>> HelmetAbilityClasses;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGA_Equip>> ArmorAbilityClasses;
 };

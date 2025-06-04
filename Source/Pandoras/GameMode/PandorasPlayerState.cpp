@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GameMode/PandorasPlayerState.h"
 #include "Item/ItemBase.h"
 #include "Net/UnrealNetwork.h"
@@ -25,4 +22,5 @@ void APandorasPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(APandorasPlayerState, BowAbilityClasses);
     DOREPLIFETIME(APandorasPlayerState, GloveAbilityClasses);
     DOREPLIFETIME(APandorasPlayerState, HelmetAbilityClasses);
+    DOREPLIFETIME(APandorasPlayerState, ArmorAbilityClasses);
 }

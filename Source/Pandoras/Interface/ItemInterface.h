@@ -46,4 +46,8 @@ public:
 	// 아이템 데이터 반환
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void GetItemData(float& DamageRadius, TSubclassOf<UGameplayEffect>& GE_Damage_Charged, TSubclassOf<UGameplayEffect>& GE_Damage_lite, TSubclassOf<UGameplayEffect>& GE_Stun);
+
+	// 스켈레탈 메시를 캐릭터 본에 맞추기
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void InitLeadPose(USkeletalMeshComponent* LeadMesh);
 };
