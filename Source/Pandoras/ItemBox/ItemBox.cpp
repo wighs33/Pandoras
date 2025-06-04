@@ -33,3 +33,18 @@ void AItemBox::BeginPlay()
 	Super::BeginPlay();
 	
 }
+
+bool AItemBox::Collect_Server_Validate(AActor* OwnerActor)
+{
+    return true;
+}
+
+void AItemBox::Collect_Server_Implementation(AActor* OwnerActor)
+{
+    BP_Collect_Server(OwnerActor);
+}
+
+void AItemBox::Collect_Multicast_Implementation(AActor* OwnerActor)
+{
+    BP_Collect_Multicast(OwnerActor);
+}

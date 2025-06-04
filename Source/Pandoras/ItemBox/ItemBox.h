@@ -42,8 +42,20 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
+// RPC
+protected:
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
+	void Collect_Server(AActor* OwnerActor);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void Collect(AActor* tmp_actor);
+	void BP_Collect_Server(AActor* OwnerActor);
+	bool Collect_Server_Validate(AActor* OwnerActor);
+	void Collect_Server_Implementation(AActor* OwnerActor);
+
+    UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
+    void Collect_Multicast(AActor* OwnerActor);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_Collect_Multicast(AActor* OwnerActor);
+	void Collect_Multicast_Implementation(AActor* OwnerActor);
 
 // ÄÄÆ÷³ÍÆ®
 protected:
