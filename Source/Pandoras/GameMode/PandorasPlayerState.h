@@ -27,4 +27,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UGA_Equip>> GloveAbilityClasses;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<UGA_Equip>> HelmetAbilityClasses;
 };

@@ -282,16 +282,16 @@ protected:
 	TObjectPtr<AItemBase> CurrentWeapon;
 
 	// ≈ı±∏
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AItemBase> Helmet;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
+	TObjectPtr<AItemBase> CurrentHelmet;
 
 	// ∞©ø 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AItemBase> Armor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
+	TObjectPtr<AItemBase> CurrentArmor;
 
 	// Ω≈πﬂ
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TObjectPtr<AItemBase> Shoes;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
+	TObjectPtr<AItemBase> CurrentShoes;
 
 	// ªÁ∏¡ªÛ≈¬
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Dead, Category = "C++")

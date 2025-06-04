@@ -24,4 +24,5 @@ void APandorasPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(APandorasPlayerState, SwordAbilityClasses);
     DOREPLIFETIME(APandorasPlayerState, BowAbilityClasses);
     DOREPLIFETIME(APandorasPlayerState, GloveAbilityClasses);
+    DOREPLIFETIME(APandorasPlayerState, HelmetAbilityClasses);
 }

@@ -81,6 +81,9 @@ void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 
 	// ItemClasses 변수를 복제 목록에 추가
 	DOREPLIFETIME(APandorasCharacterBase, CurrentWeapon);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentHelmet);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentArmor);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentShoes);
 	DOREPLIFETIME(APandorasCharacterBase, bDead);
 	DOREPLIFETIME(APandorasCharacterBase, MontageData);
 	DOREPLIFETIME(APandorasCharacterBase, WeaponType);
