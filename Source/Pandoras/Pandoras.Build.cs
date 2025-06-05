@@ -22,7 +22,8 @@ public class Pandoras : ModuleRules
 			"EnhancedInput", 
 			"MotionTrajectory", 
 			"NavigationSystem", 
-			"AIModule" 
-		});
+			"AIModule",
+            "Niagara"
+        });
 	}
 }

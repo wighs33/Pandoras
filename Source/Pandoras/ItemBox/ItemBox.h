@@ -11,6 +11,7 @@ class UGA_Equip;
 class AItemBase;
 class UMaterialBillboardComponent;
 class UWidgetComponent;
+class UNiagaraComponent;
 
 UCLASS()
 class PANDORAS_API AItemBox : public AActor
@@ -84,6 +85,10 @@ protected:
 	// 위젯
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UWidgetComponent> Widget;
+
+	// 나이아가라 시스템
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UNiagaraComponent> ChestFX;
 
 // 변수
 protected:

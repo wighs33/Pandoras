@@ -2,6 +2,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/MaterialBillboardComponent.h"
 #include "Components/WidgetComponent.h"
+#include "NiagaraComponent.h"
 
 // 생성자
 // 리플리케이션 허용
@@ -13,6 +14,7 @@ AItemBox::AItemBox()
     Lid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Lid"));
     MaterialBillboard = CreateDefaultSubobject<UMaterialBillboardComponent>(TEXT("MaterialBillboard"));
     Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+    ChestFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NS_Chest"));
 
     RootComponent = DefaultSceneRoot;
     Chest->SetupAttachment(DefaultSceneRoot);
@@ -20,6 +22,7 @@ AItemBox::AItemBox()
     Lid->SetupAttachment(Chest);
     MaterialBillboard->SetupAttachment(Chest);
     Widget->SetupAttachment(MaterialBillboard);
+    ChestFX->SetupAttachment(Chest);
 
 	bReplicates = true;
 }
