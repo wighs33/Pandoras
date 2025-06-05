@@ -25,14 +25,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Stamina, Category = "Base Actor Attributes")
 	FGameplayAttributeData Stamina;
 	ATTRIBUTE_ACCESSORS(UBaseActorAttributes, Stamina)
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Defence, Category = "Base Actor Attributes")
+	FGameplayAttributeData Defence;
+	ATTRIBUTE_ACCESSORS(UBaseActorAttributes, Defence)
 
 protected:
 	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	// 속성값 변경 직전
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+
     UFUNCTION()
-    void OnRep_Health(const FGameplayAttributeData& OldHealth) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Health, OldHealth);}
+    virtual void OnRep_Health(const FGameplayAttributeData& OldHealth) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Health, OldHealth);}
 
 	UFUNCTION()
-	void OnRep_Stamina(const FGameplayAttributeData& OldStamina) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Stamina, OldStamina);}
+	virtual void OnRep_Stamina(const FGameplayAttributeData& OldStamina) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Stamina, OldStamina);}
+
+	UFUNCTION()
+	virtual void OnRep_Defence(const FGameplayAttributeData& OldDefence) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Defence, OldDefence);}
 };
