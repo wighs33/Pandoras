@@ -134,6 +134,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnRep_Armor();
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_Glove();
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnRep_Shoes();
 
 // RPC
 protected:
@@ -292,8 +298,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Armor, Category = "C++")
 	TObjectPtr<AItemBase> CurrentArmor;
 
+	// ¿Â∞©
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Glove, Category = "C++")
+	TObjectPtr<AItemBase> CurrentGlove;
+
 	// Ω≈πﬂ
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_Shoes, Category = "C++")
 	TObjectPtr<AItemBase> CurrentShoes;
 
 	// ªÁ∏¡ªÛ≈¬
