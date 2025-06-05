@@ -9,6 +9,8 @@
 class UBoxComponent;
 class UGA_Equip;
 class AItemBase;
+class UMaterialBillboardComponent;
+class UWidgetComponent;
 
 UCLASS()
 class PANDORAS_API AItemBox : public AActor
@@ -74,6 +76,14 @@ protected:
 	// ¶Ñ²±
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> Lid;
+
+	// ºôº¸µå
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMaterialBillboardComponent> MaterialBillboard;
+
+	// À§Á¬
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWidgetComponent> Widget;
 
 // º¯¼ö
 protected:

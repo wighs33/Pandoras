@@ -1,5 +1,7 @@
 #include "ItemBox/ItemBox.h"
 #include "Components/BoxComponent.h"
+#include "Components/MaterialBillboardComponent.h"
+#include "Components/WidgetComponent.h"
 
 // 생성자
 // 리플리케이션 허용
@@ -9,11 +11,15 @@ AItemBox::AItemBox()
     Chest = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Chest"));
     PlayerCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("PlayerCollider"));
     Lid = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Lid"));
+    MaterialBillboard = CreateDefaultSubobject<UMaterialBillboardComponent>(TEXT("MaterialBillboard"));
+    Widget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 
     RootComponent = DefaultSceneRoot;
     Chest->SetupAttachment(DefaultSceneRoot);
     PlayerCollider->SetupAttachment(Chest);
     Lid->SetupAttachment(Chest);
+    MaterialBillboard->SetupAttachment(Chest);
+    Widget->SetupAttachment(MaterialBillboard);
 
 	bReplicates = true;
 }
