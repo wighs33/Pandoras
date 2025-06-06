@@ -16,6 +16,8 @@ AInventoryRoom::AInventoryRoom()
     MainSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Main"));
     WeaponSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Weapon"));
     HeadSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Head"));
+    HandSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Hand"));
+    FootSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Foot"));
     DomeMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Dome"));
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
     RotateCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RotateCapsule"));
@@ -27,6 +29,8 @@ AInventoryRoom::AInventoryRoom()
     MainSpringArm->SetupAttachment(PlayerPosition);
     WeaponSpringArm->SetupAttachment(PlayerPosition);
     HeadSpringArm->SetupAttachment(PlayerPosition);
+    HandSpringArm->SetupAttachment(PlayerPosition);
+    FootSpringArm->SetupAttachment(PlayerPosition);
     Camera->SetupAttachment(MainSpringArm);
     RotateCapsule->SetupAttachment(Camera);
 }
