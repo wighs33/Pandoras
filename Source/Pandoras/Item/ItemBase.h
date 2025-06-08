@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// 아이템 기틀
 
 #pragma once
 
@@ -17,6 +17,13 @@ class PANDORAS_API AItemBase : public AActor, public IItemInterface
 
 public:
 	AItemBase();
+
+
+protected:
+	virtual void InitLeadPose_Implementation(USkeletalMeshComponent* LeadMesh) override;
+	virtual FGameplayTagContainer GetItemTag_Implementation() override { return Tag; }
+	virtual EItem GetItemType_Implementation() override { return ItemType; }
+	virtual void GetItemData_Implementation(float& DamageRadius, TSubclassOf<UGameplayEffect>& GE_Damage_Charged, TSubclassOf<UGameplayEffect>& GE_Damage_lite, TSubclassOf<UGameplayEffect>& GE_Stun) override;
 
 // 컴포넌트
 protected:

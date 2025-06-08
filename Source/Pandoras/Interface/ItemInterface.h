@@ -28,11 +28,11 @@ public:
 	void TriggerBlood();
 
 	// 아이템 태그 반환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "WeaponTag"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "WeaponTag"))
 	FGameplayTagContainer GetItemTag();
 
 	// 아이템 타입 반환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "WeaponType"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "WeaponType"))
 	EItem GetItemType();
 
 	// 무기 떨어뜨리기
@@ -44,10 +44,14 @@ public:
 	void ChargeWeapon();
 
 	// 아이템 데이터 반환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void GetItemData(float& DamageRadius, TSubclassOf<UGameplayEffect>& GE_Damage_Charged, TSubclassOf<UGameplayEffect>& GE_Damage_lite, TSubclassOf<UGameplayEffect>& GE_Stun);
 
 	// 스켈레탈 메시를 캐릭터 본에 맞추기
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void InitLeadPose(USkeletalMeshComponent* LeadMesh);
+
+	// 검 히트 박스 토글
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	void ToggleHitBox(bool Enable);
 };

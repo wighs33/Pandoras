@@ -65,4 +65,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void LockOffEnemy();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void SlowDown(float Rate = 0.2f, float Duration = 0.4f);
 };
