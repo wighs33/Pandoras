@@ -54,4 +54,8 @@ public:
 	// 검 히트 박스 토글
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void ToggleHitBox(bool Enable);
+
+	// 검 히트 박스 토글
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ToggleBlockBox(bool Enable);
 };

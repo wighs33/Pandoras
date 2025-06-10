@@ -83,6 +83,7 @@ void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME(APandorasCharacterBase, CurrentWeapon);
 	DOREPLIFETIME(APandorasCharacterBase, CurrentHelmet);
 	DOREPLIFETIME(APandorasCharacterBase, CurrentArmor);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentGlove);
 	DOREPLIFETIME(APandorasCharacterBase, CurrentShoes);
 	DOREPLIFETIME(APandorasCharacterBase, bDead);
 	DOREPLIFETIME(APandorasCharacterBase, MontageData);

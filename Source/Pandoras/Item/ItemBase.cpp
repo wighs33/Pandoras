@@ -11,6 +11,8 @@ AItemBase::AItemBase()
 
     RootComponent = DefaultSceneRoot;
     SK_Item->SetupAttachment(DefaultSceneRoot);
+
+	bReplicates = true;
 }
 
 // 해당 메시의 스켈레톤에 딱맞게 부착
