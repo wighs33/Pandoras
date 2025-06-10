@@ -8,6 +8,8 @@
 #include "Common/Enums.h"
 #include "CharacterInterface.generated.h"
 
+class UBaseActorAttributes;
+
 // This class does not need to be modified.
 UINTERFACE(Blueprintable, BlueprintType)
 class UCharacterInterface : public UInterface
@@ -68,4 +70,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void SlowDown(float Rate = 0.2f, float Duration = 0.4f);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UBaseActorAttributes* GetBaseActorAttribute();
 };

@@ -7,6 +7,7 @@
 #include "InventoryMainWidget.generated.h"
 
 class UItemButtonWidget;
+class ULevelWidget;
 
 UCLASS()
 class PANDORAS_API UInventoryMainWidget : public UUserWidget
@@ -33,4 +34,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UItemButtonWidget> BTN_Bow;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<ULevelWidget> WDG_Level;
 };

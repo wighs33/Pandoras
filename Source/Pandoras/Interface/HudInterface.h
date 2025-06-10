@@ -45,4 +45,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void ShowTip(const FString& TipText, float DisplayTime = 2.0);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ShowCharacterLevel(float ShowDuration = 10.0f);
 };

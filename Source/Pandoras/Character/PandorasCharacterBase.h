@@ -194,12 +194,16 @@ protected:
 protected:
 	virtual void HealthChanged(const FOnAttributeChangeData& Data);
 	virtual void StaminaChanged(const FOnAttributeChangeData& Data);
+	virtual void XPPointsChanged(const FOnAttributeChangeData& Data);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
 	void UpdateHealth(const float NewHealth);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
 	void UpdateStamina(const float NewStamina);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	void UpdateXPPoints(const float NewXPPoints);
 
 // ¹ÌºÐ·ù
 protected:

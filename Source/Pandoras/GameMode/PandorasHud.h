@@ -14,6 +14,7 @@ class AInventoryRoom;
 class UInGameHudWidget;
 class UInventoryMainWidget;
 class UItemListWidget;
+class ULevelWidget;
 
 UCLASS()
 class PANDORAS_API APandorasHud : public AHUD, public IHudInterface
@@ -41,6 +42,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UItemListWidget> WDG_ItemList;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<ULevelWidget> WDG_CharacterLevel;
 
 protected:
 	//// 인터페이스 함수들 C++ 구현
