@@ -26,4 +26,8 @@ public:
 	// 배열에 아이템 클래스 저장
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void AddItemClass(TSubclassOf<UGA_Equip> itemAbility);
+
+	// 아이템들 한곳에 모아서 반환
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	TArray<TSubclassOf<UGA_Equip>> GetAllItemAbilities();
 };

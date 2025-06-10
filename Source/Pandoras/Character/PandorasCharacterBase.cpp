@@ -136,6 +136,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(ToggleCrouchAction, ETriggerEvent::Started, this, &APandorasCharacterBase::ToggleCrouch);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Sprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::Sprint);
+		EnhancedInputComponent->BindAction(QuickSaveAction, ETriggerEvent::Started, this, &APandorasCharacterBase::QuickSave);
 	}
 	else
 	{

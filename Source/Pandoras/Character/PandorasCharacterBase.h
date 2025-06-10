@@ -118,6 +118,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Sprint();
 
+	// 전력 질주 전환
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void QuickSave();
+
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
@@ -216,6 +220,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ClearItemAbilities(AActor* Item);
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void SaveCharacterData();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void LoadCharacterData();
 
 protected:
 	// 스프링암
@@ -273,6 +283,10 @@ protected:
 	// 전력 질주 전환 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* SprintAction;
+
+	// 전력 질주 전환 액션
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* QuickSaveAction;
 
 	// 기본 어트리뷰트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
@@ -342,8 +356,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	ECustomMovementMode OriginalMovementMode = ECustomMovementMode::Crouch;
 
-	// 몽타주 데이터
+	// 무기 타입
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_WeaponType, Category = "C++")
 	EItem WeaponType;
+
+	// 게임 저장 파일명
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	FString SaveSlot = TEXT("SV_Character");
 };
 
