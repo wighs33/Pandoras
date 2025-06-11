@@ -1,22 +1,23 @@
-// 아이템 버튼
+// 스킬 버튼 위젯
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ItemButtonWidget.generated.h"
+#include "Common/Structs.h"
+#include "SkillButtonWidget.generated.h"
 
 class UButton;
 class UImage;
 class UBorder;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemButtonClicked, int32, Index);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillButtonClicked, int32, Index);
 
 UCLASS()
-class PANDORAS_API UItemButtonWidget : public UUserWidget
+class PANDORAS_API USkillButtonWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -35,6 +36,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ToggleSelect(bool bSelected);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void MarkAsActivated();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ToggleSkillLocked(bool Lock);
 
 	UFUNCTION(BlueprintCallable, Category = "C++")
 	void CallOnClickDispatch(int32 Index) { OnClickDispatch.Broadcast(Index); }
@@ -62,6 +69,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	bool Selected;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	FSkill SkillData;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	bool SkillActivated;
+
+// 델리게이트
+protected:
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
-	FOnItemButtonClicked OnClickDispatch;
+	FOnSkillButtonClicked OnClickDispatch;
 };
