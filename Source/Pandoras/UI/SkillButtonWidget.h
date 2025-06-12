@@ -22,6 +22,9 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "C++")
+	void CallOnClickDispatch(int32 Index) { OnClickDispatch.Broadcast(Index); }
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnButtonClicked();
 
@@ -42,9 +45,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ToggleSkillLocked(bool Lock);
-
-	UFUNCTION(BlueprintCallable, Category = "C++")
-	void CallOnClickDispatch(int32 Index) { OnClickDispatch.Broadcast(Index); }
 
 // À§Á¬
 protected:

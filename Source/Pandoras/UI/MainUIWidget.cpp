@@ -1,13 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UI/MainUIWidget.h"
-#include "Components/WidgetSwitcher.h"
+#include "UI/TabButtonWidget.h"
+#include "Components/Button.h"
 
-//void UMainUIWidget::SwitchWidget(UUserWidget* wdg)
-//{
-//	if (WidgetSwitcher && wdg)
-//	{
-//		WidgetSwitcher->SetActiveWidget(wdg);
-//	}
-//}
+void UMainUIWidget::NativeConstruct()
+{
+    Super::NativeConstruct();
+
+    // 버튼 클릭 시점 바인딩
+    TabBtnMenu->OnTabButtonClicked.AddDynamic(this, &UMainUIWidget::OnTabBtnMenuClicked);
+    TabBtnSkills->OnTabButtonClicked.AddDynamic(this, &UMainUIWidget::OnTabBtnSkillsClicked);
+    TabBtnInventory->OnTabButtonClicked.AddDynamic(this, &UMainUIWidget::OnTabBtnInventoryClicked);
+    TabBtnMap->OnTabButtonClicked.AddDynamic(this, &UMainUIWidget::OnTabBtnMapClicked);
+}
