@@ -10,6 +10,7 @@ class UWidgetSwitcher;
 class UInGameHudWidget;
 class UInventoryMainWidget;
 class UItemListWidget;
+class USkillTreeWidget;
 
 UCLASS()
 class PANDORAS_API UMainUIWidget : public UUserWidget
@@ -33,6 +34,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UItemListWidget> WDG_ItemList;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USkillTreeWidget> WDG_SkillTree;
+
 public:
 	UFUNCTION(BlueprintPure, Category = "C++")
 	FORCEINLINE UInGameHudWidget* GetInGameHud() const { return WDG_InGameHud; }
@@ -42,6 +46,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "C++")
 	FORCEINLINE UItemListWidget* GetItemListUI() const { return WDG_ItemList; }
+
+	UFUNCTION(BlueprintPure, Category = "C++")
+	FORCEINLINE USkillTreeWidget* GetSkillTreeUI() const { return WDG_SkillTree; }
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")

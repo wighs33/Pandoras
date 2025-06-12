@@ -48,4 +48,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ShowCharacterLevel(float ShowDuration = 10.0f);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void SwitchToSkillMenu();
 };
