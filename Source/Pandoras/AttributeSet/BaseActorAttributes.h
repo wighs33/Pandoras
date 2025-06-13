@@ -34,6 +34,14 @@ public:
 	FGameplayAttributeData XPPoints;
 	ATTRIBUTE_ACCESSORS(UBaseActorAttributes, XPPoints);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_CharacterLevel, Category = "Base Actor Attributes")
+	FGameplayAttributeData CharacterLevel;
+	ATTRIBUTE_ACCESSORS(UBaseActorAttributes, CharacterLevel)
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_SkillPoints, Category = "Base Actor Attributes")
+	FGameplayAttributeData SkillPoints;
+	ATTRIBUTE_ACCESSORS(UBaseActorAttributes, SkillPoints);
+
 protected:
 	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -52,4 +60,10 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_XPPoints(const FGameplayAttributeData& OldXPPoints) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, XPPoints, OldXPPoints); }
+
+	UFUNCTION()
+	virtual void OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, CharacterLevel, OldCharacterLevel); }
+
+	UFUNCTION()
+	virtual void OnRep_SkillPoints(const FGameplayAttributeData& OldSkillPoints) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, SkillPoints, OldSkillPoints); }
 };

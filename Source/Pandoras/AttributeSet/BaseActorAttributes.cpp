@@ -14,6 +14,8 @@ void UBaseActorAttributes::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Defence, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, CharacterLevel, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, SkillPoints, COND_None, REPNOTIFY_Always);
 }
 
 void UBaseActorAttributes::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
