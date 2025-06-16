@@ -29,6 +29,7 @@ class UCharacterTrajectoryComponent;
 class UGameplayAbility;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMaxHealthUpdated);
 
 UCLASS(config=Game)
 class APandorasCharacterBase : 
@@ -195,6 +196,7 @@ protected:
 	virtual void HealthChanged(const FOnAttributeChangeData& Data);
 	virtual void StaminaChanged(const FOnAttributeChangeData& Data);
 	virtual void XPPointsChanged(const FOnAttributeChangeData& Data);
+	virtual void MaxHealthChanged(const FOnAttributeChangeData& Data);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
 	void UpdateHealth(const float NewHealth);
@@ -204,6 +206,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
 	void UpdateXPPoints(const float NewXPPoints);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	void UpdateMaxHealth(const float NewXPPoints);
+
+	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
+	void CallOnMaxHealthUpdated() { OnMaxHealthUpdated.Broadcast(); }
 
 // 미분류
 protected:
@@ -231,6 +239,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void LoadCharacterData();
 
+// 컴포넌트
 protected:
 	// 스프링암
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -239,7 +248,17 @@ protected:
 	// 카메라
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
+
+	// 게임 어빌리티 시스템 컴포넌트
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
+	// 추적
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UCharacterTrajectoryComponent> CharacterTrajectory;
+
+// 입력 액션
+protected:
 	// 매핑 컨텍스트
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -292,17 +311,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* QuickSaveAction;
 
+// 그 외 변수
+protected:
 	// 기본 어트리뷰트
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "C++")
 	TObjectPtr<const UBaseActorAttributes> BaseActorAttributes;
-
-	// 게임 어빌리티 시스템 컴포넌트
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-
-	// 게임 어빌리티 시스템 컴포넌트
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
-	TObjectPtr<UCharacterTrajectoryComponent> CharacterTrajectory;
 
 	// 무기
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Replicated, Category = "C++")
@@ -367,5 +380,10 @@ protected:
 	// 게임 저장 파일명
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	FString SaveSlot = TEXT("SV_Character");
+
+// 델리게이트
+protected:
+	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
+	FOnMaxHealthUpdated OnMaxHealthUpdated;
 };
 

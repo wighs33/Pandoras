@@ -33,6 +33,6 @@ void UBaseActorAttributes::PreAttributeChange(const FGameplayAttribute& Attribut
 			UE_LOG(LogTemp, Warning, TEXT("Defence : %f"), Def);
 			NewValue = Delta + Health.GetCurrentValue();
 		}
-		//NewValue = FMath::Clamp(NewValue, 0.f, MaxHealth.GetCurrentValue());
+		NewValue = FMath::Clamp(NewValue, 0.f, MaxHealth.GetCurrentValue());
 	}
 }

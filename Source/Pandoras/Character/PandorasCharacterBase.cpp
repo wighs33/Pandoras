@@ -72,6 +72,7 @@ void APandorasCharacterBase::PostInitializeComponents()
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetHealthAttribute()).AddUObject(this, &APandorasCharacterBase::HealthChanged);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetStaminaAttribute()).AddUObject(this, &APandorasCharacterBase::StaminaChanged);
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetXPPointsAttribute()).AddUObject(this, &APandorasCharacterBase::XPPointsChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetMaxHealthAttribute()).AddUObject(this, &APandorasCharacterBase::MaxHealthChanged);
 	}
 }
 
@@ -252,4 +253,10 @@ void APandorasCharacterBase::XPPointsChanged(const FOnAttributeChangeData& Data)
 {
 	float XPPoints = Data.NewValue;
 	UpdateXPPoints(XPPoints);
+}
+
+void APandorasCharacterBase::MaxHealthChanged(const FOnAttributeChangeData& Data)
+{
+	float MaxHealth = Data.NewValue;
+	UpdateMaxHealth(MaxHealth);
 }
