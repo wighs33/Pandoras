@@ -12,6 +12,7 @@ void UBaseActorAttributes::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	// COND_None : 조건없이 항상 복제
 	// REPNOTIFY_Always: 변경 여부 체크 없이 OnRep 함수 실행
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Health, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Defence, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, CharacterLevel, COND_None, REPNOTIFY_Always);

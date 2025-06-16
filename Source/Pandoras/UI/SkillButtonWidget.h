@@ -11,7 +11,7 @@ class UButton;
 class UImage;
 class UBorder;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillButtonClicked, int32, Index);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillButtonClicked);
 
 UCLASS()
 class PANDORAS_API USkillButtonWidget : public UUserWidget
@@ -23,7 +23,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "C++")
-	void CallOnClickDispatch(int32 Index) { OnClickDispatch.Broadcast(Index); }
+	void CallOnClickDispatch() { OnClickDispatch.Broadcast(); }
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnButtonClicked();
@@ -69,7 +69,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	bool Selected;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++", meta = (ExposeOnSpawn = "true"))
 	FSkill SkillData;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")

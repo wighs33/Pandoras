@@ -48,6 +48,8 @@ struct PANDORAS_API FPairedMontages
     TObjectPtr<UAnimMontage> Victim;
 };
 
+class UGA_Pandoras;
+
 USTRUCT(BlueprintType)
 struct PANDORAS_API FSkill : public FTableRowBase
 {
@@ -60,8 +62,14 @@ struct PANDORAS_API FSkill : public FTableRowBase
     int32 Level = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-	TSoftObjectPtr<UTexture2D> Texture = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(TEXT("/Script/Engine.Texture2D'/Game/BP/UI/Asset/Crest.Crest'")));
+	TObjectPtr<UTexture2D> Texture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	TArray<FName> Dependencies;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	int32 SkillPointCost = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	TSubclassOf<UGA_Pandoras> SkillGameplayAbility;
 };
