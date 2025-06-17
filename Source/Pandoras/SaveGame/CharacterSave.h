@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "AttributeSet.h"
 #include "CharacterSave.generated.h"
 
 class UGameplayAbility;
@@ -22,5 +23,9 @@ protected:
 	// 아이템 장착 어빌리티
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<TSubclassOf<UGA_Equip>> InvectoryItemAbilities;
+
+	// 저장된 어트리뷰트 수치 리스트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TMap<FGameplayAttribute, float> AttributeMap;
 
 };

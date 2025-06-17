@@ -213,6 +213,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
 	void CallOnMaxHealthUpdated() { OnMaxHealthUpdated.Broadcast(); }
 
+	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
+	void LoadAttributes(TMap<FGameplayAttribute, float> SavedAttributesMap);
+
 // 미분류
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
@@ -238,6 +241,9 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void LoadCharacterData();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void RefreshUI();
 
 // 컴포넌트
 protected:

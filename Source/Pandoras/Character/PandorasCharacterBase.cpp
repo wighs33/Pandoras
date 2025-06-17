@@ -260,3 +260,13 @@ void APandorasCharacterBase::MaxHealthChanged(const FOnAttributeChangeData& Data
 	float MaxHealth = Data.NewValue;
 	UpdateMaxHealth(MaxHealth);
 }
+
+void APandorasCharacterBase::LoadAttributes(TMap<FGameplayAttribute, float> SavedAttributesMap)
+{
+	for (const TPair<FGameplayAttribute, float>& Pair : SavedAttributesMap)
+	{
+		FGameplayAttribute Attribute = Pair.Key;
+		float Value = Pair.Value;
+		AbilitySystemComponent->ApplyModToAttribute(Attribute, EGameplayModOp::Override, Value);
+	}
+}
