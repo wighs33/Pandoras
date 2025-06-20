@@ -81,13 +81,16 @@ Plugins/**/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
+Content/AnimCharacter/*
 Content/Audio/*
 Content/Effects/*
+Content/Fab/*
 Content/Free_Sounds_Pack/*
 Content/Greatsword_Anims/*
 Content/InfinityBladeWeapons/*
 Content/LevelPrototyping/*
 Content/Meshes/*
+Content/MetaHumans/*
 Content/MWLandscapeAutoMaterial/*
 Content/PN_interactiveSpruceForest/*
 Content/StarterContent/*
@@ -96,3 +99,4 @@ Content/Sword_Animation/*
 Content/SwordAndShield/*
 Content/SwordVFX/*
 Content/VFX/*
+Plugins/VRM4U/*
