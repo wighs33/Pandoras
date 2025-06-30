@@ -8,6 +8,8 @@
 
 class UVerticalBox;
 class USkillButtonWidget;
+class USkillDetailsPanelWidget;
+class USkillTreeLinesWidget;
 
 UCLASS()
 class PANDORAS_API USkillTreeWidget : public UUserWidget
@@ -24,6 +26,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void RefreshSkillTree();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ShowSkillDetails(USkillButtonWidget* SkillButton);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ClickedShowSkillDetails(USkillButtonWidget* SkillButton);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void PeekSkillDetails(USkillButtonWidget* SkillButton, bool Hovering);
+
 // 위젯
 protected:
 	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
@@ -38,6 +49,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UVerticalBox> VBSkillTree3;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USkillDetailsPanelWidget> WDG_SkillDetailsPanel;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<USkillTreeLinesWidget> WDG_SkillTreeLines;
 
 // 변수
 protected:

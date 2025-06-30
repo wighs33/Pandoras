@@ -11,7 +11,8 @@ class UButton;
 class UImage;
 class UBorder;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillButtonClicked);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillButtonClicked, USkillButtonWidget*, SkillButton);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHoverButtonClicked, USkillButtonWidget*, SkillButton, bool, Hovering);
 
 UCLASS()
 class PANDORAS_API USkillButtonWidget : public UUserWidget
@@ -23,7 +24,10 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "C++")
-	void CallOnClickDispatch() { OnClickDispatch.Broadcast(); }
+	void CallOnClickDispatch() { OnClickDispatch.Broadcast(this); }
+
+	UFUNCTION(BlueprintCallable, Category = "C++")
+	void CallOnHoverDispatch(bool Hovering) { OnHoverDispatch.Broadcast(this, Hovering); }
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnButtonClicked();
@@ -53,7 +57,7 @@ protected:
 	TObjectPtr<UButton> Button;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UImage> BorderImage;
+	TObjectPtr<UImage> FrameImage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UBorder> Border;
@@ -75,8 +79,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	bool SkillActivated;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
+	bool Locked;
+
 // µ®∏Æ∞‘¿Ã∆Æ
 protected:
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
 	FOnSkillButtonClicked OnClickDispatch;
+
+	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
+	FOnHoverButtonClicked OnHoverDispatch;
 };

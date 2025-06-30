@@ -27,10 +27,10 @@ protected:
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void EnterInventoryMode();
+	void EnterPauseMode();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void ExitInventoryMode();
+	void ExitPauseMode();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ChangeFocusPoint(ECharacterFocusPoint focus_point);
@@ -94,7 +94,7 @@ private:
 
 	// 인벤토리 열려있는 지 체크하는 플래그
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	bool bInventoryOpen = false;
+	bool bInPauseMode = false;
 
 	// 인게임에서 메시와 캐릭터의 상대적인 위치
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))

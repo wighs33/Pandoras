@@ -72,4 +72,7 @@ struct PANDORAS_API FSkill : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	TSubclassOf<UGA_Pandoras> SkillGameplayAbility;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+    FText SkillDescription = FText::FromString(TEXT("Description"));
 };
