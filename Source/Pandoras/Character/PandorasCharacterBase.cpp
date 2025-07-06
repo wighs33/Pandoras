@@ -146,7 +146,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	}
 }
 
-void APandorasCharacterBase::Move(const FInputActionValue& Value)
+void APandorasCharacterBase::Move_Implementation(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();

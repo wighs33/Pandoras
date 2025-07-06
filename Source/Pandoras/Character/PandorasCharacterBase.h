@@ -74,6 +74,7 @@ public:
 // 액션
 protected:
 	// 이동
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Move(const FInputActionValue& Value);
 
 	// 시선
