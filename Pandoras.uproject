@@ -54,7 +54,7 @@
 		},
 		{
 			"Name": "VRM4U",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "LiveLinkControlRig",
