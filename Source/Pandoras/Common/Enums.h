@@ -47,3 +47,14 @@ enum class ECustomMovementMode : uint8
     Run UMETA(DisplayName = "Run"),
     Sprint UMETA(DisplayName = "Sprint"),
 };
+
+// 이동 모드
+UENUM(BlueprintType)
+enum class EPandoraType : uint8
+{
+    None UMETA(DisplayName = "None"),
+    Lightening UMETA(DisplayName = "Lightening"),
+    Fire UMETA(DisplayName = "Fire"),
+    Water UMETA(DisplayName = "Water"),
+    Ground UMETA(DisplayName = "Ground")
+};
