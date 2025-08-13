@@ -115,6 +115,9 @@ struct PANDORAS_API FWeaponProperties
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
     TSoftClassPtr<UGameplayEffect> GEStun;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+    TMap<FString, int> WeaponStats;
 };
 
 class UGameplayAbility;

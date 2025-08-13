@@ -11,6 +11,7 @@ class UButton;
 class UUniformGridPanel;
 class UItemButtonWidget;
 class AItemBase;
+class UItemDetailsPanel;
 
 UCLASS()
 class PANDORAS_API UItemListWidget : public UUserWidget
@@ -33,6 +34,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
 	bool IsAlreadyEquipped(TSubclassOf<UGA_Equip> EquipGA);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void PeekItemDetails(UItemButtonWidget* InItemButton, bool Hovered);
+
 	// 위젯
 protected:
 	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
@@ -41,6 +45,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UUniformGridPanel> ItemPanel;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UItemDetailsPanel> WDG_ItemDetailsPanel;
 
 	// 변수
 protected:
@@ -58,4 +65,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	TSubclassOf<UGA_Equip> Selected_GA_Equip;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UDataTable> DT_ItemTable;
 };

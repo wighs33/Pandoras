@@ -4,24 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "SkillDetailsPanelWidget.generated.h"
+#include "ItemDetailsPanel.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActivateSkillButtonClick);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActivateItemButtonClick);
 
 UCLASS()
-class PANDORAS_API USkillDetailsPanelWidget : public UUserWidget
+class PANDORAS_API UItemDetailsPanel : public UUserWidget
 {
 	GENERATED_BODY()
 
-public:
+	public:
 	UFUNCTION(BlueprintCallable, Category = "C++")
 	void CallOnActivateButtonClick() { OnActivateButtonClick.Broadcast(); }
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void InitializeData(USkillButtonWidget* SkillButton);
+	void InitializeData(UItemButtonWidget* ItemButton);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Hide();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void InitializeStats();
 
 // 변수
 protected:
@@ -31,5 +34,5 @@ protected:
 // 델리게이트
 protected:
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
-	FOnActivateSkillButtonClick OnActivateButtonClick;
+	FOnActivateItemButtonClick OnActivateButtonClick;
 };
