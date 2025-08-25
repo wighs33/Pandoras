@@ -51,4 +51,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void SwitchToSkillMenu();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	bool CheckActiveWidgetIsHudOrInventory();
 };

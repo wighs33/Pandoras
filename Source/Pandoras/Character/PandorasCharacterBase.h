@@ -216,7 +216,7 @@ protected:
 	void UpdateXPPoints(const float NewXPPoints);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
-	void UpdateMaxHealth(const float NewXPPoints);
+	void UpdateMaxHealth(const float NewMaxHealth);
 
 	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
 	void CallOnMaxHealthUpdated() { OnMaxHealthUpdated.Broadcast(); }
