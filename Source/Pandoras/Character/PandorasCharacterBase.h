@@ -151,46 +151,53 @@ protected:
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void DestroyItem_Server(EItem ItemType);
+	void DestroyItem_Server_Implementation(EItem ItemType);
+	bool DestroyItem_Server_Validate(EItem ItemType);
 	// 게임 완성 전엔 임시로 블루르린트에서 진행
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_DestroyItem_Server(EItem ItemType);
 	// 선언만 .h에 정의는 무조건 .cpp에서 진행
-	bool DestroyItem_Server_Validate(EItem ItemType);
-	void DestroyItem_Server_Implementation(EItem ItemType);
 
     UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
     void DestroyItem_Multicast(EItem ItemType);
+	void DestroyItem_Multicast_Implementation(EItem ItemType);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_DestroyItem_Multicast(EItem ItemType);
-	void DestroyItem_Multicast_Implementation(EItem ItemType);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
+	void ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass);
+	bool ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
-	bool ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass);
-	void ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
+	void ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags);
+	bool ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
-	bool ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags);
-	void ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void SetMovementMode_Server(ECustomMovementMode NewMovementMode);
+	void SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode);
+	bool SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_SetMovementMode_Server(ECustomMovementMode NewMovementMode);
-	bool SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode);
-	void SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void GiveAndActivateAbility_Server(TSubclassOf<UGameplayAbility> Ability);
+	void GiveAndActivateAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability);
+	bool GiveAndActivateAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_GiveAndActivateAbility_Server(TSubclassOf<UGameplayAbility> Ability);	
-	bool GiveAndActivateAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability);
-	void GiveAndActivateAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability);
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
+	void OnlyGiveAbility_Server(TSubclassOf<UGameplayAbility> Ability);
+	void OnlyGiveAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability);
+	bool OnlyGiveAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_OnlyGiveAbility_Server(TSubclassOf<UGameplayAbility> Ability);
 
 // 어트리뷰트
 protected:

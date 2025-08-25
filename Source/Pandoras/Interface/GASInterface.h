@@ -20,4 +20,10 @@ class PANDORAS_API IGASInterface
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void GiveAndActivateAbility_Replicate(TSubclassOf<UGameplayAbility> Ability);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void OnlyGiveAbility_Replicate(TSubclassOf<UGameplayAbility> Ability);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void ApplyGameplayEffect_Replicate(TSubclassOf<UGameplayEffect> GameplayEffect);
 };

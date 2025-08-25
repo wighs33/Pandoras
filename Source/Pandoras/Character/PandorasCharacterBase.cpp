@@ -237,6 +237,16 @@ void APandorasCharacterBase::GiveAndActivateAbility_Server_Implementation(TSubcl
 	BP_GiveAndActivateAbility_Server(Ability);
 }
 
+bool APandorasCharacterBase::OnlyGiveAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability)
+{
+	return true;
+}
+
+void APandorasCharacterBase::OnlyGiveAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability)
+{
+	BP_OnlyGiveAbility_Server(Ability);
+}
+
 void APandorasCharacterBase::HealthChanged(const FOnAttributeChangeData& Data)
 {
 	float Health = Data.NewValue;
