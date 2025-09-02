@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "PandorasCharacterBase.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
@@ -11,11 +9,15 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
+#include "AbilitySystemComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "CharacterTrajectoryComponent.h"
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
-//////////////////////////////////////////////////////////////////////////
-// APandorasCharacterBase
-
+// 생성자
+// Skeletal Mesh 및 애니메이션 블루프린트 참조는 블루프린트에서 설정
+// 어빌리티 시스템 컴포넌트 생성, 리플리케이션 허용
 APandorasCharacterBase::APandorasCharacterBase()
 {
 	// Set size for collision capsule
@@ -50,9 +52,47 @@ APandorasCharacterBase::APandorasCharacterBase()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbiliitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	// AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal); 
+
+	CharacterTrajectory = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("CharacterTrajectory"));
 }
+
+// 컴포넌트 초기화 직후
+// ASC의 어트리뷰트 세트 설정
+void APandorasCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (IsValid(AbilitySystemComponent))
+	{
+		BaseActorAttributes = AbilitySystemComponent->GetSet<UBaseActorAttributes>();
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetHealthAttribute()).AddUObject(this, &APandorasCharacterBase::HealthChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetStaminaAttribute()).AddUObject(this, &APandorasCharacterBase::StaminaChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetXPPointsAttribute()).AddUObject(this, &APandorasCharacterBase::XPPointsChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(BaseActorAttributes->GetMaxHealthAttribute()).AddUObject(this, &APandorasCharacterBase::MaxHealthChanged);
+	}
+}
+
+// 이 클래스가 네트워크에 올라가는 시점에 호출
+void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// ItemClasses 변수를 복제 목록에 추가
+	DOREPLIFETIME(APandorasCharacterBase, CurrentWeapon);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentHelmet);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentArmor);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentGlove);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentShoes);
+	DOREPLIFETIME(APandorasCharacterBase, bDead);
+	DOREPLIFETIME(APandorasCharacterBase, MontageData);
+	DOREPLIFETIME(APandorasCharacterBase, WeaponType);
+	DOREPLIFETIME(APandorasCharacterBase, CurrentMovementMode);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -85,6 +125,20 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APandorasCharacterBase::Look);
+
+		// Custom
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Attack);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::StopAttack);
+		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &APandorasCharacterBase::LockOn);
+		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Block);
+		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::StopBlocking);
+		EnhancedInputComponent->BindAction(FinishAttackAction, ETriggerEvent::Started, this, &APandorasCharacterBase::FinishAttack);
+		EnhancedInputComponent->BindAction(EvadeAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Evade);
+		EnhancedInputComponent->BindAction(ToggleWalkAction, ETriggerEvent::Started, this, &APandorasCharacterBase::ToggleWalk);
+		EnhancedInputComponent->BindAction(ToggleCrouchAction, ETriggerEvent::Started, this, &APandorasCharacterBase::ToggleCrouch);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Sprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::Sprint);
+		EnhancedInputComponent->BindAction(QuickSaveAction, ETriggerEvent::Started, this, &APandorasCharacterBase::QuickSave);
 	}
 	else
 	{
@@ -92,7 +146,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	}
 }
 
-void APandorasCharacterBase::Move(const FInputActionValue& Value)
+void APandorasCharacterBase::Move_Implementation(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -125,5 +179,104 @@ void APandorasCharacterBase::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+bool APandorasCharacterBase::DestroyItem_Server_Validate(EItem ItemType)
+{
+	return true;
+}
+
+void APandorasCharacterBase::DestroyItem_Server_Implementation(EItem ItemType)
+{
+	BP_DestroyItem_Server(ItemType);
+}
+
+void APandorasCharacterBase::DestroyItem_Multicast_Implementation(EItem ItemType)
+{
+	BP_DestroyItem_Multicast(ItemType);
+}
+
+bool APandorasCharacterBase::ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	return true;
+}
+
+void APandorasCharacterBase::ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	BP_ApplyGameplayEffect_Server(GameplayEffectClass);
+}
+
+bool APandorasCharacterBase::ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags)
+{
+	return true;
+}
+
+void APandorasCharacterBase::ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags)
+{
+	BP_ClearGameplayEffect_Server(GameplayTags);
+}
+
+bool APandorasCharacterBase::SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode)
+{
+	return true;
+}
+
+void APandorasCharacterBase::SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode)
+{
+	BP_SetMovementMode_Server(NewMovementMode);
+}
+
+bool APandorasCharacterBase::GiveAndActivateAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability)
+{
+	return true;
+}
+
+void APandorasCharacterBase::GiveAndActivateAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability)
+{
+	BP_GiveAndActivateAbility_Server(Ability);
+}
+
+bool APandorasCharacterBase::OnlyGiveAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability)
+{
+	return true;
+}
+
+void APandorasCharacterBase::OnlyGiveAbility_Server_Implementation(TSubclassOf<UGameplayAbility> Ability)
+{
+	BP_OnlyGiveAbility_Server(Ability);
+}
+
+void APandorasCharacterBase::HealthChanged(const FOnAttributeChangeData& Data)
+{
+	float Health = Data.NewValue;
+	UpdateHealth(Health);
+}
+
+void APandorasCharacterBase::StaminaChanged(const FOnAttributeChangeData& Data)
+{
+	float Stamina = Data.NewValue;
+	UpdateStamina(Stamina);
+}
+
+void APandorasCharacterBase::XPPointsChanged(const FOnAttributeChangeData& Data)
+{
+	float XPPoints = Data.NewValue;
+	UpdateXPPoints(XPPoints);
+}
+
+void APandorasCharacterBase::MaxHealthChanged(const FOnAttributeChangeData& Data)
+{
+	float MaxHealth = Data.NewValue;
+	UpdateMaxHealth(MaxHealth);
+}
+
+void APandorasCharacterBase::LoadAttributes(TMap<FGameplayAttribute, float> SavedAttributesMap)
+{
+	for (const TPair<FGameplayAttribute, float>& Pair : SavedAttributesMap)
+	{
+		FGameplayAttribute Attribute = Pair.Key;
+		float Value = Pair.Value;
+		AbilitySystemComponent->ApplyModToAttribute(Attribute, EGameplayModOp::Override, Value);
 	}
 }

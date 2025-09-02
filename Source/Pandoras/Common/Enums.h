@@ -1,15 +1,60 @@
 // Common/Enums.h
+// 열거형 모음
 
 #pragma once
 
 #include "CoreMinimal.h"
 
+// 캐릭터 전신 중 포커싱 부분
 UENUM(BlueprintType)
 enum class ECharacterFocusPoint : uint8
 {
     Main UMETA(DisplayName = "Main"),
     Weapon UMETA(DisplayName = "Weapon"),
     Head UMETA(DisplayName = "Head"),
-    Center UMETA(DisplayName = "Center"),
+    Hands UMETA(DisplayName = "Hands"),
     Feet UMETA(DisplayName = "Feet"),
+};
+
+// 아이템
+UENUM(BlueprintType)
+enum class EItem : uint8
+{
+    UnArmed UMETA(DisplayName = "UnArmed"),
+    Sword UMETA(DisplayName = "Sword"),
+    GreatSword UMETA(DisplayName = "GreatSword"),
+    Bow UMETA(DisplayName = "Bow"),
+    Helmet UMETA(DisplayName = "Helmet"),
+    Armor UMETA(DisplayName = "Armor"),
+    Glove UMETA(DisplayName = "Glove"),
+    Shoes UMETA(DisplayName = "Shoes"),
+};
+
+// 공격 중 검 위치
+UENUM(BlueprintType)
+enum class EAttackState : uint8
+{
+    Right UMETA(DisplayName = "Right"),
+    Left UMETA(DisplayName = "Left")
+};
+
+// 이동 모드
+UENUM(BlueprintType)
+enum class ECustomMovementMode : uint8
+{
+    Crouch UMETA(DisplayName = "Crouch"),
+    Walk UMETA(DisplayName = "Walk"),
+    Run UMETA(DisplayName = "Run"),
+    Sprint UMETA(DisplayName = "Sprint"),
+};
+
+// 이동 모드
+UENUM(BlueprintType)
+enum class EPandoraType : uint8
+{
+    None UMETA(DisplayName = "None"),
+    Lightening UMETA(DisplayName = "Lightening"),
+    Fire UMETA(DisplayName = "Fire"),
+    Water UMETA(DisplayName = "Water"),
+    Ground UMETA(DisplayName = "Ground")
 };

@@ -1,23 +1,26 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Room/InventoryRoom.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "EnhancedInputComponent.h"
-#include "GameMode/PandorasHud.h"
+#include "GameFramework/HUD.h"
+#include "Interface/HudInterface.h"
 
-// Sets default values
+// 컴포넌트들을 생성하고 계층정립, 세부 설정은 에디터에서 처리
 AInventoryRoom::AInventoryRoom()
 {
     DefaultSceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultSceneRoot"));
     MainSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Main"));
     WeaponSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Weapon"));
+    HeadSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Head"));
+    HandSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Hand"));
+    FootSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SP_Foot"));
     DomeMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Dome"));
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+    RotateCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RotateCapsule"));
     PlayerPosition = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerPosition"));
 
     RootComponent = DefaultSceneRoot;
@@ -25,110 +28,187 @@ AInventoryRoom::AInventoryRoom()
     PlayerPosition->SetupAttachment(DefaultSceneRoot);
     MainSpringArm->SetupAttachment(PlayerPosition);
     WeaponSpringArm->SetupAttachment(PlayerPosition);
+    HeadSpringArm->SetupAttachment(PlayerPosition);
+    HandSpringArm->SetupAttachment(PlayerPosition);
+    FootSpringArm->SetupAttachment(PlayerPosition);
     Camera->SetupAttachment(MainSpringArm);
+    RotateCapsule->SetupAttachment(Camera);
 }
 
-// Called when the game starts or when spawned
-void AInventoryRoom::BeginPlay()
+void AInventoryRoom::PostInitializeComponents()
 {
-    Super::BeginPlay();
+    Super::PostInitializeComponents();
 
-    APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-    if (PC)
-    {
-        // 입력 활성화
-        EnableInput(PC);
-    }
+    // 캡슐 클릭 시점 바인딩
+    RotateCapsule->OnClicked.AddDynamic(this, &AInventoryRoom::OnCapsuleClicked);
+    RotateCapsule->OnReleased.AddDynamic(this, &AInventoryRoom::OnCapsuleReleased);
 }
 
-void AInventoryRoom::EnterInventoryMode()
-{
-    Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-    if (!Player) return;
-    APlayerController* pc = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-    if (!pc) return;
-
-    // 플레이어의 입력 비활성화하고 클릭 이벤트 켜기
-    Player->DisableInput(pc);
-    pc->bEnableClickEvents = true;
-
-    bInventoryOpen = true;
-
-    USkeletalMeshComponent* player_mesh = Player->GetMesh();
-    FTransform player_scene_transform = PlayerPosition->GetComponentTransform();
-    FVector loc = player_scene_transform.GetLocation();
-    FRotator rot = player_scene_transform.GetRotation().Rotator();
-
-    // 컴포넌트의 원래 위치와 옮긴 후의 위치 저장
-    MeshRelativeTransformOrigin = player_mesh->GetRelativeTransform();
-    player_mesh->SetWorldLocationAndRotation(loc, rot);
-    MeshRelativeTransformInventory = player_mesh->GetRelativeTransform();
-
-    pc->SetViewTargetWithBlend(this);
-
-    APandorasHud* hud = CastChecked<APandorasHud>(pc->GetHUD());
-    hud->SwitchToInventory(true, this);
-    hud->ToggleUIInput(true);
-}
-
-void AInventoryRoom::ExitInventoryMode()
-{
-    if (!Player) return;
-    APlayerController* pc = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-    if (!pc) return;
-
-    USkeletalMeshComponent* PlayerMesh = Player->GetMesh();
-    PlayerMesh->SetRelativeLocationAndRotation(MeshRelativeTransformOrigin.GetLocation(), MeshRelativeTransformOrigin.GetRotation().Rotator());
-
-    Player->EnableInput(pc);
-    pc->SetViewTargetWithBlend(Player);
-
-    bInventoryOpen = false;
-
-    APandorasHud* hud = CastChecked<APandorasHud>(pc->GetHUD());
-    hud->SwitchToInventory(false, this);
-    hud->ToggleUIInput(false);
-}
-
-void AInventoryRoom::ChangeFocusPoint(ECharacterFocusPoint focus_point)
-{
-    USpringArmComponent* comp_to_attach = nullptr;
-
-    if (focus_point == ECharacterFocusPoint::Main)
-    {
-        comp_to_attach = MainSpringArm;
-    }
-    else if (focus_point == ECharacterFocusPoint::Weapon)
-    {
-        comp_to_attach = WeaponSpringArm;
-    }
-
-    if (!comp_to_attach) return;
-
-    FAttachmentTransformRules AttachmentRules(
-        EAttachmentRule::KeepWorld,  // 위치 규칙
-        EAttachmentRule::KeepWorld,  // 회전 규칙
-        EAttachmentRule::KeepWorld,  // 스케일 규칙
-        true                         // WeldSimulatedBodies 옵션
-    );
-
-    Camera->AttachToComponent(comp_to_attach, AttachmentRules);
-
-    FLatentActionInfo latent_info;
-    latent_info.CallbackTarget = this; // 현재 액터를 콜백 대상
-    latent_info.ExecutionFunction = FName("OnCameraMoveFinished"); // 이동 완료 후 호출될 함수 이름
-    latent_info.UUID = 1; // 고유 식별자 (여러 액션이 있을 경우 서로 달라야 함)
-    latent_info.Linkage = 0;
-
-    UKismetSystemLibrary::MoveComponentTo(
-        Camera,
-        FVector(0.f, 0.f, 0.f),
-        FRotator(0.f, 0.f, 0.f),
-        true,
-        false,
-        0.4f,
-        false,
-        EMoveComponentAction::Move,
-        latent_info
-    );
-}
+//// 플레이 시작 시 플레이어 컨트롤러의 입력 활성화
+//void AInventoryRoom::BeginPlay()
+//{
+//    Super::BeginPlay();
+//
+//    APlayerController* player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+//    if (player_controller)
+//    {
+//        // 입력 활성화
+//        EnableInput(player_controller);
+//    }
+//}
+//
+//// 인벤토리에 입장
+//// 인벤토리에 입장한 [플레이어의 캐릭터]는 입력이 비활성화되고 컨트롤러의 [클릭 이벤트]가 활성화 된다.
+//// [인벤토리 오픈 상태] true
+//// 캐릭터의 위치는 그대로 유지 하며 컴포넌트의 위치만 [인벤토리 내 씬 컴포넌트]의 위치로 이동하고 이동 전/후의 [상대 트랜스폼]을 둘다 저장
+//// [플레이어 컨트롤러의 뷰타겟]은 [캐릭터 카메라]에서 [인벤토리의 카메라]로 이동
+//// HUD를 통해 인벤토리 UI를 화면에 띄우고 UI 입력을 활성화
+//void AInventoryRoom::EnterInventoryMode()
+//{
+//    PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+//    if (!PlayerCharacter) return;
+//    APlayerController* player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+//    if (!player_controller) return;
+//
+//    PlayerCharacter->DisableInput(player_controller);
+//    player_controller->bEnableClickEvents = true;
+//
+//    bInventoryOpen = true;
+//
+//    USkeletalMeshComponent* player_mesh = PlayerCharacter->GetMesh();
+//    FTransform scene_transform = PlayerPosition->GetComponentTransform();
+//    FVector scene_loc = scene_transform.GetLocation();
+//    FRotator scene_rot = scene_transform.GetRotation().Rotator();
+//
+//    MeshRelativeTransformOrigin = player_mesh->GetRelativeTransform();
+//    player_mesh->SetWorldLocationAndRotation(scene_loc, scene_rot);
+//    MeshRelativeTransformInventory = player_mesh->GetRelativeTransform();
+//
+//    player_controller->SetViewTargetWithBlend(this);
+//
+//    //player_controller->GetHUD()->bLostFocusPaused = true;
+//
+//    IHudInterface* hud = CastChecked<IHudInterface>(player_controller->GetHUD());
+//    hud->SwitchToInventoryUI(this);
+//    hud->ToggleUIInput(true);
+//}
+//
+//// 인벤토리에서 퇴장
+//// [플레이어 캐릭터]의 메시를 원래 맵에 있던 위치로 이동
+//// [플레이어 캐릭터]의 입력 다시 활성화하고 뷰타겟을 [캐릭터의 카메라]로 복귀
+//// [인벤토리 오픈 상태] false
+//// HUD를 통해 인벤토리 UI를 화면에서 제거하고 UI 입력을 비활성화
+//// 컨트롤러의 [클릭 이벤트]가 비활성화
+//void AInventoryRoom::ExitInventoryMode()
+//{
+//    if (!PlayerCharacter) return;
+//    APlayerController* player_controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+//    if (!player_controller) return;
+//
+//    USkeletalMeshComponent* player_mesh = PlayerCharacter->GetMesh();
+//    FVector orgin_loc = MeshRelativeTransformOrigin.GetLocation();
+//    FRotator orgin_rot = MeshRelativeTransformOrigin.GetRotation().Rotator();
+//    player_mesh->SetRelativeLocationAndRotation(orgin_loc, orgin_rot);
+//
+//    PlayerCharacter->EnableInput(player_controller);
+//    player_controller->SetViewTargetWithBlend(PlayerCharacter);
+//
+//    bInventoryOpen = false;
+//
+//	IHudInterface* hud = CastChecked<IHudInterface>(player_controller->GetHUD());
+//    hud->SwitchToInGameHud();
+//	hud->ToggleUIInput(false);
+//
+//    player_controller->bEnableClickEvents = false;
+//}
+//
+//// 카메라 포커싱 변경
+//// [포커싱 키워드]에 따라 스프링암 전환
+//// 스프링암에 KeepWorld 규칙으로 카메라 부착
+//// 카메라를 원래 위치에서 [스프링암의 부착 원점]으로 0.4초동안 자연스럽게 이동
+//void AInventoryRoom::ChangeFocusPoint(ECharacterFocusPoint focus_point)
+//{
+//    ResetMeshRotation();
+//
+//    USpringArmComponent* current_sp_arm = nullptr;
+//
+//    if (focus_point == ECharacterFocusPoint::Main)
+//    {
+//        current_sp_arm = MainSpringArm;
+//    }
+//    else if (focus_point == ECharacterFocusPoint::Weapon)
+//    {
+//        current_sp_arm = WeaponSpringArm;
+//    }
+//
+//    if (!current_sp_arm) return;
+//
+//    FAttachmentTransformRules AttachmentRules(
+//        EAttachmentRule::KeepWorld,  // 위치 규칙
+//        EAttachmentRule::KeepWorld,  // 회전 규칙
+//        EAttachmentRule::KeepWorld,  // 스케일 규칙
+//        true                         // WeldSimulatedBodies 옵션
+//    );
+//
+//    Camera->AttachToComponent(current_sp_arm, AttachmentRules);
+//
+//    FLatentActionInfo latent_info(
+//        __LINE__,       /* Linkage */
+//        __LINE__,              /* UUID */
+//        TEXT(__FUNCTION__), /* ExecutionFunction */
+//        this            /* CallbackTarget */
+//    );
+//
+//    UKismetSystemLibrary::MoveComponentTo(
+//        Camera,
+//        FVector(0.f, 0.f, 0.f),
+//        FRotator(0.f, 0.f, 0.f),
+//        true,
+//        false,
+//        0.4f,
+//        false,
+//        EMoveComponentAction::Move,
+//        latent_info
+//    );
+//}
+//
+//// 캡슐을 마우스로 누르고 있을 때
+//void AInventoryRoom::OnCapsuleClicked(UPrimitiveComponent* ClickedComp, FKey ButtonPressed)
+//{
+//    bMeshRotating = true;
+//}
+//
+//// 캡슐을 눌렀던 걸 뗄 때
+//void AInventoryRoom::OnCapsuleReleased(UPrimitiveComponent* ClickedComp, FKey ButtonPressed)
+//{
+//    bMeshRotating = false;
+//}
+//
+//void AInventoryRoom::ResetMeshRotation()
+//{
+//    if (!bInventoryOpen) return;
+//
+//    if (!ensure(PlayerCharacter)) return;
+//    USkeletalMeshComponent* player_mesh = PlayerCharacter->GetMesh();
+//    FVector inventory_loc = MeshRelativeTransformInventory.GetLocation();
+//    FRotator inventory_rot = MeshRelativeTransformInventory.GetRotation().Rotator();
+//
+//    FLatentActionInfo latent_info(
+//        __LINE__,       /* Linkage */
+//        __LINE__,              /* UUID */
+//        TEXT(__FUNCTION__), /* ExecutionFunction */
+//        this            /* CallbackTarget */
+//    );
+//
+//    UKismetSystemLibrary::MoveComponentTo(
+//        player_mesh,
+//        inventory_loc,
+//        inventory_rot,
+//        true,
+//        true,
+//        0.8f,
+//        false,
+//        EMoveComponentAction::Move,
+//        latent_info
+//    );
+//}

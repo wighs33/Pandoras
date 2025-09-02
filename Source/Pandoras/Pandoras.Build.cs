@@ -10,6 +10,20 @@ public class Pandoras : ModuleRules
 
         PublicIncludePaths.AddRange(new string[] { "Pandoras" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		// 게임 플레이 어빌리티 관련 모듈 추가
+        PublicDependencyModuleNames.AddRange(new string[] { 
+			"GameplayAbilities", 
+			"GameplayTags", 
+			"GameplayTasks", 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput", 
+			"MotionTrajectory", 
+			"NavigationSystem", 
+			"AIModule",
+            "Niagara"
+        });
 	}
 }
