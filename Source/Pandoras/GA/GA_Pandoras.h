@@ -16,8 +16,6 @@ class PANDORAS_API UGA_Pandoras : public UGameplayAbility
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tags);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_ActivateAbilityOnServer(AActor* TargetActor, FGameplayTagContainer Tags);
 
 protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "C++")

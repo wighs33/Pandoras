@@ -22,15 +22,14 @@ void UGA_Pandoras::ActivateAbilityOnServer_Implementation(AActor* TargetActor, F
 {
     if (!ensure(TargetActor)) return;
 
-    // 1) TargetActor로부터 Ability System Component 가져오기
+    // TargetActor로부터 ASC 가져오기
     UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
     if (!ensure(ASC)) return;
 
-    // 2) 받은 태그 컨테이너를 이용해 TryActivateAbilitiesByTag 호출
-    //    bAllowRemoteActivation을 true로 하면, 서버가 활성화 요청 시 클라이언트에서도 원격으로 활성화될 수 있습니다.
-    bool bActivatedAny = ASC->TryActivateAbilitiesByTag(
-        Tags,           // 블루프린트 노드의 “GameplayTagContainer” 출력값과 동일
-        true            // bAllowRemoteActivation = true
+    // 받은 태그 컨테이너를 이용해 어빌리티 활성화
+    ASC->TryActivateAbilitiesByTag(
+        Tags,
+        true            // 클라이언트에서도 원격으로 활성화
     );
 }
 
@@ -120,7 +119,7 @@ void UGA_Pandoras::GetClosestEnemy_Implementation(AActor*& ClosestEnemy, bool& b
 			const double DistToRight = FVector::Dist(OtherLoc, RightPoint);
 			const double DistToLeft = FVector::Dist(OtherLoc, LeftPoint);
 
-			// 블루프린트와 동일: (DistToRight - DistToLeft) > -10 → true=왼쪽, false=오른쪽
+			// true=왼쪽, false=오른쪽
 			BestIsLeft = ((DistToRight - DistToLeft) > -10.0);
 		}
 	}
