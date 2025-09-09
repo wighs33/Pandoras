@@ -23,6 +23,9 @@ public:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
 	
+    UFUNCTION(BlueprintPure, Category="C++")
+    TSubclassOf<AItemBase> GetItemClass() const { return ItemClass; }
+
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TSubclassOf<AItemBase> ItemClass;

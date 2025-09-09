@@ -18,6 +18,11 @@ class PANDORAS_API AItemBase : public AActor, public IItemInterface
 public:
 	AItemBase();
 
+	UFUNCTION(BlueprintPure, Category = "C++")
+	FString GetName() const { return Name; }
+
+	UFUNCTION(BlueprintPure, Category = "C++")
+	UTexture2D* GetIcon() const { return Icon; }
 
 protected:
 	virtual void InitLeadPose_Implementation(USkeletalMeshComponent* LeadMesh) override;
