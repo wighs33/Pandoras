@@ -36,7 +36,7 @@ public:
 	EItem GetItemType();
 
 	// 무기 떨어뜨리기
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Drop();
 
 	// 무기 차징
@@ -52,10 +52,10 @@ public:
 	void InitLeadPose(USkeletalMeshComponent* LeadMesh);
 
 	// 검 히트 박스 토글
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
 	void ToggleHitBox(bool Enable);
 
 	// 검 히트 박스 토글
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ToggleBlockBox(bool Enable);
 };

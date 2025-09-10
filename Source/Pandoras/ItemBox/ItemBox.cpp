@@ -156,7 +156,7 @@ void AItemBox::OnLidOpened()
     HideBillboardAndDisableTrigger();
 }
 
-// ASC 유효성 통과 시: ForEach(ItemAbilityClasses) → PlayerState 저장 + HUD 알림
+// ASC 유효성 통과 시: ForEach(ItemAbilityClasses) -> PlayerState 저장 + HUD 알림
 void AItemBox::GiveItemsAndNotify(AActor* TargetActor)
 {
     if (!TargetActor)
@@ -170,21 +170,21 @@ void AItemBox::GiveItemsAndNotify(AActor* TargetActor)
         return;
     }
 
-    for (const TSubclassOf<UGA_Equip>& AbilityClass : ItemAbilityClasses)
+    for (const TSubclassOf<UGA_Equip>& ItemGAClass : ItemAbilityClasses)
     {
-        if (!AbilityClass)
+        if (!ItemGAClass)
         {
             continue;
         }
 
-        // 1) 플레이어 상태에 아이템 저장 (ItemWielderInterface)
-        IItemWielderInterface::Execute_AddItemToPlayerState(TargetActor, AbilityClass);
+        // 플레이어 스테이트에 아이템 데이터 저장
+        IItemWielderInterface::Execute_AddItemToPlayerState(TargetActor, ItemGAClass);
 
-        // 2) HUD 알림 데이터 구성 (ShowNotification 컴포지트와 동일)
+        // HUD 알림 데이터 구성
         FString     ItemName = TEXT("");
         UTexture2D* ItemIcon = nullptr;
 
-        if (const UGA_Equip* EquipCDO = AbilityClass->GetDefaultObject<UGA_Equip>())
+        if (const UGA_Equip* EquipCDO = ItemGAClass->GetDefaultObject<UGA_Equip>())
         {
             const TSubclassOf<AItemBase> ItemClass = EquipCDO->GetItemClass();
             if (ItemClass)
@@ -201,7 +201,7 @@ void AItemBox::GiveItemsAndNotify(AActor* TargetActor)
         Noti.Text = ItemName + TEXT(" Collected");
         Noti.Icon = ItemIcon;
 
-        // 캐릭터 인터페이스로 HUD 노티 표시
+        // 캐릭터 인터페이스로 HUD의 알림 표시
         ICharacterInterface::Execute_ShowCharacterNotification(TargetActor, Noti);
     }
 }
