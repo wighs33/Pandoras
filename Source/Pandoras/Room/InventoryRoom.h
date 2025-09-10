@@ -3,15 +3,17 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Pandoras.h"
 #include "GameFramework/Actor.h"
 #include "Common/Enums.h"
+#include "Kismet/KismetSystemLibrary.h" 
 #include "InventoryRoom.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 class UCapsuleComponent;
+class UGameplayAbility;
 
 UCLASS()
 class PANDORAS_API AInventoryRoom : public AActor
@@ -22,30 +24,52 @@ public:
 	AInventoryRoom();
 
 protected:
+	virtual void BeginPlay() override;
+
 	// 컴포넌트 생성 직후 호출
 	virtual void PostInitializeComponents() override;
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void EnterPauseMode();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ExitPauseMode();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void ChangeFocusPoint(ECharacterFocusPoint focus_point);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void ChangeFocusPoint(ECharacterFocusPoint FocusPoint);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnCapsuleClicked(UPrimitiveComponent* ClickedComp, FKey ButtonPressed);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnCapsuleReleased(UPrimitiveComponent* ClickedComp, FKey ButtonPressed);
 	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ResetMeshRotation();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void StopMeshRotation();
+
+// 입력 액션 노드에 연결된 함수
+protected:
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	bool TogglePauseMode();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void OnInventoryStarted();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void OnSkillTreeStarted();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void OnLookTriggered(float XValue);
+
+private:
+	// Stop Movement(루트모션 끝날 때까지 대기) 처리용
+	void PollRootMotionUntilStopped();
+	void ContinueEnterPause_AfterRootMotion();
+	void SetMeshRotation(EMoveComponentAction::Type Action);
 
 private:
 	// 루트
@@ -107,4 +131,19 @@ private:
 	// 메시가 회전 중인지 체크하는 플래그
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	bool bMeshRotating = false;
+
+	// 락온 비활성화 GA 클래스
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayAbility> DeactivateLockOnAbilityClass;
+
+	// 인벤토리내 캐릭터 회전 속도
+	static constexpr float LookYawSpeed = -100.f;
+
+	FTimerHandle MeshResetTimerHandle;
+	static constexpr float ResetDelaySeconds = 5.f;
+
+	FTimerHandle RootMotionCheckHandle;
+	static constexpr float RootMotionCheckInterval = 0.4f;
+
+	static constexpr float FocusMoveTime = 0.4f;
 };

@@ -78,6 +78,7 @@ protected:
 	void Move(const FInputActionValue& Value);
 
 	// 시선
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Look(const FInputActionValue& Value);
 
 	// 공격

@@ -169,7 +169,7 @@ void APandorasCharacterBase::Move_Implementation(const FInputActionValue& Value)
 	}
 }
 
-void APandorasCharacterBase::Look(const FInputActionValue& Value)
+void APandorasCharacterBase::Look_Implementation(const FInputActionValue& Value)
 {
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
