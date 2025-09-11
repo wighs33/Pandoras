@@ -9,6 +9,17 @@
 #include "Interface/FactionsInterface.h"
 #include "GameFramework/Character.h"
 
+
+// 리플리케이션 설정
+UGA_Pandoras::UGA_Pandoras()
+{
+	ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+	NetSecurityPolicy = EGameplayAbilityNetSecurityPolicy::ClientOrServer;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 서버RPC 허용
 bool UGA_Pandoras::ActivateAbilityOnServer_Validate(AActor* TargetActor, FGameplayTagContainer Tag)
