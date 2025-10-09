@@ -16,8 +16,13 @@
 [![Watch the demo](https://img.youtube.com/vi/RJqserDEA_s/maxresdefault.jpg)](https://youtu.be/RJqserDEA_s?si=mprzEOpMG0fG5Pra)
 
 ### 구현 기능
-- 대화 시스템
+
+<details>
+  <summary>✨ - 대화 시스템</summary>
+
 <img width="1280" height="720" alt="슬라이드6" src="https://github.com/user-attachments/assets/2fd561e1-b017-436d-9f5f-e080cbccdb98" />
+
+</details>
 - 어빌리티 시스템
 <img width="1280" height="720" alt="슬라이드7" src="https://github.com/user-attachments/assets/d60fa77a-814a-4311-84de-6e42024886f1" />
 - 아이템 및 인벤토리
