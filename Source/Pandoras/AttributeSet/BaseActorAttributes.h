@@ -1,3 +1,4 @@
+// #include "AttributeSet/BaseActorAttributes.h"
 // 기본 어트리튜트 세트
 
 #pragma once
@@ -54,7 +55,8 @@ protected:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 
     UFUNCTION()
-    virtual void OnRep_Health(const FGameplayAttributeData& OldHealth) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Health, OldHealth);}
+    virtual void OnRep_Health(const FGameplayAttributeData& OldHealth) 
+	{ GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, Health, OldHealth);}
 
 	UFUNCTION()
 	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) { GAMEPLAYATTRIBUTE_REPNOTIFY(UBaseActorAttributes, MaxHealth, OldMaxHealth);}

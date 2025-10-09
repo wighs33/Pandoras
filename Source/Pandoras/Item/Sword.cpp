@@ -125,6 +125,8 @@ void ASword::ApplyDamageAndStun_Implementation()
     const TSubclassOf<UGameplayEffect> DamageGEClass =
         WeaponCharged ? GE_Damage_Charged : GE_Damage_lite;
 
+    if (WeaponCharged) DamageAmount *= 2;
+
     if (SourceASC && *DamageGEClass)
     {
         FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
@@ -135,7 +137,6 @@ void ASword::ApplyDamageAndStun_Implementation()
 
         if (SpecHandle.IsValid())
         {
-            // AssignTagSetByCallerMagnitude( DamageTag, DamageAmount )
             UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
                 SpecHandle, DamageTag, DamageAmount);
 

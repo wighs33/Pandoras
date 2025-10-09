@@ -139,7 +139,8 @@ void AInventoryRoom::OnLookTriggered_Implementation(float XValue)
 	if (PlayerCharacter && PlayerCharacter->GetMesh())
 	{
 		// 메시 회전 중 플래그 ON일 때 메시를 프레임에 비례하여 회전
-		PlayerCharacter->GetMesh()->AddRelativeRotation(FRotator(0.f, DeltaYaw, 0.f), false, nullptr, ETeleportType::None);
+		PlayerCharacter->GetMesh()->AddRelativeRotation(
+			FRotator(0.f, DeltaYaw, 0.f), false, nullptr, ETeleportType::None);
 
 		// 타이머 종료 시 메시 회전 리셋
 		GetWorldTimerManager().SetTimer(
@@ -381,8 +382,8 @@ void AInventoryRoom::ChangeFocusPoint_Implementation(ECharacterFocusPoint FocusP
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 인벤토리 내 회전 관련
-// 
+// 인벤토리 내 회전 관련 (유저가 조작하는 회전은 look 입력에서 구현)
+ 
 // 캡슐을 마우스로 누르고 있을 때
 void AInventoryRoom::OnCapsuleClicked_Implementation(UPrimitiveComponent* ClickedComp, FKey ButtonPressed)
 {
@@ -410,7 +411,7 @@ void AInventoryRoom::StopMeshRotation_Implementation()
 	SetMeshRotation(EMoveComponentAction::Stop);
 }
 
-// 회전 로직
+// 회전 설정
 void AInventoryRoom::SetMeshRotation(EMoveComponentAction::Type Action)
 {
 	// Stop exec 핀에 해당: MoveComponentTo(..., MoveAction=Stop)

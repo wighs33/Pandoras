@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GA/GA_Attack_Sword.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -84,7 +81,7 @@ void UGA_Attack_Sword::OnDelayFinished_GetAttackState()
 	AActor* Avatar = GetAvatarActorFromActorInfo();
 	if (!SCREEN_WARN(Avatar)) return;
 
-	// 공격 중 검 위치 판정-------------------------------------------------------------------------------------
+	// 공격 중 검 위치 판정 (공격 애니메이션에서 노티파이로 left/right 설정)---------------------------------------
 	EAttackState AttackState{};
 	if (Avatar->GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
 	{
