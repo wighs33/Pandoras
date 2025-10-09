@@ -7,10 +7,10 @@
 
 ### **개발 기간**
 
-- 팀 개발 : 2025.04.11 ~ 2025.09.04
+- 2025.04.11 ~ 2025.09.04
 
 ### **게임 소개**
->  스토리 중심의 어드벤처 게임, 무기와 스킬을 통해 캐릭터를 성장시키는 방식
+>  스토리 중심의 어드벤처 게임, 무기와 스킬을 통해 캐릭터를 성장시킬 수 있다
 
 ### **Youtube**
 [![Watch the demo](https://img.youtube.com/vi/RJqserDEA_s/maxresdefault.jpg)](https://youtu.be/RJqserDEA_s?si=mprzEOpMG0fG5Pra)
