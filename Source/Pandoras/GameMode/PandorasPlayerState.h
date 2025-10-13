@@ -18,6 +18,12 @@ protected:
 	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+// IPlayerStateInterface
+protected:
+	virtual TArray<TSubclassOf<UGA_Equip>> GetItemAbilityClassesByType_Implementation(EItem ItemType) override;
+	virtual void AddItemClass_Implementation(TSubclassOf<UGA_Equip> itemAbility) override;
+	virtual TArray<TSubclassOf<UGA_Equip>> GetAllItemAbilities_Implementation() override;
+
 private:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "C++", meta = (AllowPrivateAccess = "true"))
 	TArray<TSubclassOf<UGA_Equip>> SwordAbilityClasses;

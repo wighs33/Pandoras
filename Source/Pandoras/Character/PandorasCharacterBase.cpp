@@ -19,9 +19,12 @@
 #include "GameFramework/GameStateBase.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayCueFunctionLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/HUD.h"
 
 #include "Interface/PlayerStateInterface.h"
 #include "Interface/CharacterAnimationInterface.h"
+#include "Interface/HudInterface.h"
 #include "Item/ItemBase.h" 
 #include "GA/GA_Equip.h"
 
@@ -164,7 +167,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(ToggleCrouchAction, ETriggerEvent::Started, this, &APandorasCharacterBase::ToggleCrouch);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Sprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::Sprint);
-		//EnhancedInputComponent->BindAction(QuickSaveAction, ETriggerEvent::Started, this, &APandorasCharacterBase::QuickSave);
+		EnhancedInputComponent->BindAction(AreaOfEffectAction, ETriggerEvent::Started, this, &APandorasCharacterBase::AreaOfEffect);
 	}
 	else
 	{
@@ -206,16 +209,6 @@ void APandorasCharacterBase::Look_Implementation(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
-}
-
-bool APandorasCharacterBase::ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass)
-{
-	return true;
-}
-
-void APandorasCharacterBase::ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass)
-{
-	BP_ApplyGameplayEffect_Server(GameplayEffectClass);
 }
 
 bool APandorasCharacterBase::GiveAndActivateAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability)
@@ -1206,7 +1199,12 @@ bool APandorasCharacterBase::ClearGameplayEffect_Server_Validate(FGameplayTagCon
 
 void APandorasCharacterBase::ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags)
 {
-	ClearGameplayEffect_Server(GameplayTags);
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(GameplayTags);
 }
 
 void APandorasCharacterBase::StopAttack_Implementation()
@@ -1216,4 +1214,370 @@ void APandorasCharacterBase::StopAttack_Implementation()
 	FGameplayTagContainer ChargeAttackEnabledTags; 
 	ChargeAttackEnabledTags.AddTag(ChargeAttackEnabledTag);
 	ClearGameplayEffect_Server(ChargeAttackEnabledTags);
+}
+
+void APandorasCharacterBase::ChargeAttack_Implementation()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	// 공격 차징 중인지 체크-----------------------------------------------------------------------------------------------------------
+	const FGameplayTag ChargeEnabledTag = FGameplayTag::RequestGameplayTag(TEXT("Character.State.ChargeAttackEnabled"));
+	FGameplayTagContainer ChargeEnabledContainer;
+	ChargeEnabledContainer.AddTag(ChargeEnabledTag);
+
+	const bool bIsChargingAllowed =
+		AbilitySystemComponent->HasAnyMatchingGameplayTags(ChargeEnabledContainer);
+
+	if (!bIsChargingAllowed)
+	{
+		return;
+	}
+
+	// 강공격스킬 어빌리티 실행을 성공했는 지 체크----------------------------------------------------------------------------------------
+	const FGameplayTag HeavyAttackTag = FGameplayTag::RequestGameplayTag(TEXT("Character.Upgrade.Combat.HeavyAttack"));
+	FGameplayTagContainer HeavyAttackTags;
+	HeavyAttackTags.AddTag(HeavyAttackTag);
+
+	const bool bActivated = AbilitySystemComponent->TryActivateAbilitiesByTag(HeavyAttackTags);
+	if (!bActivated)
+	{
+		return;
+	}
+
+	// 애니메이션 속도 늦추기------------------------------------------------------------------------------------------------------
+	if (USkeletalMeshComponent* SkelMesh = GetMesh())
+	{
+		SkelMesh->GlobalAnimRateScale = 0.05f;
+	}
+
+	// 0.2초 후 무기가 차징됨--------------------------------------------------------------------------------------------
+	FTimerHandle ChargeTimerHandle;
+	GetWorldTimerManager().SetTimer(
+		ChargeTimerHandle,
+		[this]()
+		{
+			UObject* WeaponObj = nullptr;
+			if (GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
+			{
+				WeaponObj = IItemWielderInterface::Execute_GetWeapon(this);
+			}
+			if (WeaponObj && WeaponObj->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+			{
+				IItemInterface::Execute_ChargeWeapon(WeaponObj);
+			}
+
+			// 또 0.2초 후 애니메이션 속도 원상복구 --------------------------------------------------------------------------------
+			FTimerHandle RestoreTimerHandle;
+			GetWorldTimerManager().SetTimer(
+				RestoreTimerHandle,
+				[this]()
+				{
+					if (USkeletalMeshComponent* Skel = GetMesh())
+					{
+						Skel->GlobalAnimRateScale = 1.0f;
+					}
+				},
+				0.2f, false);
+		},
+		0.2f, false);
+}
+
+void APandorasCharacterBase::NotifyAttack_Implementation(bool IsNonBlockable)
+{
+	// 한 번 실행되고 2초동안 실행막기---------------------------------------------------------------
+	if (!bNotifyAttack_DoOnceClosed)
+	{
+		bNotifyAttack_DoOnceClosed = true; // DoOnce 닫기
+
+		// 공격이 블로킹 가능한 지에 따라 매칭되는 이펙트를 손에 부착---------------------------------------------------------------
+		const FName TagName = IsNonBlockable
+			? TEXT("GameplayCue.NotifyAttack.NonBlockable")
+			: TEXT("GameplayCue.NotifyAttack.Blockable");
+		const FGameplayTag SelectedTag = FGameplayTag::RequestGameplayTag(TagName);
+
+		FGameplayCueParameters Params;
+		Params.Location = GetActorLocation();
+		Params.Normal = FVector::ZeroVector;
+		Params.GameplayEffectLevel = 1;
+		Params.AbilityLevel = 1;
+
+		ICharacterGameAbilityInterface::Execute_ExecuteGameplayCue_Replicated(this, this, SelectedTag, Params);
+	}
+
+	// 2초동안 실행막기
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(
+		Handle,
+		[this]()
+		{
+			bNotifyAttack_DoOnceClosed = false;
+		},
+		2.0f, false);
+}
+
+void APandorasCharacterBase::FinishAttack_Implementation()
+{
+	if (AbilitySystemComponent)
+	{
+		// 피니셔 공격 어빌리티 실행-----------------------------------------------------------------------------
+		FGameplayTagContainer FinishAttackTags;
+		FinishAttackTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.FinishAttack")));
+		AbilitySystemComponent->TryActivateAbilitiesByTag(FinishAttackTags, /*bAllowRemoteActivation=*/true);
+
+		// 테이크다운 공격 어빌리티 실행--------------------------------------------------------------------------------
+		FGameplayTagContainer TakeDownTags;
+		TakeDownTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.TakeDown")));
+		AbilitySystemComponent->TryActivateAbilitiesByTag(TakeDownTags, /*bAllowRemoteActivation=*/true);
+	}
+}
+
+void APandorasCharacterBase::AreaOfEffect_Implementation()
+{
+	// 범위 공격 어빌리티 실행--------------------------------------------------------------------------------
+	FGameplayTagContainer AOETags;
+	AOETags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.AOE.Radial")));
+	AbilitySystemComponent->TryActivateAbilitiesByTag(AOETags, /*bAllowRemoteActivation=*/true);
+}
+
+bool APandorasCharacterBase::ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	return true;
+}
+
+void APandorasCharacterBase::ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass)
+{
+	ApplyGameplayEffect_Server(GameplayEffectClass);
+}
+
+void APandorasCharacterBase::ApplyGameplayEffect_Replicate_Implementation(TSubclassOf<UGameplayEffect> GameplayEffect)
+{
+	if (!AbilitySystemComponent || !GameplayEffect)
+	{
+		return;
+	}
+
+	const FGameplayEffectContextHandle EmptyContext;
+	AbilitySystemComponent->BP_ApplyGameplayEffectToSelf(GameplayEffect, /*Level=*/0.0f, /*EffectContext=*/EmptyContext);
+}
+
+void APandorasCharacterBase::LockOn_Implementation()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	const FName TagName = LockTarget != nullptr
+		? TEXT("Character.Event.DeactivateLockOn")
+		: TEXT("Character.Event.LockOn");
+
+	// 락온 또는 락온끄기 어빌리티 실행
+	FGameplayTagContainer LockTags;
+	LockTags.AddTag(FGameplayTag::RequestGameplayTag(TagName));
+	AbilitySystemComponent->TryActivateAbilitiesByTag(LockTags, /*bAllowRemoteActivation=*/true);
+}
+
+void APandorasCharacterBase::SetLockTarget_Implementation(AActor* InLockTarget)
+{
+	// 새로운 락타겟 저장------------------------------------------------------------
+	LockTarget = InLockTarget;
+
+	// 이동 방향으로 캐릭터 회전을 자동으로 맞추지 않기-----------------------------------------
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->bOrientRotationToMovement = false;
+	}
+}
+
+void APandorasCharacterBase::ClearLockTarget_Implementation()
+{
+	// 락타겟 해제---------------------------------------------------------------------
+	LockTarget = nullptr;
+
+	// 이동 방향으로 캐릭터 회전을 자동으로 맞추기-------------------------------------------------
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->bOrientRotationToMovement = true;
+	}
+}
+
+void APandorasCharacterBase::FocusOnEnemy_Implementation()
+{
+	// LockTarget 유효?
+	if (!LockTarget) return;
+
+	// 회피 중인지 체크--------------------------------------------------------------------------
+	if (AbilitySystemComponent &&
+		AbilitySystemComponent->HasMatchingGameplayTag(
+			FGameplayTag::RequestGameplayTag(FName("Character.State.Evading"))))
+	{
+		return; // 회피 중이면 아무 것도 하지 않음
+	}
+
+	const FVector MyLoc = GetActorLocation();
+	const FVector TargetLoc = LockTarget->GetActorLocation();
+
+	const FRotator CurRot = GetActorRotation();
+	const FRotator LookRot = UKismetMathLibrary::FindLookAtRotation(MyLoc, TargetLoc);
+
+	const float   DeltaSeconds = GetWorld() ? GetWorld()->GetDeltaSeconds() : UGameplayStatics::GetWorldDeltaSeconds(this);
+	const FVector Vel = GetVelocity();
+	const float   Speed = Vel.Size();
+
+	// 속도가 5보다 큰지 체크---------------------------------------------------------------------------------------------------
+	if (Speed > SpeedThreshold)
+	{
+		// 캐릭터의 정면이 락타겟을 향하도록 부드럽게 회전-----------------------------------------------------------------
+		const FRotator Interped = UKismetMathLibrary::RInterpTo(CurRot, LookRot, DeltaSeconds, 10.f);
+		SetActorRotation(FRotator(0.f, Interped.Yaw, 0.f));
+		return;
+	}
+
+	// 락 타겟이 캐릭터가 바라보고 있는 방향에서 85보다 더 각도 차이가 나는 지 체크-----------------------------------------------------------
+	const FRotator NormDelta = UKismetMathLibrary::NormalizedDeltaRotator(CurRot, LookRot);
+	const double   AbsDeltaYaw = FMath::Abs((double)NormDelta.Yaw);
+
+	if (AbsDeltaYaw > (double)AngleThresholdDeg)
+	{
+		if (bTurningMontagePlaying_DoOnceClosed) return; // DoOnce: 이미 재생 중이면 무시
+
+		// 좌우 방향 전환 애니메이션 재생-------------------------------------------------------------------------------------------------------
+		UAnimMontage* MontageToPlay = (NormDelta.Yaw > 0.f) ? TurnLeft90Montage : TurnRight90Montage;
+		if (USkeletalMeshComponent* MeshComp = GetMesh())
+		{
+			if (UAnimInstance* Anim = MeshComp->GetAnimInstance())
+			{
+				Anim->StopAllMontages(0.f);
+
+				if (MontageToPlay)
+				{
+					bTurningMontagePlaying_DoOnceClosed = true;
+
+					FOnMontageBlendingOutStarted BlendOut;
+					BlendOut.BindWeakLambda(this, [this](UAnimMontage* Montage, bool bInterrupted)
+						{
+							bTurningMontagePlaying_DoOnceClosed = false;
+						});
+					Anim->Montage_SetBlendingOutDelegate(BlendOut, MontageToPlay);
+
+					FOnMontageEnded Ended;
+					Ended.BindWeakLambda(this, [this](UAnimMontage* Montage, bool bInterrupted)
+						{
+							bTurningMontagePlaying_DoOnceClosed = false;
+						});
+					Anim->Montage_SetEndDelegate(Ended, MontageToPlay);
+
+					Anim->Montage_Play(MontageToPlay, /*PlayRate*/1.f);
+				}
+			}
+		}
+	}
+}
+
+ECustomMovementMode APandorasCharacterBase::GetMovementMode_Implementation()
+{
+	return CurrentMovementMode;
+}
+
+void APandorasCharacterBase::UpdateHealth_Implementation(float NewHealth)
+{
+	// 체력값이 0 이하인지 체크----------------------------------------------------------------------------------------
+	if (NewHealth <= 0.0f)
+	{
+		if (AbilitySystemComponent)
+		{
+			// 사망 어빌리티 실행----------------------------------------------------------------------------------------------
+			FGameplayTagContainer DeathTags;
+			const FGameplayTag DeathTag = FGameplayTag::RequestGameplayTag(TEXT("Character.Event.Death"));
+			DeathTags.AddTag(DeathTag);
+
+			AbilitySystemComponent->TryActivateAbilitiesByTag(DeathTags, /*bAllowRemoteActivation*/ true);
+		}
+	}
+
+	// 로컬이자 플레이어 캐릭터인지 체크--------------------------------------------------------------------------------------
+	if (IsPlayerControlled() && IsLocallyControlled())
+	{
+		// HUD의 체력바 갱신 (현재체력/최대체력)----------------------------------------------------------------
+		UBaseActorAttributes* AttrSet = nullptr;
+		if (GetClass()->ImplementsInterface(UCharacterInterface::StaticClass()))
+		{
+			AttrSet = ICharacterInterface::Execute_GetBaseActorAttribute(this);
+		}
+
+		if (AttrSet)
+		{
+			const float MaxHealth = AttrSet->GetMaxHealth(); // ATTRIBUTE_ACCESSORS 사용
+			const float Ratio = (MaxHealth > 0.f) ? (NewHealth / MaxHealth) : 0.f;
+
+			if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+			{
+				if (AHUD* HUD = PC->GetHUD())
+				{
+					if (HUD->GetClass()->ImplementsInterface(UHudInterface::StaticClass()))
+					{
+						IHudInterface::Execute_UpdateHealth(HUD, Ratio);
+					}
+				}
+			}
+		}
+	}
+}
+
+void APandorasCharacterBase::UpdateStamina_Implementation(float NewStamina)
+{
+	// 로컬 & 플레이어 캐릭터인지 체크---------------------------------------------------------------------------
+	if (IsPlayerControlled() && IsLocallyControlled())
+	{
+		// HUD의 스테미나 바 갱신 (백분위)--------------------------------------------------------------------
+		const float StaminaPercent = NewStamina / 100.f;
+
+		if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+		{
+			if (AHUD* HUD = PC->GetHUD())
+			{
+				if (HUD->GetClass()->ImplementsInterface(UHudInterface::StaticClass()))
+				{
+					IHudInterface::Execute_UpdateStamina(HUD, StaminaPercent);
+				}
+			}
+		}
+	}
+}
+
+
+void APandorasCharacterBase::UpdateXPPoints_Implementation(const float NewXPPoints)
+{
+	// 플레이어인지 체크----------------------------------------------------------------------
+	if (IsPlayerControlled())
+	{
+		// 10초동안 레벨 UI를 HUD에 표시------------------------------------------------------
+		if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+		{
+			if (AHUD* HUD = PC->GetHUD())
+			{
+				if (HUD->GetClass()->ImplementsInterface(UHudInterface::StaticClass()))
+				{
+					IHudInterface::Execute_ShowCharacterLevel(HUD, 10.f);
+				}
+			}
+		}
+
+		// 레벨 업 어빌리티 실행--------------------------------------------------------------------
+		if (AbilitySystemComponent)
+		{
+			if (LevelUpAbilityClass)
+			{
+				AbilitySystemComponent->K2_GiveAbilityAndActivateOnce(LevelUpAbilityClass, /*Level*/0, /*InputID*/-1);
+			}
+		}
+	}
+}
+
+void APandorasCharacterBase::UpdateMaxHealth_Implementation(const float NewMaxHealth)
+{
+	OnMaxHealthUpdated.Broadcast();
 }
