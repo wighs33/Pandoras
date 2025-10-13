@@ -21,19 +21,19 @@ class PANDORAS_API IItemWielderInterface
 
 public:
 	// 아이템 장착
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
 	void EquipItem(AItemBase* item);
 
 	// 아이템 장착 해제
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
 	void UnequipItem();
 
 	// 아이템을 플레이어 스테이트에 저장
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (AllowAbstract = "false"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++", meta = (AllowAbstract = "false"))
 	void AddItemToPlayerState(TSubclassOf<UGA_Equip> itemAbilityClass);
 
 	// 아이템 파괴
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
 	void DestroyItem(EItem ItemType);
 
 	// 무기 반환
@@ -45,7 +45,7 @@ public:
 	EAttackState GetAttackState();
 
 	// 공격 중 검 위치 설정
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
 	void SetAttackState(EAttackState AttackState);
 
 	// 공격 예고 알림

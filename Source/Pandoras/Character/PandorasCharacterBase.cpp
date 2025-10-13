@@ -8,10 +8,22 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h" 
+#include "GameFramework/PlayerState.h"
+#include "AIController.h"  
 #include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "CharacterTrajectoryComponent.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "GameFramework/GameStateBase.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayCueFunctionLibrary.h"
+
+#include "Interface/PlayerStateInterface.h"
+#include "Interface/CharacterAnimationInterface.h"
+#include "Item/ItemBase.h" 
+#include "GA/GA_Equip.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -76,6 +88,21 @@ void APandorasCharacterBase::PostInitializeComponents()
 	}
 }
 
+void APandorasCharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LoadCharacterData();
+
+	GetWorldTimerManager().SetTimer(
+		TimerHandle_RefreshUI,
+		this,
+		&APandorasCharacterBase::RefreshUI,
+		/*Delay*/2.f,
+		/*bLoop*/false
+	);
+}
+
 // 이 클래스가 네트워크에 올라가는 시점에 호출
 void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -137,7 +164,7 @@ void APandorasCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(ToggleCrouchAction, ETriggerEvent::Started, this, &APandorasCharacterBase::ToggleCrouch);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &APandorasCharacterBase::Sprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &APandorasCharacterBase::Sprint);
-		EnhancedInputComponent->BindAction(QuickSaveAction, ETriggerEvent::Started, this, &APandorasCharacterBase::QuickSave);
+		//EnhancedInputComponent->BindAction(QuickSaveAction, ETriggerEvent::Started, this, &APandorasCharacterBase::QuickSave);
 	}
 	else
 	{
@@ -181,21 +208,6 @@ void APandorasCharacterBase::Look_Implementation(const FInputActionValue& Value)
 	}
 }
 
-bool APandorasCharacterBase::DestroyItem_Server_Validate(EItem ItemType)
-{
-	return true;
-}
-
-void APandorasCharacterBase::DestroyItem_Server_Implementation(EItem ItemType)
-{
-	BP_DestroyItem_Server(ItemType);
-}
-
-void APandorasCharacterBase::DestroyItem_Multicast_Implementation(EItem ItemType)
-{
-	BP_DestroyItem_Multicast(ItemType);
-}
-
 bool APandorasCharacterBase::ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
 	return true;
@@ -204,26 +216,6 @@ bool APandorasCharacterBase::ApplyGameplayEffect_Server_Validate(TSubclassOf<UGa
 void APandorasCharacterBase::ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
 	BP_ApplyGameplayEffect_Server(GameplayEffectClass);
-}
-
-bool APandorasCharacterBase::ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags)
-{
-	return true;
-}
-
-void APandorasCharacterBase::ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags)
-{
-	BP_ClearGameplayEffect_Server(GameplayTags);
-}
-
-bool APandorasCharacterBase::SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode)
-{
-	return true;
-}
-
-void APandorasCharacterBase::SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode)
-{
-	BP_SetMovementMode_Server(NewMovementMode);
 }
 
 bool APandorasCharacterBase::GiveAndActivateAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability)
@@ -278,4 +270,950 @@ void APandorasCharacterBase::LoadAttributes(TMap<FGameplayAttribute, float> Save
 		float Value = Pair.Value;
 		AbilitySystemComponent->ApplyModToAttribute(Attribute, EGameplayModOp::Override, Value);
 	}
+}
+
+void APandorasCharacterBase::EquipItem_Implementation(AItemBase* Item)
+{
+	if (!Item) return;
+
+	// 아이템 타입에 따라 다른 소켓에 부착----------------------------------------------------------------------------------------
+	EItem ItemType = EItem::UnArmed;
+	if (Item->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		ItemType = IItemInterface::Execute_GetItemType(Item);
+	}
+
+	if (AActor* AsActor = Cast<AActor>(Item))
+	{
+		AttachToSocket(AsActor, ItemType);
+	}
+
+	// 아이템 별로 저장--------------------------------------------------------------------------------------------------------
+	switch (ItemType)
+	{
+	case EItem::Sword:
+		CurrentWeapon = Item;
+		// 무기 별 장착 몽타주 재생--------------------------------------------------------------------------------------------
+		if (EquipMontage_Sword)
+		{
+			PlayMontageReplicated(EquipMontage_Sword, /*Rate*/1.f, /*Section*/NAME_None);
+		}
+		break;
+		
+	case EItem::GreatSword:
+		CurrentWeapon = Item;
+		if (EquipMontage_GreatSword)
+		{
+			PlayMontageReplicated(EquipMontage_GreatSword, /*Rate*/1.f, /*Section*/NAME_None);
+		}
+		break;
+
+	case EItem::Helmet:
+		CurrentHelmet = Item;
+		return;
+
+	case EItem::Armor:
+		CurrentArmor = Item;
+		// 아이템의 뼈를 캐릭터의 뼈에 맞추기 ------------------------------------------------------------------------------
+		if (CurrentArmor && CurrentArmor->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+		{
+			IItemInterface::Execute_InitLeadPose(CurrentArmor, GetMesh());
+		}
+		return;
+
+	case EItem::Glove:
+		CurrentGlove = Item;
+		if (CurrentGlove && CurrentGlove->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+		{
+			IItemInterface::Execute_InitLeadPose(CurrentGlove, GetMesh());
+		}
+		return;
+
+	case EItem::Shoes:
+		CurrentShoes = Item;
+		if (CurrentShoes && CurrentShoes->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+		{
+			IItemInterface::Execute_InitLeadPose(CurrentShoes, GetMesh());
+		}
+		return;
+
+	case EItem::UnArmed:
+	default:
+		return;
+	}
+
+	GetWorldTimerManager().SetTimer(
+		TimerHandle_AttachWeapon,
+		this,
+		&APandorasCharacterBase::AttachWeaponToRightHand_Deferred,
+		/*Delay*/0.5f,
+		/*bLoop*/false
+	);
+}
+
+void APandorasCharacterBase::AttachToSocket_Implementation(AActor* Target, EItem Index)
+{
+	if (!IsValid(Target) || !IsValid(GetMesh()))
+	{
+		return;
+	}
+
+	FName SocketName = NAME_None;
+	switch (Index)
+	{
+	case EItem::Sword:       SocketName = TEXT("Socket_SwordSheith"); break;
+	case EItem::GreatSword:  SocketName = TEXT("Socket_Back");        break;
+	case EItem::Helmet:      SocketName = TEXT("Socket_Head");        break;
+	default:                 SocketName = NAME_None;                   break;
+	}
+
+	const FAttachmentTransformRules Rules(
+		EAttachmentRule::SnapToTarget,   // Location
+		EAttachmentRule::SnapToTarget,   // Rotation
+		EAttachmentRule::KeepRelative,   // Scale
+		true
+	);
+
+	Target->AttachToComponent(GetMesh(), Rules, SocketName);
+}
+
+void APandorasCharacterBase::AttachWeaponToRightHand_Deferred()
+{
+	// 무기를 손 소켓에 부착 -------------------------------------------------------------------------------
+	if (!IsValid(CurrentWeapon) || !IsValid(GetMesh()))
+	{
+		return;
+	}
+
+	const FAttachmentTransformRules Rules(
+		EAttachmentRule::SnapToTarget,   // Location
+		EAttachmentRule::SnapToTarget,   // Rotation
+		EAttachmentRule::KeepRelative,   // Scale
+		/*bWeldSimulatedBodies*/ true
+	);
+
+	CurrentWeapon->AttachToComponent(GetMesh(), Rules, FName("hand_r"));
+
+	// walk/run을 무기 버전으로 변경 ----------------------------------------------------------------------
+	EItem ItemType = EItem::UnArmed;
+	if (CurrentWeapon->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		ItemType = static_cast<EItem>(IItemInterface::Execute_GetItemType(CurrentWeapon));
+	}
+
+	UpdateWeapon(ItemType);
+}
+
+void APandorasCharacterBase::UpdateWeapon_Implementation(EItem ItemType)
+{
+	// AnimInstance의 무기 업데이트------------------------------------------------------------------------------
+	WeaponType = ItemType;
+
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			if (AnimInst->GetClass()->ImplementsInterface(UCharacterAnimationInterface::StaticClass()))
+			{
+				ICharacterAnimationInterface::Execute_UpdateWeapon(AnimInst, WeaponType);
+			}
+		}
+	}
+
+	// 이동모드 갱신----------------------------------------------------------------------------------------------------
+	SetMovementMode(CurrentMovementMode);
+}
+
+void APandorasCharacterBase::OnRep_WeaponType_Implementation()
+{
+	// AnimInstance의 무기 업데이트------------------------------------------------------------------------------
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			if (AnimInst->GetClass()->ImplementsInterface(UCharacterAnimationInterface::StaticClass()))
+			{
+				ICharacterAnimationInterface::Execute_UpdateWeapon(AnimInst, WeaponType);
+			}
+		}
+	}
+}
+
+void APandorasCharacterBase::UnequipItem_Implementation()
+{
+	if (!CurrentWeapon)
+	{
+		return;
+	}
+
+	// 무기 타입에 따라 다른 장착 해제 애니메이션 재생------------------------------------------------------------------------------
+	EItem ItemType = EItem::UnArmed;
+	if (CurrentWeapon->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		ItemType = IItemInterface::Execute_GetItemType(CurrentWeapon);
+	}
+
+	UAnimMontage* Montage = nullptr;
+	switch (WeaponType)
+	{
+	case EItem::Sword:
+		Montage = UnequipMontage_Sword;
+		break;
+
+	case EItem::GreatSword:
+		Montage = UnequipMontage_GreatSword;
+		break;
+
+	default:
+		Montage = nullptr;
+		break;
+	}
+
+	PlayMontageReplicated(Montage, /*InPlayRate*/1.f, /*StartSectionName*/NAME_None);
+
+	// walk/run을 무기 해제 버전으로 변경---------------------------------------------------------------------------
+	UpdateWeapon(EItem::UnArmed);
+
+	// 아이템 삭제------------------------------------------------------------------------------------------------
+	if (CurrentWeapon->GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
+	{
+		IItemWielderInterface::Execute_DestroyItem(this, ItemType);
+	}
+}
+
+void APandorasCharacterBase::GiveDefaultAbilities_Implementation()
+{
+	if (!AbilitySystemComponent) return;
+
+	if (!HasAuthority()) return;
+
+	for (const TSubclassOf<UGameplayAbility>& AbilityClass : DefaultAbilities)
+	{
+		if (!AbilityClass) continue;
+
+		FGameplayAbilitySpec Spec(AbilityClass, /*Level*/0, /*InputID*/-1, /*SourceObj*/this);
+		AbilitySystemComponent->GiveAbility(Spec);
+	}
+}
+
+void APandorasCharacterBase::AddDefaultWeaponAbilities_Implementation()
+{
+	FTimerDelegate Del = FTimerDelegate::CreateWeakLambda(this, [this]()
+				{
+					if (!this || !this->AbilitySystemComponent)
+					{
+						return;
+					}
+
+					// 리스트 내 각각의 어빌리티---------------------------------------------------------------------------------------------
+					for (const TSubclassOf<UGameplayAbility>& AbilityClass : this->DefaultWeaponAbilities)
+					{
+						if (!AbilityClass)
+						{
+							continue;
+						}
+
+						// 어빌리티 부여 후 실행------------------------------------------------------------------------------------------
+						FGameplayAbilitySpecHandle Handle;
+						if (this->HasAuthority())     // 서버에서만 부여
+						{
+							FGameplayAbilitySpec Spec(AbilityClass, /*Level*/0, /*InputID*/INDEX_NONE);
+							Handle = this->AbilitySystemComponent->GiveAbility(Spec);
+						}
+
+						if (Handle.IsValid())
+						{
+							this->AbilitySystemComponent->TryActivateAbility(Handle, /*bAllowRemoteActivation*/true);
+						}
+
+						// 기본 아이템을 인벤토리 데이터로 추가-------------------------------------------------------------------------------------------
+						if (UClass* Raw = AbilityClass.Get();
+							Raw && Raw->IsChildOf(UGA_Equip::StaticClass()))
+						{
+							TSubclassOf<UGA_Equip> EquipAbilityClass = Raw;
+							IItemWielderInterface::Execute_AddItemToPlayerState(this, EquipAbilityClass);
+						}
+					}
+				});
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(Handle, Del, 0.2f, /*bLoop*/false);
+}
+
+void APandorasCharacterBase::Block_Implementation()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	// 블로킹 어빌리티 실행---------------------------------------------------------------------------------------------------------
+	FGameplayTagContainer BlockTag;
+	BlockTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.Block")));
+	AbilitySystemComponent->TryActivateAbilitiesByTag(BlockTag, /*bAllowRemoteActivation*/true);
+
+	// 패링 활성화 어빌리티 실행---------------------------------------------------------------------------------------------------------
+	FGameplayTagContainer ParryTag;
+	ParryTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Upgrade.Combat.Parry")));
+	AbilitySystemComponent->TryActivateAbilitiesByTag(ParryTag, /*bAllowRemoteActivation*/true);
+}
+
+void APandorasCharacterBase::StopBlocking_Implementation()
+{
+	if (!AbilitySystemComponent) return;
+
+	// 입력 취소 이벤트 전송---------------------------------------------------------------------------------------------------------
+	AbilitySystemComponent->InputCancel();
+}
+
+void APandorasCharacterBase::SetAttackState_Implementation(EAttackState InAttackState)
+{
+	AttackState = InAttackState;
+}
+
+void APandorasCharacterBase::Evade_Implementation()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	// 회피 어빌리티 실행---------------------------------------------------------------------------------------------------------
+	FGameplayTagContainer EvadeTag;
+	EvadeTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.Evade")));
+	AbilitySystemComponent->TryActivateAbilitiesByTag(EvadeTag, /*bAllowRemoteActivation*/true);
+}
+
+void APandorasCharacterBase::NotifyFootstep_Implementation()
+{
+	// 빠른 이동모드 일 수록 발소리 더 크게 재생---------------------------------------------------------------------------------
+	const float VolumePitch =
+		(CurrentMovementMode == ECustomMovementMode::Crouch) ? 0.3f :
+		(CurrentMovementMode == ECustomMovementMode::Walk) ? 0.7f :
+		(CurrentMovementMode == ECustomMovementMode::Run) ? 1.0f :
+		(CurrentMovementMode == ECustomMovementMode::Sprint) ? 1.3f : 1.0f;
+
+	if (FootstepCue)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			FootstepCue,
+			GetActorLocation(),
+			VolumePitch,   // VolumeMultiplier
+			VolumePitch    // PitchMultiplier
+		);
+	}
+
+	// 쪼그려앉기가 아닌 이동 모드에서는 소음 발생 (소음으로 AI의 감지)-----------------------------------------------------------
+	const float Loudness =
+		(CurrentMovementMode == ECustomMovementMode::Crouch) ? 0.0f :
+		(CurrentMovementMode == ECustomMovementMode::Walk) ? 0.7f :
+		(CurrentMovementMode == ECustomMovementMode::Run) ? 1.0f :
+		(CurrentMovementMode == ECustomMovementMode::Sprint) ? 1.3f : 0.0f;
+
+	MakeNoise(Loudness, this, GetActorLocation(), 1000.f);
+}
+
+void APandorasCharacterBase::AddItemToPlayerState_Implementation(TSubclassOf<UGA_Equip> itemAbilityClass)
+{
+	if (APlayerState* PS = GetPlayerState())
+	{
+		// 플레이어 스테이트에 아이템 클래스 저장----------------------------------------------------------------
+		if (PS->GetClass()->ImplementsInterface(UPlayerStateInterface::StaticClass()))
+		{
+			IPlayerStateInterface::Execute_AddItemClass(PS, itemAbilityClass);
+		}
+	}
+}
+
+void APandorasCharacterBase::InitItemLeadPose(AItemBase* Item)
+{
+	if (!Item) return;
+
+	if (Item->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		IItemInterface::Execute_InitLeadPose(Item, GetMesh());
+	}
+}
+
+void APandorasCharacterBase::OnRep_Armor_Implementation()
+{
+	// 갑옷을 뼈에 맞추기------------------------------------------------------------------------------------------------------
+	InitItemLeadPose(CurrentArmor);
+}
+
+void APandorasCharacterBase::OnRep_Glove_Implementation()
+{
+	// 장갑을 뼈에 맞추기------------------------------------------------------------------------------------------------------
+	InitItemLeadPose(CurrentGlove);
+}
+
+void APandorasCharacterBase::OnRep_Shoes_Implementation()
+{
+	// 신발을 뼈에 맞추기------------------------------------------------------------------------------------------------------
+	InitItemLeadPose(CurrentShoes);
+}
+
+void APandorasCharacterBase::SlowDown_Implementation(float Rate, float Duration)
+{
+	USkeletalMeshComponent* MeshComp = GetMesh();
+	if (!MeshComp)
+	{
+		return;
+	}
+
+	// 애니메이션 속도 잠시동안 감속 후 원래대로-----------------------------------------------------------------------------
+	MeshComp->GlobalAnimRateScale = Rate;
+
+	FTimerDelegate ResetDelegate = FTimerDelegate::CreateWeakLambda(this, [&]()
+		{
+			MeshComp->GlobalAnimRateScale = 1.0f;
+		});
+
+	FTimerHandle Handle;
+	const float SafeDuration = FMath::Max(0.f, Duration);
+	GetWorldTimerManager().SetTimer(Handle, ResetDelegate, SafeDuration, /*bLoop=*/false);
+}
+
+void APandorasCharacterBase::DestroyAIController()
+{
+	// AI 컨트롤러 파괴 후 소유권 해제----------------------------------------------------------------------------
+	if (AAIController* AICon = UAIBlueprintHelperLibrary::GetAIController(this))
+	{
+		if (IsValid(AICon))
+		{
+			AICon->SetLifeSpan(0.1f);
+			AICon->UnPossess();
+		}
+	}
+}
+
+void APandorasCharacterBase::OnDeath()
+{
+	// 움직임 비활성화---------------------------------------------------------------------------------------------------
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->DisableMovement();
+	}
+
+	// 입력 비활성화---------------------------------------------------------------------------------------------------
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		DisableInput(PC);
+	}
+	else if (UWorld* World = GetWorld())
+	{
+		if (APlayerController* FallbackPC = World->GetFirstPlayerController())
+		{
+			DisableInput(FallbackPC);
+		}
+	}
+
+	// 하체를 물리 기반으로 움직이기------------------------------------------------------------------------------
+	if (USkeletalMeshComponent* Skel = GetMesh())
+	{
+		Skel->SetAllBodiesBelowSimulatePhysics(TEXT("pelvis"), /*bNewSimulate*/true, /*bIncludeSelf*/true);
+	}
+
+	// 캡슐 콜리전 비활성화-----------------------------------------------------------------------------------
+	if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+	{
+		Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	// AI 컨트롤러 파괴---------------------------------------------------------------------------------
+	DestroyAIController();
+
+	// 무기 떨어뜨리기------------------------------------------------------------------------------------
+	UObject* WeaponObj = nullptr;
+	if (GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
+	{
+		WeaponObj = IItemWielderInterface::Execute_GetWeapon(this);
+	}
+
+	if (WeaponObj && WeaponObj->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		IItemInterface::Execute_Drop(WeaponObj);
+	}
+}
+
+void APandorasCharacterBase::Die_Implementation()
+{
+	bDead = true;
+	OnDeath();
+}
+
+void APandorasCharacterBase::OnRep_Dead_Implementation()
+{
+	if (bDead) OnDeath();
+}
+
+void APandorasCharacterBase::PlayMontageReplicated_Implementation(UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
+{
+	// 몽타주 데이터 값 변경 (On_Rep 함수 호출 예약)------------------------------------------------------------
+	MontageData.AnimMontage = AnimMontage;
+	MontageData.InPlayRate = InPlayRate;
+	MontageData.StartSectionName = StartSectionName;
+
+	if (AGameStateBase* GS = GetWorld() ? GetWorld()->GetGameState() : nullptr)
+	{
+		// 서버 시간
+		MontageData.TriggerTime = GS->GetServerWorldTimeSeconds();
+	}
+	ForceNetUpdate(); // 즉시 복제 푸시 유도
+
+	// 몽타주 재생 후 몽타주 값 초기화 (몽타주 끝난 후 On_Rep 함수 호출 예약)-----------------------------------------------
+	const float Duration = PlayAnimMontage(AnimMontage, InPlayRate, StartSectionName);
+
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(
+		Handle,
+		[this]()
+		{
+			// AnimMontage 만 None으로 바꿔서 On_Rep 재호출 유도
+			auto Temp = MontageData;
+			Temp.AnimMontage = nullptr;
+			MontageData = Temp;
+			ForceNetUpdate();
+		},
+		FMath::Max(Duration, 0.f),
+		false
+	);
+}
+
+void APandorasCharacterBase::OnRep_MontageData_Implementation()
+{
+	UAnimMontage* MontageToPlay = MontageData.AnimMontage;
+	if (!MontageToPlay)
+	{
+		return;
+	}
+
+	// 클라와 서버의 게임 경과 시간 차이. 즉, 네트워크 전송시간을 얻어내어 그 시간만큼 건너띄고 재생하여 싱크맞추기-------------------------------------------
+	USkeletalMeshComponent* Skel = GetMesh();
+	if (!Skel) return;
+
+	UAnimInstance* AnimInst = Skel->GetAnimInstance();
+	if (!AnimInst) return;
+
+	// 서버-클라 시간차만큼 건너뛰기(=네트워크 전송 지연 보정)
+	double ServerNow = 0.0;
+	if (const AGameStateBase* GS = GetWorld() ? GetWorld()->GetGameState() : nullptr)
+	{
+		ServerNow = GS->GetServerWorldTimeSeconds();
+	}
+
+	const double RawDelta = ServerNow - static_cast<double>(MontageData.TriggerTime);
+	const double MaxLen = static_cast<double>(MontageToPlay->GetPlayLength());
+	const double StartPos = FMath::Clamp(RawDelta, 0.0, MaxLen);
+
+	// AnimInst->StopAllMontages(0.f);
+	AnimInst->Montage_Play(MontageToPlay, MontageData.InPlayRate,
+			EMontagePlayReturnType::Duration,
+			static_cast<float>(StartPos), /*bStopAllMontages=*/true);
+
+	if (!MontageData.StartSectionName.IsNone())
+	{
+		AnimInst->Montage_JumpToSection(MontageData.StartSectionName, MontageToPlay);
+	}
+}
+
+void APandorasCharacterBase::SendGameplayEvent_Replicated_Implementation(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload)
+{
+	// 게임플레이 이벤트로 데이터 전송 동기화
+	if (!IsValid(Actor)) return;
+	if (HasAuthority())
+	{
+		SendGameplayEvent_Multicast(Actor, EventTag, Payload);
+	}
+	else
+	{
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+	}
+}
+
+void APandorasCharacterBase::SendGameplayEvent_Multicast_Implementation(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload)
+{
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Actor, EventTag, Payload);
+}
+
+void APandorasCharacterBase::ExecuteGameplayCue_Replicated_Implementation(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters)
+{
+	// 게임플레이 큐 동기화
+	ExecuteGameplayCue_Server(TargetActor, GamplayCueTag, Parameters);
+}
+
+bool APandorasCharacterBase::ExecuteGameplayCue_Server_Validate(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters)
+{
+	return true;
+}
+
+void APandorasCharacterBase::ExecuteGameplayCue_Server_Implementation(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters)
+{
+	ExecuteGameplayCue_Multicast(TargetActor, GamplayCueTag, Parameters);
+}
+
+void APandorasCharacterBase::ExecuteGameplayCue_Multicast_Implementation(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters)
+{
+	if (!IsValid(TargetActor)) return;
+	UGameplayCueFunctionLibrary::ExecuteGameplayCueOnActor(TargetActor, GamplayCueTag, Parameters);
+}
+
+void APandorasCharacterBase::ClearItemAbilities_Implementation(AActor* Item)
+{
+	if (!AbilitySystemComponent || !Item)
+	{
+		return;
+	}
+
+	// 아이템 태그 얻기-------------------------------------------------------------------------------------------------
+	FGameplayTagContainer ItemTag;
+	if (Item->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+	{
+		ItemTag = IItemInterface::Execute_GetItemTag(Item);
+	}
+	else
+	{
+		return;
+	}
+
+	// ASC에 부여된 어빌리티의 핸들 각각----------------------------------------------------------------------------
+	TArray<FGameplayAbilitySpecHandle> Handles;
+	AbilitySystemComponent->GetAllAbilities(Handles);
+
+	for (const FGameplayAbilitySpecHandle& Handle : Handles)
+	{
+		// 어빌리티 핸들을 통해 어빌리티 클래스 얻기-----------------------------------------------------------------------------
+		bool bIsInstance = false;
+		const UGameplayAbility* AbilityObj =
+			UAbilitySystemBlueprintLibrary::GetGameplayAbilityFromSpecHandle(AbilitySystemComponent, Handle, bIsInstance);
+		if (!AbilityObj)
+		{
+			continue;
+		}
+
+		UClass* AbilityClass = AbilityObj->GetClass();
+
+		// 장착 어빌리티인지 체크---------------------------------------------------------------------------------------------------
+		if (!AbilityClass->IsChildOf(UGA_Equip::StaticClass()))
+		{
+			continue; // 장착 GA가 아니면 스킵
+		}
+
+		// GA_Equip CDO에서 ItemClass 뽑기--------------------------------------------------------------
+		UGA_Equip* EquipCDO = Cast<UGA_Equip>(AbilityClass->GetDefaultObject());
+		if (!EquipCDO || !EquipCDO->GetItemClass())
+		{
+			continue;
+		}
+
+		AItemBase* ItemCDO = EquipCDO->GetItemClass()->GetDefaultObject<AItemBase>();
+		if (!ItemCDO)
+		{
+			continue;
+		}
+
+		FGameplayTagContainer AbilityItemTag;
+		if (ItemCDO->GetClass()->ImplementsInterface(UItemInterface::StaticClass()))
+		{
+			AbilityItemTag = IItemInterface::Execute_GetItemTag(ItemCDO);
+		}
+		else
+		{
+			return;
+		}
+
+		// 장착 어빌리티와 매칭된 아이템의 태그가 일치하는 지 체크------------------------------------------------------
+		if (AbilityItemTag == ItemTag)
+		{
+			// 어빌리티 핸들을 통해 ASC에서 해당 어빌리티 제거---------------------------------------------
+			AbilitySystemComponent->ClearAbility(Handle);
+		}
+	}
+}
+
+void APandorasCharacterBase::OnDestroyItem(AActor* Item)
+{
+	// 아이템 유효성 체크----------------------------------------------------------------
+	if (!IsValid(Item))
+	{
+		return;
+	}
+
+	// 플레이어의 캐릭터인지 체크-------------------------------------------------------------
+	const bool bIsPlayer = ICharacterInterface::Execute_IsPlayer(this);
+
+	// 아이템 장착 어빌리티 제거-------------------------------------------------------------
+	if (bIsPlayer)
+	{
+		ClearItemAbilities(Item);
+	}
+
+	// 아이템 태그와 매칭되는 GE 삭제------------------------------------------------------------
+	FGameplayTagContainer ItemTag;
+	ItemTag = IItemInterface::Execute_GetItemTag(Item);
+
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->RemoveActiveEffectsWithGrantedTags(ItemTag);
+	}
+
+	// 아이템 삭제------------------------------------------------------------------------
+	Item->Destroy();
+}
+
+void APandorasCharacterBase::DestroyItem_Implementation(EItem ItemType)
+{
+	DestroyItem_Server(ItemType);
+}
+
+bool APandorasCharacterBase::DestroyItem_Server_Validate(EItem ItemType)
+{
+	return true;
+}
+
+void APandorasCharacterBase::DestroyItem_Server_Implementation(EItem ItemType)
+{
+	DestroyItem_Multicast(ItemType);
+}
+
+void APandorasCharacterBase::DestroyItem_Multicast_Implementation(EItem ItemType)
+{
+	// 무기 종류에 따라 삭제
+	switch (ItemType)
+	{
+	case EItem::Sword:
+	case EItem::GreatSword:
+		OnDestroyItem(CurrentWeapon);
+		break;
+
+	case EItem::Helmet:
+		OnDestroyItem(CurrentHelmet);
+		break;
+
+	case EItem::Armor:
+		OnDestroyItem(CurrentArmor);
+		break;
+
+	case EItem::Glove:
+		OnDestroyItem(CurrentGlove);
+		break;
+
+	case EItem::Shoes:
+		OnDestroyItem(CurrentShoes);
+		break;
+
+	case EItem::UnArmed:
+	case EItem::Bow:
+	default:
+		break;
+	}
+}
+
+void APandorasCharacterBase::SetMovementMode_Implementation(ECustomMovementMode MovementMode)
+{
+	SetMovementMode_Server(MovementMode);
+}
+
+bool APandorasCharacterBase::SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode)
+{
+	return true;
+}
+
+void APandorasCharacterBase::SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode)
+{
+	// 현재 이동 모드 저장---------------------------------------------------------------------------------
+	CurrentMovementMode = NewMovementMode;
+
+	// 이동 속력 계산하여 최대 속력 갱신--------------------------------------------------------------------
+	if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+	{
+		MoveComp->MaxWalkSpeed = CalculateMovementSpeed();
+	}
+
+	// AnimInstance의 이동모드 갱신-----------------------------------------------------------------------------
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			ICharacterAnimationInterface::Execute_UpdateMovementMode(AnimInst, CurrentMovementMode);
+		}
+	}
+}
+
+float APandorasCharacterBase::CalculateMovementSpeed_Implementation()
+{
+	switch (CurrentMovementMode)
+	{
+	case ECustomMovementMode::Crouch:  return 200.f;
+	case ECustomMovementMode::Walk:    return 250.f;
+	case ECustomMovementMode::Run:     return 500.f;
+	case ECustomMovementMode::Sprint:  return 650.f;
+	default:                           return 250.f;
+	}
+}
+
+void APandorasCharacterBase::OnRep_CurrentMovementMode_Implementation()
+{
+	// 이동 속력 계산하여 최대 속력 갱신------------------------------------------------------------------------
+	float NewMaxWalkSpeed = 250.f;
+	switch (CurrentMovementMode)
+	{
+	case ECustomMovementMode::Crouch:  NewMaxWalkSpeed = 200.f; break;
+	case ECustomMovementMode::Walk:    NewMaxWalkSpeed = 250.f; break;
+	case ECustomMovementMode::Run:     NewMaxWalkSpeed = 500.f; break;
+	case ECustomMovementMode::Sprint:  NewMaxWalkSpeed = 650.f; break;
+	default:                           NewMaxWalkSpeed = 250.f; break;
+	}
+
+	if (UCharacterMovementComponent* Move = GetCharacterMovement())
+	{
+		Move->MaxWalkSpeed = NewMaxWalkSpeed;
+	}
+
+	// AnimInstance의 이동모드 갱신-----------------------------------------------------------------------------
+	if (USkeletalMeshComponent* MeshComp = GetMesh())
+	{
+		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
+		{
+			if (AnimInst->GetClass()->ImplementsInterface(UCharacterAnimationInterface::StaticClass()))
+			{
+				ICharacterAnimationInterface::Execute_UpdateMovementMode(AnimInst, CurrentMovementMode);
+			}
+		}
+	}
+}
+
+void APandorasCharacterBase::ToggleWalk_Implementation()
+{
+	// 현재 이동모드 체크
+	switch (CurrentMovementMode)
+	{
+	case ECustomMovementMode::Walk:
+		// 걷기 -> 달리기
+		ICharacterInterface::Execute_SetMovementMode(this, ECustomMovementMode::Run);
+		break;
+
+	case ECustomMovementMode::Crouch:
+	case ECustomMovementMode::Run:
+	case ECustomMovementMode::Sprint:
+	default:
+		// 다른 이동모드 -> 걷기
+		ICharacterInterface::Execute_SetMovementMode(this, ECustomMovementMode::Walk);
+		break;
+	}
+}
+
+void APandorasCharacterBase::ToggleCrouch_Implementation()
+{
+	// 현재 이동모드 체크
+	switch (CurrentMovementMode)
+	{
+	case ECustomMovementMode::Crouch:
+		// 천천히 걷기 -> 걷기
+		ICharacterInterface::Execute_SetMovementMode(this, ECustomMovementMode::Walk);
+		break;
+
+	case ECustomMovementMode::Walk:
+	case ECustomMovementMode::Run:
+	case ECustomMovementMode::Sprint:
+	default:
+		// 다른 이동모드 -> 천천히 걷기
+		ICharacterInterface::Execute_SetMovementMode(this, ECustomMovementMode::Crouch);
+		break;
+	}
+}
+
+void APandorasCharacterBase::Sprint_Implementation()
+{
+	// 현재 이동모드 체크
+	switch (CurrentMovementMode)
+	{
+	case ECustomMovementMode::Sprint:
+		// 전력질주 -> 달리기
+		ICharacterInterface::Execute_SetMovementMode(this, ECustomMovementMode::Run);
+		break;
+
+	case ECustomMovementMode::Crouch:
+	case ECustomMovementMode::Run:
+	case ECustomMovementMode::Walk:
+	default:
+		// 다른 이동모드 -> 전력질주
+		ICharacterInterface::Execute_SetMovementMode(this, ECustomMovementMode::Sprint);
+		break;
+	}
+}
+
+void APandorasCharacterBase::Attack_Implementation()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	const FGameplayTag AttackTag = FGameplayTag::RequestGameplayTag(TEXT("Character.Event.Attack"));
+	FGameplayTagContainer AttackTags; 
+	AttackTags.AddTag(AttackTag);
+
+	const FGameplayTag EquipTag = FGameplayTag::RequestGameplayTag(TEXT("Input.Weapon.Equip"));
+	FGameplayTagContainer EquipTags; 
+	EquipTags.AddTag(EquipTag);
+
+	// 공격 실행하고 실행이 유효한지 체크---------------------------------------------------------------------------------------------------------------
+	const bool bAttackActivated = AbilitySystemComponent->TryActivateAbilitiesByTag(AttackTags, /*bAllowRemoteActivation=*/true);
+
+	if (bAttackActivated)
+	{
+		// 차징 허용 GE 적용
+		if (EnableChargeAttackEffectClass)
+		{
+			ApplyGameplayEffect_Server(EnableChargeAttackEffectClass);
+		}
+		return;
+	}
+
+	// 장착 실행하고 실행이 유효한지 체크---------------------------------------------------------------------------------------------------------------
+	const bool bEquipActivated = AbilitySystemComponent->TryActivateAbilitiesByTag(EquipTags, /*bAllowRemoteActivation=*/true);
+	if (bEquipActivated)
+	{
+		// 차징 허용 GE 적용
+		if (EnableChargeAttackEffectClass)
+		{
+			ApplyGameplayEffect_Server(EnableChargeAttackEffectClass);
+		}
+
+		// 0.5초 후 공격 실행------------------------------------------------------------------------------------------------------------------------
+		FGameplayTagContainer AttackTagsCopy = AttackTags;
+		FTimerHandle Handle;
+		GetWorldTimerManager().SetTimer(
+			Handle,
+			[this, AttackTagsCopy]()
+			{
+				if (AbilitySystemComponent)
+				{
+					AbilitySystemComponent->TryActivateAbilitiesByTag(AttackTagsCopy, /*bAllowRemoteActivation=*/true);
+				}
+			},
+			0.5f,
+			false
+		);
+	}
+}
+
+bool APandorasCharacterBase::ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags)
+{
+	return true;
+}
+
+void APandorasCharacterBase::ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags)
+{
+	ClearGameplayEffect_Server(GameplayTags);
+}
+
+void APandorasCharacterBase::StopAttack_Implementation()
+{
+	// 차징 허용 GE 제거-----------------------------------------------------------------------------------------------------------------
+	const FGameplayTag ChargeAttackEnabledTag = FGameplayTag::RequestGameplayTag(TEXT("Character.State.ChargeAttackEnabled"));
+	FGameplayTagContainer ChargeAttackEnabledTags; 
+	ChargeAttackEnabledTags.AddTag(ChargeAttackEnabledTag);
+	ClearGameplayEffect_Server(ChargeAttackEnabledTags);
 }

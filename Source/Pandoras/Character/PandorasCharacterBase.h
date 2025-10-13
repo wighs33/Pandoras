@@ -27,6 +27,8 @@ class UInputComponent;
 class UAbilitySystemComponent;
 class UCharacterTrajectoryComponent;
 class UGameplayAbility;
+class USoundBase;
+class AItemBase;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMaxHealthUpdated);
@@ -55,6 +57,9 @@ protected:
 	// 컴포넌트 생성 직후 호출
 	virtual void PostInitializeComponents() override;
 
+	// 게임 플레이 시작
+	virtual void BeginPlay() override;
+
 	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -82,11 +87,11 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 	// 공격
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Attack();
 
 	// 공격 중지
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void StopAttack();
 
 	// 락온
@@ -94,11 +99,11 @@ protected:
 	void LockOn();
 
 	// 블로킹
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Block();
 
 	// 블로킹 중지
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void StopBlocking();
 
 	// 피니셔 공격
@@ -106,64 +111,54 @@ protected:
 	void FinishAttack();
 
 	// 회피
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Evade();
 
 	// 걷기 전환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ToggleWalk();
 
 	// 쪼그려 앉기 전환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ToggleCrouch();
 
 	// 전력 질주 전환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Sprint();
 
-	// 전력 질주 전환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void QuickSave();
+	//// 저장
+	//UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	//void QuickSave();
 
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnRep_Dead();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnRep_MontageData();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnRep_WeaponType();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnRep_CurrentMovementMode();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnRep_Armor();
 	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnRep_Glove();
 	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void OnRep_Shoes();
 
 // RPC
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void DestroyItem_Server(EItem ItemType);
-	void DestroyItem_Server_Implementation(EItem ItemType);
-	bool DestroyItem_Server_Validate(EItem ItemType);
-	// 게임 완성 전엔 임시로 블루르린트에서 진행
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_DestroyItem_Server(EItem ItemType);
-	// 선언만 .h에 정의는 무조건 .cpp에서 진행
-
     UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
     void DestroyItem_Multicast(EItem ItemType);
-	void DestroyItem_Multicast_Implementation(EItem ItemType);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_DestroyItem_Multicast(EItem ItemType);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
@@ -174,17 +169,9 @@ protected:
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
-	void ClearGameplayEffect_Server_Implementation(FGameplayTagContainer GameplayTags);
-	bool ClearGameplayEffect_Server_Validate(FGameplayTagContainer GameplayTags);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void SetMovementMode_Server(ECustomMovementMode NewMovementMode);
-	void SetMovementMode_Server_Implementation(ECustomMovementMode NewMovementMode);
-	bool SetMovementMode_Server_Validate(ECustomMovementMode NewMovementMode);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_SetMovementMode_Server(ECustomMovementMode NewMovementMode);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void GiveAndActivateAbility_Server(TSubclassOf<UGameplayAbility> Ability);
@@ -199,6 +186,14 @@ protected:
 	bool OnlyGiveAbility_Server_Validate(TSubclassOf<UGameplayAbility> Ability);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void BP_OnlyGiveAbility_Server(TSubclassOf<UGameplayAbility> Ability);
+
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
+	void SendGameplayEvent_Multicast(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload);
+
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
+	void ExecuteGameplayCue_Server(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters);
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
+	void ExecuteGameplayCue_Multicast(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters);
 
 // 어트리뷰트
 protected:
@@ -225,24 +220,45 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
 	void LoadAttributes(TMap<FGameplayAttribute, float> SavedAttributesMap);
 
+// IItemWielderInterface
+protected:
+	virtual void EquipItem_Implementation(AItemBase* Item) override;
+	virtual void UnequipItem_Implementation() override;
+	virtual void SetAttackState_Implementation(EAttackState InAttackState) override;
+	virtual void AddItemToPlayerState_Implementation(TSubclassOf<UGA_Equip> itemAbilityClass) override;
+	virtual void DestroyItem_Implementation(EItem ItemType) override;
+
+// ICharacterInterface
+protected:
+	virtual void NotifyFootstep_Implementation() override;
+	virtual void SlowDown_Implementation(float Rate = 0.2f, float Duration = 0.4f) override;
+	virtual void Die_Implementation() override;
+	virtual void PlayMontageReplicated_Implementation(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None")) override;
+	virtual void SetMovementMode_Implementation(ECustomMovementMode MovementMode) override;
+
+// ICharacterGameAbilityInterface
+protected:
+	virtual void SendGameplayEvent_Replicated_Implementation(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload) override;
+	virtual void ExecuteGameplayCue_Replicated_Implementation(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters) override;
+
 // 미분류
 protected:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void UpdateWeapon(EItem ItemType);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void GiveDefaultAbilities();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void FocusOnEnemy();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void AddDefaultWeaponAbilities();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "C++")
 	float CalculateMovementSpeed();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ClearItemAbilities(AActor* Item);
 	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
@@ -253,6 +269,24 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void RefreshUI();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void AttachToSocket(AActor* Target, EItem Index);
+
+	UFUNCTION()
+	void AttachWeaponToRightHand_Deferred();
+
+	UFUNCTION()
+	void InitItemLeadPose(AItemBase* Item);
+
+	UFUNCTION()
+	void DestroyAIController();
+
+	UFUNCTION()
+	void OnDeath();
+
+	UFUNCTION()
+	void OnDestroyItem(AActor* Item);
 
 // 컴포넌트
 protected:
@@ -384,10 +418,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentMovementMode, Category = "C++")
 	ECustomMovementMode CurrentMovementMode = ECustomMovementMode::Run;
 
-	// 원래 이동 모드
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-	ECustomMovementMode OriginalMovementMode = ECustomMovementMode::Crouch;
-
 	// 무기 타입
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_WeaponType, Category = "C++")
 	EItem WeaponType;
@@ -395,6 +425,33 @@ protected:
 	// 게임 저장 파일명
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	FString SaveSlot = TEXT("SV_Character");
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UAnimMontage> EquipMontage_Sword;
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UAnimMontage> EquipMontage_GreatSword;
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UAnimMontage> UnequipMontage_Sword;
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UAnimMontage> UnequipMontage_GreatSword;
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<USoundBase> FootstepCue = nullptr;
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TSubclassOf<UGameplayEffect> EnableChargeAttackEffectClass;
+
+	FTimerHandle TimerHandle_AttachWeapon;
+	FTimerHandle TimerHandle_RefreshUI;
 
 // 델리게이트
 protected:
