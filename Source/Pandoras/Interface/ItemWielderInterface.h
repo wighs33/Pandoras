@@ -49,10 +49,10 @@ public:
 	void SetAttackState(EAttackState AttackState);
 
 	// 공격 예고 알림
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
 	void NotifyAttack(bool IsNonBlockable);
 
 	// 차징 공격
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++")
 	void ChargeAttack();
 };

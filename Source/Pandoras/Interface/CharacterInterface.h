@@ -32,10 +32,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	bool IsAlive();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void SetLockTarget(AActor* LockTarget);						
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ClearLockTarget();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
@@ -53,7 +53,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Stamina"))
 	float GetStamina();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
 	ECustomMovementMode GetMovementMode();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")

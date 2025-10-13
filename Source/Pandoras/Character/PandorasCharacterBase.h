@@ -95,7 +95,7 @@ protected:
 	void StopAttack();
 
 	// 락온
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void LockOn();
 
 	// 블로킹
@@ -107,7 +107,7 @@ protected:
 	void StopBlocking();
 
 	// 피니셔 공격
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void FinishAttack();
 
 	// 회피
@@ -126,9 +126,9 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Sprint();
 
-	//// 저장
-	//UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	//void QuickSave();
+	// 범위 공격
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void AreaOfEffect();
 
 // OnRep_X: 값 변경 시 클라에서 호출
 protected:
@@ -162,10 +162,6 @@ protected:
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
-	void ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass);
-	bool ApplyGameplayEffect_Server_Validate(TSubclassOf<UGameplayEffect> GameplayEffectClass);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_ApplyGameplayEffect_Server(TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void ClearGameplayEffect_Server(FGameplayTagContainer GameplayTags);
@@ -202,16 +198,16 @@ protected:
 	virtual void XPPointsChanged(const FOnAttributeChangeData& Data);
 	virtual void MaxHealthChanged(const FOnAttributeChangeData& Data);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	UFUNCTION(BlueprintNativeEvent, Category = "Base Actor Attributes")
 	void UpdateHealth(const float NewHealth);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	UFUNCTION(BlueprintNativeEvent, Category = "Base Actor Attributes")
 	void UpdateStamina(const float NewStamina);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	UFUNCTION(BlueprintNativeEvent, Category = "Base Actor Attributes")
 	void UpdateXPPoints(const float NewXPPoints);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Base Actor Attributes")
+	UFUNCTION(BlueprintNativeEvent, Category = "Base Actor Attributes")
 	void UpdateMaxHealth(const float NewMaxHealth);
 
 	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
@@ -227,6 +223,8 @@ protected:
 	virtual void SetAttackState_Implementation(EAttackState InAttackState) override;
 	virtual void AddItemToPlayerState_Implementation(TSubclassOf<UGA_Equip> itemAbilityClass) override;
 	virtual void DestroyItem_Implementation(EItem ItemType) override;
+	virtual void ChargeAttack_Implementation() override;
+	virtual void NotifyAttack_Implementation(bool IsNonBlockable) override;
 
 // ICharacterInterface
 protected:
@@ -235,11 +233,20 @@ protected:
 	virtual void Die_Implementation() override;
 	virtual void PlayMontageReplicated_Implementation(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None")) override;
 	virtual void SetMovementMode_Implementation(ECustomMovementMode MovementMode) override;
+	// 락 타겟 저장
+	virtual void SetLockTarget_Implementation(AActor* LockTarget) override;
+	// 락 타겟 비우기
+	virtual void ClearLockTarget_Implementation() override;
+	virtual ECustomMovementMode GetMovementMode_Implementation() override;
 
 // ICharacterGameAbilityInterface
 protected:
 	virtual void SendGameplayEvent_Replicated_Implementation(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload) override;
 	virtual void ExecuteGameplayCue_Replicated_Implementation(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters) override;
+
+// IGASInterface
+protected:
+	virtual void ApplyGameplayEffect_Replicate_Implementation(TSubclassOf<UGameplayEffect> GameplayEffect) override;
 
 // 미분류
 protected:
@@ -249,7 +256,7 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void GiveDefaultAbilities();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void FocusOnEnemy();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
@@ -356,9 +363,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* SprintAction;
 
-	// 전력 질주 전환 액션
+	// 범위 공격 액션
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
-	UInputAction* QuickSaveAction;
+	UInputAction* AreaOfEffectAction;
 
 // 그 외 변수
 protected:
@@ -450,8 +457,32 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TSubclassOf<UGameplayEffect> EnableChargeAttackEffectClass;
 
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UAnimMontage> TurnLeft90Montage;
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TObjectPtr<UAnimMontage> TurnRight90Montage;
+
+	// 에디터에서 애셋 추가
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TSubclassOf<UGameplayAbility> LevelUpAbilityClass;
+
+	UPROPERTY()
+	bool bNotifyAttack_DoOnceClosed = false;
+
+	UPROPERTY()
+	bool bTurningMontagePlaying_DoOnceClosed = false;
+
 	FTimerHandle TimerHandle_AttachWeapon;
 	FTimerHandle TimerHandle_RefreshUI;
+
+	UPROPERTY()
+	float SpeedThreshold = 5.f;
+
+	UPROPERTY()
+	float AngleThresholdDeg = 85.f;  
 
 // 델리게이트
 protected:
