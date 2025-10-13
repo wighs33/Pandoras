@@ -23,7 +23,7 @@ class PANDORAS_API ICharacterInterface
 
 public:
 	// 몽타주를 동기화하며 실행
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void PlayMontageReplicated(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None"));
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ClearLockTarget();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Die();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Player"))
@@ -56,19 +56,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
 	ECustomMovementMode GetMovementMode();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void SetMovementMode(ECustomMovementMode MovementMode);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void ResetMovementMode();
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void NotifyFootstep(bool LeftOrRight);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void NotifyFootstep();
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void LockOffEnemy();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void SlowDown(float Rate = 0.2f, float Duration = 0.4f);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")

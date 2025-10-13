@@ -21,13 +21,13 @@ void AItemBase::InitLeadPose_Implementation(USkeletalMeshComponent* LeadMesh)
 	// 두 컴포넌트의 유효성 체크
 	if (!SK_Item || !LeadMesh)
 	{
-		return;
+		SCREEN_WARN(false);
 	}
 
-	// 1) SK_Item 의 로컬 위치를 (0,0,0) 으로 리셋
+	// SK_Item 의 로컬 위치를 (0,0,0) 으로 리셋
 	SK_Item->SetRelativeLocation(FVector::ZeroVector);
 
-	// 2) SK_Item 에 새 LeaderPoseComponent 설정
+	// SK_Item 에 새 LeaderPoseComponent 설정
 	SK_Item->SetLeaderPoseComponent(LeadMesh, /*bForceUpdate=*/false, /*bInFollowerShouldTickPose=*/false);
 }
 

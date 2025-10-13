@@ -154,3 +154,24 @@ struct PANDORAS_API FItemData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	FEquipmentProperties EquipmentProperties;
 };
+
+USTRUCT(BlueprintType)
+struct PANDORAS_API FDialogue : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	FString TalkContent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	TObjectPtr<UTexture2D> CharacterImage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	FString CharacterName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	bool Trigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+	TObjectPtr<USoundBase> Voice;
+};

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Pandoras.h"
 #include "GameFramework/Actor.h"
 #include "Interface/ItemInterface.h"
 #include "Common/Enums.h"
@@ -18,7 +18,13 @@ class PANDORAS_API AItemBase : public AActor, public IItemInterface
 public:
 	AItemBase();
 
+	UFUNCTION(BlueprintPure, Category = "C++")
+	FString GetName() const { return Name; }
 
+	UFUNCTION(BlueprintPure, Category = "C++")
+	UTexture2D* GetIcon() const { return Icon; }
+
+// ItemInterface
 protected:
 	virtual void InitLeadPose_Implementation(USkeletalMeshComponent* LeadMesh) override;
 	virtual FGameplayTagContainer GetItemTag_Implementation() override { return Tag; }

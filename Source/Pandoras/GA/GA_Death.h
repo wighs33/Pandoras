@@ -2,33 +2,25 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "Pandoras.h"
 #include "GA/GA_Pandoras.h"
-#include "GameplayTagContainer.h"
-#include "GA_Equip.generated.h"
-
-class AItemBase;
+#include "GA_Death.generated.h"
 
 UCLASS()
-class PANDORAS_API UGA_Equip : public UGA_Pandoras
+class PANDORAS_API UGA_Death : public UGA_Pandoras
 {
 	GENERATED_BODY()
-
+	
 public:
+	// K2_ActivateAbility 대응
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
-	
-    UFUNCTION(BlueprintPure, Category="C++")
-    TSubclassOf<AItemBase> GetItemClass() const { return ItemClass; }
 
-protected:	
+protected:
+	// 에디터에서 애셋 추가
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-	TSubclassOf<AItemBase> ItemClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-	FGameplayTag GameplayCueTag;
+	TSubclassOf<UGameplayEffect> DeathEffectClass;
 };

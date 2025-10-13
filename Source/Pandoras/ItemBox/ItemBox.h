@@ -12,6 +12,7 @@ class AItemBase;
 class UMaterialBillboardComponent;
 class UWidgetComponent;
 class UNiagaraComponent;
+class UGameplayEffect;
 
 UCLASS()
 class PANDORAS_API AItemBox : public AActor
@@ -49,16 +50,19 @@ protected:
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void Collect_Server(AActor* OwnerActor);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_Collect_Server(AActor* OwnerActor);
-	bool Collect_Server_Validate(AActor* OwnerActor);
-	void Collect_Server_Implementation(AActor* OwnerActor);
 
     UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
     void Collect_Multicast(AActor* OwnerActor);
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	void BP_Collect_Multicast(AActor* OwnerActor);
-	void Collect_Multicast_Implementation(AActor* OwnerActor);
+
+protected:
+	UFUNCTION() 
+	void OnLidOpened();
+
+	UFUNCTION() 
+	void GiveItemsAndNotify(AActor* TargetActor);
+
+	UFUNCTION() 
+	void HideBillboardAndDisableTrigger();
 
 // 컴포넌트
 protected:
@@ -100,4 +104,15 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	TObjectPtr<AActor> InteractingActor;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+    TSubclassOf<UGameplayEffect> MinorExperienceEffect;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+    TObjectPtr<USoundBase> OpenSound = nullptr;
+
+private:
+	bool bCollected = false;                // DoOnce
+	int32 LidLatentUUID = 0;                // latent 식별
+	TWeakObjectPtr<AActor> CachedOwnerActor; // 콜백에서 사용
 };
