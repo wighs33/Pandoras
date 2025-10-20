@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void SetMovementMode(ECustomMovementMode MovementMode);
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
+	void ResetMovementMode();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void NotifyFootstep();
 
