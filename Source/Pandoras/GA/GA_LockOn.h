@@ -3,13 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GA/GA_Pandoras.h"
+#include "GA_LockOn.generated.h"
 
 /**
  * 
  */
-class PANDORAS_API GA_LockOn
+UCLASS()
+class PANDORAS_API UGA_LockOn : public UGA_Pandoras
 {
+	GENERATED_BODY()
+
 public:
-	GA_LockOn();
-	~GA_LockOn();
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
+
+protected:
+	UFUNCTION()
+	void OnDelayCompleted();
+
+	UFUNCTION()
+	void Step_LockOnTick();
+
+	UFUNCTION()
+	void ScheduleDelay();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TSubclassOf<UGameplayEffect> LockOnEffectClass;
 };
