@@ -196,15 +196,26 @@ void UGA_Pandoras::ApplyGameplayEffects_Implementation()
 }
 
 
-void UGA_Pandoras::ApplyGameplayEffectToOwnerInCode_Implementation(TSubclassOf<class UGameplayEffect> GE)
+void UGA_Pandoras::ApplyGameplayEffectToOwnerInCode(TSubclassOf<class UGameplayEffect> GE)
 {
-	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayEffectContextHandle Ctx = ASC->MakeEffectContext();
+		Ctx.AddSourceObject(GetAvatarActorFromActorInfo());
 
-	FGameplayEffectContextHandle Ctx = ASC->MakeEffectContext();
-	Ctx.AddSourceObject(GetAvatarActorFromActorInfo());
+		FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GE, 1.f, Ctx);
+		TSharedPtr<FGameplayEffectSpec> Spec = SpecHandle.Data;
 
-	FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(GE, 1.f, Ctx);
-	TSharedPtr<FGameplayEffectSpec> Spec = SpecHandle.Data;
+		ASC->ApplyGameplayEffectSpecToSelf(*Spec);
+	}
+}
 
-	ASC->ApplyGameplayEffectSpecToSelf(*Spec);
+void UGA_Pandoras::RemoveGameplayEffectFromOwnerInCode(const FName& TagName)
+{
+	if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayTagContainer Granted;
+		Granted.AddTag(FGameplayTag::RequestGameplayTag(TagName));
+		ASC->RemoveActiveEffectsWithGrantedTags(Granted);
+	}
 }
