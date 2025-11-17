@@ -161,11 +161,13 @@ void AInventoryRoom::EnterPauseMode_Implementation()
 	if (!SCREEN_WARN(PlayerCharacter)) return;
 
 	// 락온 해제 GA 활성화 (AbilitySystem)------------------------------------------------------
-	if (DeactivateLockOnAbilityClass && IsValid(PlayerCharacter))
+	if (IsValid(PlayerCharacter))
 	{
 		if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PlayerCharacter))
 		{
-			ASC->TryActivateAbilityByClass(DeactivateLockOnAbilityClass, /*bAllowRemoteActivation=*/true);
+			FGameplayTagContainer NoLockTag;
+			NoLockTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.DeactivateLockOn")));
+			ASC->TryActivateAbilitiesByTag(NoLockTag, /*bAllowRemoteActivation*/true);
 		}
 	}
 

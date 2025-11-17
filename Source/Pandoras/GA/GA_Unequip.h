@@ -13,5 +13,17 @@ UCLASS()
 class PANDORAS_API UGA_Unequip : public UGA_Pandoras
 {
 	GENERATED_BODY()
-	
+
+protected:
+    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo,
+        const FGameplayEventData* TriggerEventData) override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "C++")
+	FGameplayTagContainer WeaponTags;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "C++")
+    FGameplayTag GameplayCueTag;
 };
