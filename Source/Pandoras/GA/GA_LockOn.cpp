@@ -3,12 +3,12 @@
 
 #include "GA/GA_LockOn.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameplayEffect.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystemGlobals.h"
 
 #include "Interface/CharacterInterface.h"
 #include "Common/Enums.h"
@@ -83,8 +83,7 @@ void UGA_LockOn::Step_LockOnTick()
 		ACharacter* Character = GetCharacter();
 		if (IsValid(Character))
 		{
-			if (UAbilitySystemComponent* ASC =
-				UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Character))
+			if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Character))
 			{
 				FGameplayTagContainer Container;
 				Container.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.LockOff")));

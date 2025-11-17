@@ -8,8 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+#include "AbilitySystemGlobals.h"
 #include "Abilities/GameplayAbility.h"
-#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
 
@@ -139,8 +139,7 @@ void AItemBox::OnLidOpened()
         // 경험치 GE 적용
         if (AActor* TargetActor = CachedOwnerActor.Get())
         {
-            if (UAbilitySystemComponent* ASC =
-                UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+            if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor))
             {
                 if (MinorExperienceEffect)
                 {
@@ -164,7 +163,7 @@ void AItemBox::GiveItemsAndNotify(AActor* TargetActor)
         return;
     }
 
-    UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+    UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(TargetActor);
     if (!ASC)
     {
         return;

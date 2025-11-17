@@ -1,7 +1,6 @@
 #include "GA_HitReactLite.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
-#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayTagContainer.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -10,6 +9,7 @@
 #include "Components/SceneComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilitySystemGlobals.h"
 
 #include "Interface/ItemWielderInterface.h"
 #include "Interface/ItemInterface.h"
@@ -34,7 +34,7 @@ void UGA_HitReactLite::ActivateAbility(
 	// 오너가 회피 중인 지 체크------------------------------------------------------------------------------------------------
 	// 오너(Avatar) ASC 가져오기
 	AActor* Avatar = GetAvatarActorFromActorInfo();
-	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Avatar);
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 	if (!Avatar || !GetWorld())
 	{
 		// 안전하게 종료
@@ -98,8 +98,7 @@ void UGA_HitReactLite::ActivateAbility(
 				// 공격자는 패링반응 어빌리티 실행 -----------------------------------------------------------------------------------
 				if (IsValid(Attacker))
 				{
-					if (UAbilitySystemComponent* AttackerASC =
-						UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Attacker))
+					if (UAbilitySystemComponent* AttackerASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Attacker))
 					{
 						FGameplayTagContainer ParryReactTags;
 						ParryReactTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.ParryReact")));
@@ -131,8 +130,7 @@ void UGA_HitReactLite::ActivateAbility(
 				// 공격자는 블로킹반응 어빌리티 실행 -----------------------------------------------------------------------------------
 				if (IsValid(Attacker))
 				{
-					if (UAbilitySystemComponent* AttackerASC =
-						UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Attacker))
+					if (UAbilitySystemComponent* AttackerASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Attacker))
 					{
 						FGameplayTagContainer BlockedReactTags;
 						BlockedReactTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.AttackBlockedReact")));
@@ -153,7 +151,7 @@ void UGA_HitReactLite::ActivateAbility(
 		// 공격자는 스태미나 증가 GE 적용-----------------------------------------------------------------------------------------------
 		if (IsValid(Attacker))
 		{
-			if (UAbilitySystemComponent* AttackerASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Attacker))
+			if (UAbilitySystemComponent* AttackerASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Attacker))
 			{
 				if (AddStaminaEffectClass)
 				{
@@ -270,7 +268,7 @@ void UGA_HitReactLite::OnDeath()
 	}
 
 	// 공격자에 경험치 획득 GE 적용--------------------------------------------------------------------------------------------------------------
-	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(InstigatorActor))
+	if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(InstigatorActor))
 	{
 		if (MinorExperienceEffectClass)
 		{

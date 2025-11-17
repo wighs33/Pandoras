@@ -32,6 +32,9 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ApplyGameplayEffects();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void ApplyGameplayEffectToOwnerInCode(TSubclassOf<class UGameplayEffect> GE);
 	
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")

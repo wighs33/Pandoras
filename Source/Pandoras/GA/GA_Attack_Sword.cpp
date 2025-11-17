@@ -7,6 +7,7 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GameplayTagContainer.h"
 #include "GameplayTagsManager.h"
+#include "AbilitySystemGlobals.h"
 
 #include "Interface/CharacterInterface.h"
 #include "Interface/ItemWielderInterface.h"
@@ -41,8 +42,7 @@ void UGA_Attack_Sword::ActivateAbility(
 	}
 	
 	// 공격 신호 표시------------------------------------------------------------------------------
-	UAbilitySystemComponent* ASC =
-		UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Avatar);
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 
 	if (!bIsPlayer)
 	{

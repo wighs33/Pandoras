@@ -17,11 +17,7 @@ void UGA_AttackBlockedReact::ActivateAbility(
 			NAME_None,
 			HitReact,
 			/*Rate*/ 1.0f,
-			/*StartSectionName*/ FName(TEXT("Mid")),
-			/*bStopWhenAbilityEnds*/ true,
-			/*AnimRootMotionTranslationScale*/ 1.0f,
-			/*StartTimeSeconds*/ 0.0f,
-			/*bAllowInterruptAfterBlendOut*/ false
+			/*StartSectionName*/ FName(TEXT("Mid"))
 		);
 
 	if (Task)

@@ -3,7 +3,6 @@
 
 #include "GA/GA_DeactivateLockOn.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemBlueprintLibrary.h"
 #include "GameplayTagContainer.h"
 #include "GameplayTagsManager.h"
 
@@ -13,8 +12,7 @@ void UGA_DeactivateLockOn::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-    UAbilitySystemComponent* ASC =
-        UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
+    UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
 
     // --- 락오프 어빌리티 실행 -------------------------------------------------------
     FGameplayTagContainer LockOffTags;
