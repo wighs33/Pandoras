@@ -58,9 +58,9 @@ void UGA_Block_Sword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     // --- 블로킹 대기 후 다음 진행 -----------------------------------------------
     if (UWorld* World = GetWorld())
     {
-        FTimerHandle Handle;
+        FTimerHandle TimerHandle;
         World->GetTimerManager().SetTimer(
-            Handle,
+            TimerHandle,
             [this]()
             {
                 RemoveBlockEffectAndFinish();
