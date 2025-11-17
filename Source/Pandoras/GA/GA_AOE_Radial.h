@@ -31,5 +31,5 @@ protected:
 	TSubclassOf<AAreaOfEffect_RadialImpact> AOEImpactClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-    UAnimMontage* AOEMontage = nullptr;
+    TObjectPtr<UAnimMontage> AOEMontage = nullptr;
 };

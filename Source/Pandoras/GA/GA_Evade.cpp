@@ -15,6 +15,8 @@ void UGA_Evade::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
 	// --- 회피 GE 적용 (회피 태그) -----------------------------
 	BP_ApplyGameplayEffectToOwner(EvadeEffectClass, /*Level*/1, /*Stacks*/1);
 

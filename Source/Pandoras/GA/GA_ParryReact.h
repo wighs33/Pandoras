@@ -19,4 +19,11 @@ protected:
         const FGameplayAbilityActorInfo* ActorInfo,
         const FGameplayAbilityActivationInfo ActivationInfo,
         const FGameplayEventData* TriggerEventData) override;
+
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+    TObjectPtr<UAnimMontage> ParryReactMontage = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+    TSubclassOf<UGameplayEffect> GE_StunAttack;
 };

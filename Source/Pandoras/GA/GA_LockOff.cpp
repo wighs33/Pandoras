@@ -15,6 +15,8 @@ void UGA_LockOff::ActivateAbility(
     const FGameplayEventData* TriggerEventData
 )
 {
+    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
     // --- 캐릭터의 유효성 체크-----------------------------------------------
     ACharacter* Character = GetCharacter();
     if (IsValid(Character))
