@@ -6,7 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Common/Structs.h"
 
-#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemGlobals.h"
 #include "AbilitySystemComponent.h"
 #include "GameplayEffect.h"
 #include "GameplayTagAssetInterface.h"
@@ -112,14 +112,11 @@ void ASword::ApplyDamageAndStun_Implementation()
     if (!SCREEN_WARN(HitActor)) return;
 
     // Target ASC (피격자)
-    UAbilitySystemComponent* TargetASC =
-        UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+    UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(HitActor);
     if (!SCREEN_WARN(TargetASC)) return;
 
     // Source ASC (공격자: 검이 붙어있는 액터)
-    AActor* InstigatorActor = GetAttachParentActor();
-    UAbilitySystemComponent* SourceASC =
-        UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(InstigatorActor);
+    UAbilitySystemComponent* SourceASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetAttachParentActor());
 
     // === Damage: MakeOutgoingSpec( GE_Damage_(lite/charged) ) ================================================
     const TSubclassOf<UGameplayEffect> DamageGEClass =
@@ -137,8 +134,10 @@ void ASword::ApplyDamageAndStun_Implementation()
 
         if (SpecHandle.IsValid())
         {
-            UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-                SpecHandle, DamageTag, DamageAmount);
+            if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
+            {
+                Spec->SetSetByCallerMagnitude(DamageTag, DamageAmount);
+            }
 
             SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
         }

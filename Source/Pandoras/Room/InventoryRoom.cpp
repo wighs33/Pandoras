@@ -17,7 +17,7 @@
 
 // GA/ASC
 #include "Abilities/GameplayAbility.h"
-#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemGlobals.h"
 #include "AbilitySystemComponent.h"
 
 // 컴포넌트들을 생성하고 계층정립, 세부 설정은 에디터에서 처리
@@ -161,11 +161,13 @@ void AInventoryRoom::EnterPauseMode_Implementation()
 	if (!SCREEN_WARN(PlayerCharacter)) return;
 
 	// 락온 해제 GA 활성화 (AbilitySystem)------------------------------------------------------
-	if (DeactivateLockOnAbilityClass && IsValid(PlayerCharacter))
+	if (IsValid(PlayerCharacter))
 	{
-		if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PlayerCharacter))
+		if (UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PlayerCharacter))
 		{
-			ASC->TryActivateAbilityByClass(DeactivateLockOnAbilityClass, /*bAllowRemoteActivation=*/true);
+			FGameplayTagContainer NoLockTag;
+			NoLockTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.DeactivateLockOn")));
+			ASC->TryActivateAbilitiesByTag(NoLockTag, /*bAllowRemoteActivation*/true);
 		}
 	}
 
@@ -325,7 +327,7 @@ void AInventoryRoom::ExitPauseMode_Implementation()
 		if (WeaponObj)
 		{
 			if (UAbilitySystemComponent* ASC =
-				UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PlayerCharacter))
+				UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PlayerCharacter))
 			{
 				const FGameplayTag LockOnTag = FGameplayTag::RequestGameplayTag(TEXT("Character.Event.LockOn"));
 				FGameplayTagContainer TagCon;

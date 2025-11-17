@@ -132,10 +132,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
 	bool bMeshRotating = false;
 
-	// 락온 비활성화 GA 클래스
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UGameplayAbility> DeactivateLockOnAbilityClass;
-
 	// 인벤토리내 캐릭터 회전 속도
 	static constexpr float LookYawSpeed = -100.f;
 

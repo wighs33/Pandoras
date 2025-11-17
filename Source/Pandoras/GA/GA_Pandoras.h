@@ -32,6 +32,14 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ApplyGameplayEffects();
+
+	// GE 적용
+	UFUNCTION(BlueprintCallable)
+	void ApplyGameplayEffectToOwnerInCode(TSubclassOf<class UGameplayEffect> GE);
+
+	// GE 적용해제
+	UFUNCTION(BlueprintCallable)
+	void RemoveGameplayEffectFromOwnerInCode(const FName& TagName);
 	
 protected:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
