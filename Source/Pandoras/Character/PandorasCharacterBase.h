@@ -54,6 +54,8 @@ public:
 	APandorasCharacterBase();
 			
 protected:
+	virtual void Tick(float DeltaSeconds) override;
+
 	// 컴포넌트 생성 직후 호출
 	virtual void PostInitializeComponents() override;
 
@@ -216,8 +218,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
 	void LoadAttributes(TMap<FGameplayAttribute, float> SavedAttributesMap);
 
-// IItemWielderInterface
+// 인터페이스
 protected:
+	// IItemWielderInterface
 	virtual void EquipItem_Implementation(AItemBase* Item) override;
 	virtual void UnequipItem_Implementation() override;
 	virtual void SetAttackState_Implementation(EAttackState InAttackState) override;
@@ -225,28 +228,35 @@ protected:
 	virtual void DestroyItem_Implementation(EItem ItemType) override;
 	virtual void ChargeAttack_Implementation() override;
 	virtual void NotifyAttack_Implementation(bool IsNonBlockable) override;
+	virtual AItemBase* GetWeapon_Implementation() override;
+	virtual EAttackState GetAttackState_Implementation() override;
 
-// ICharacterInterface
-protected:
+	// ICharacterInterface
+	virtual bool IsAlive_Implementation() override;
 	virtual void NotifyFootstep_Implementation() override;
 	virtual void SlowDown_Implementation(float Rate = 0.2f, float Duration = 0.4f) override;
 	virtual void Die_Implementation() override;
 	virtual void PlayMontageReplicated_Implementation(UAnimMontage* AnimMontage, float InPlayRate = 1.0, FName StartSectionName = TEXT("None")) override;
 	virtual void SetMovementMode_Implementation(ECustomMovementMode MovementMode) override;
-	// 락 타겟 저장
 	virtual void SetLockTarget_Implementation(AActor* LockTarget) override;
-	// 락 타겟 비우기
 	virtual void ClearLockTarget_Implementation() override;
+	virtual void ResetMovementMode_Implementation() override;
 	virtual ECustomMovementMode GetMovementMode_Implementation() override;
+	virtual bool IsPlayer_Implementation() override;
+	virtual AActor* GetLockedEnemy_Implementation() override;
+	virtual float GetStamina_Implementation() override;
+	virtual bool IsLocalCharacter_Implementation() override;
+	virtual const UBaseActorAttributes* GetBaseActorAttribute_Implementation() override;
 
-// ICharacterGameAbilityInterface
-protected:
+	// ICharacterGameAbilityInterface
 	virtual void SendGameplayEvent_Replicated_Implementation(AActor* Actor, FGameplayTag EventTag, FGameplayEventData Payload) override;
 	virtual void ExecuteGameplayCue_Replicated_Implementation(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters) override;
 
-// IGASInterface
-protected:
+	// IGASInterface
 	virtual void ApplyGameplayEffect_Replicate_Implementation(TSubclassOf<UGameplayEffect> GameplayEffect) override;
+
+	// IFactionInterface
+	virtual int32 GetFactionId_Implementation() override;
 
 // 미분류
 protected:
@@ -279,6 +289,12 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void AttachToSocket(AActor* Target, EItem Index);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void ClimbingLineTrace(FHitResult& OutHit, bool& bHasHit);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	void StopClimbing();
 
 	UFUNCTION()
 	void AttachWeaponToRightHand_Deferred();
@@ -425,6 +441,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentMovementMode, Category = "C++")
 	ECustomMovementMode CurrentMovementMode = ECustomMovementMode::Run;
 
+	// 기본 이동 모드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentMovementMode, Category = "C++")
+	ECustomMovementMode OriginalMovementMode = ECustomMovementMode::Crouch;
+
 	// 무기 타입
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, ReplicatedUsing = OnRep_WeaponType, Category = "C++")
 	EItem WeaponType;
@@ -468,6 +488,10 @@ protected:
 	// 에디터에서 애셋 추가
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TSubclassOf<UGameplayAbility> LevelUpAbilityClass;
+
+	// 앞에 사다리있는 지 여부
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	bool bIsClimbing = false;
 
 	UPROPERTY()
 	bool bNotifyAttack_DoOnceClosed = false;
