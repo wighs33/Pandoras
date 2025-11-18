@@ -37,11 +37,11 @@ public:
 	void DestroyItem(EItem ItemType);
 
 	// 무기 반환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "Weapon"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "Weapon"))
 	AItemBase* GetWeapon();
 
 	// 공격 중 검 위치 반환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "AttackState"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "AttackState"))
 	EAttackState GetAttackState();
 
 	// 공격 중 검 위치 설정

@@ -29,7 +29,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++")
 	void ShowCharacterNotification(FNotification NotificationData);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	bool IsAlive();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
@@ -41,16 +41,16 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Die();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Player"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Player"))
 	bool IsPlayer();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Player"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Player"))
 	bool IsLocalCharacter();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "LockedEnemy"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "LockedEnemy"))
 	AActor* GetLockedEnemy();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Stamina"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Stamina"))
 	float GetStamina();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void SetMovementMode(ECustomMovementMode MovementMode);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++", meta = (ReturnDisplayName = "Mode"))
 	void ResetMovementMode();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
@@ -71,6 +71,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void SlowDown(float Rate = 0.2f, float Duration = 0.4f);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
-	UBaseActorAttributes* GetBaseActorAttribute();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
+	const UBaseActorAttributes* GetBaseActorAttribute();
 };

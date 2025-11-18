@@ -23,14 +23,8 @@ void UGA_LevelUp::ActivateAbility(
 	}
 
 	// 어트리뷰트의 경험치가 레벨업요구치를 넘겼는 지 체크----------------------------------------------------------------------------
-	UBaseActorAttributes* BaseAttr = nullptr;
-	if (Avatar->GetClass()->ImplementsInterface(UCharacterInterface::StaticClass()))
-	{
-		BaseAttr = ICharacterInterface::Execute_GetBaseActorAttribute(Avatar);
-	}
-
 	bool bCanLevelUp = false;
-	if (BaseAttr)
+	if (const UBaseActorAttributes* BaseAttr = ICharacterInterface::Execute_GetBaseActorAttribute(Avatar))
 	{
 		const float XP_CurrentValue = BaseAttr->XPPoints.GetCurrentValue();
 		bCanLevelUp = (static_cast<double>(XP_CurrentValue) >= XPRequiredToLevelUp);

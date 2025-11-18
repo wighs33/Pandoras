@@ -27,6 +27,7 @@
 #include "Interface/HudInterface.h"
 #include "Item/ItemBase.h" 
 #include "GA/GA_Equip.h"
+#include "Props/Ladder.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -72,6 +73,50 @@ APandorasCharacterBase::APandorasCharacterBase()
 	// AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal); 
 
 	CharacterTrajectory = CreateDefaultSubobject<UCharacterTrajectoryComponent>(TEXT("CharacterTrajectory"));
+}
+
+void APandorasCharacterBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// --- 락타겟에게 포커싱 ----------------------------------
+	FocusOnEnemy();
+
+	// --- 플레이어인지 체크 --------------------------------------------
+	const bool bIsPlayer = ICharacterInterface::Execute_IsPlayer(this);
+	if (!bIsPlayer)
+	{
+		return;
+	}
+
+	// --- 앞에 사다기가 있을 때 오르기 루프 ---------------------------------
+	if (!bIsClimbing)
+	{
+		return;
+	}
+
+	FHitResult Hit;
+	bool bHasHit = false;
+	ClimbingLineTrace(Hit, bHasHit);
+
+	if (bHasHit)
+	{
+		if (ALadder* Ladder = Cast<ALadder>(Hit.GetActor()))
+		{
+			const FRotator SurfaceRot = Hit.Normal.Rotation();
+			FRotator NewRot = GetActorRotation();
+			NewRot.Yaw = SurfaceRot.Yaw + 180.f;
+			SetActorRotation(NewRot);
+		}
+		else
+		{
+			StopClimbing();
+		}
+	}
+	else
+	{
+		StopClimbing();
+	}
 }
 
 // 컴포넌트 초기화 직후
@@ -370,6 +415,39 @@ void APandorasCharacterBase::AttachToSocket_Implementation(AActor* Target, EItem
 	Target->AttachToComponent(GetMesh(), Rules, SocketName);
 }
 
+void APandorasCharacterBase::ClimbingLineTrace_Implementation(FHitResult& OutHit, bool& bHasHit)
+{
+	const FVector Start = GetActorLocation();
+
+	const FRotator Rot = GetActorRotation();
+	const FVector Forward = UKismetMathLibrary::GetForwardVector(Rot);
+	const FVector End = Start + Forward * 100.f;
+
+	TArray<AActor*> ActorsToIgnore;
+
+	bHasHit = UKismetSystemLibrary::LineTraceSingle(
+		this,
+		Start,
+		End,
+		/*TraceChannel*/ETraceTypeQuery::TraceTypeQuery1,
+		/*bTraceComplex*/false,
+		ActorsToIgnore,
+		/*DrawDebugType*/EDrawDebugTrace::None,
+		OutHit,
+		/*bIgnoreSelf*/true
+	);
+}
+
+void APandorasCharacterBase::StopClimbing_Implementation()
+{
+	bIsClimbing = false;
+
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	MoveComp->SetMovementMode(MOVE_Falling);
+
+	MoveComp->bOrientRotationToMovement = true;
+}
+
 void APandorasCharacterBase::AttachWeaponToRightHand_Deferred()
 {
 	// 무기를 손 소켓에 부착 -------------------------------------------------------------------------------
@@ -574,6 +652,11 @@ void APandorasCharacterBase::Evade_Implementation()
 	FGameplayTagContainer EvadeTag;
 	EvadeTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.Evade")));
 	AbilitySystemComponent->TryActivateAbilitiesByTag(EvadeTag, /*bAllowRemoteActivation*/true);
+}
+
+bool APandorasCharacterBase::IsAlive_Implementation()
+{
+	return !bDead;
 }
 
 void APandorasCharacterBase::NotifyFootstep_Implementation()
@@ -1318,6 +1401,16 @@ void APandorasCharacterBase::NotifyAttack_Implementation(bool IsNonBlockable)
 		2.0f, false);
 }
 
+AItemBase* APandorasCharacterBase::GetWeapon_Implementation()
+{
+	return CurrentWeapon;
+}
+
+EAttackState APandorasCharacterBase::GetAttackState_Implementation()
+{
+	return AttackState;
+}
+
 void APandorasCharacterBase::FinishAttack_Implementation()
 {
 	if (AbilitySystemComponent)
@@ -1363,6 +1456,11 @@ void APandorasCharacterBase::ApplyGameplayEffect_Replicate_Implementation(TSubcl
 	AbilitySystemComponent->BP_ApplyGameplayEffectToSelf(GameplayEffect, /*Level=*/0.0f, /*EffectContext=*/EmptyContext);
 }
 
+int32 APandorasCharacterBase::GetFactionId_Implementation()
+{
+	return FactionId;
+}
+
 void APandorasCharacterBase::LockOn_Implementation()
 {
 	if (!AbilitySystemComponent)
@@ -1402,6 +1500,11 @@ void APandorasCharacterBase::ClearLockTarget_Implementation()
 	{
 		Move->bOrientRotationToMovement = true;
 	}
+}
+
+void APandorasCharacterBase::ResetMovementMode_Implementation()
+{
+	SetMovementMode(OriginalMovementMode);
 }
 
 void APandorasCharacterBase::FocusOnEnemy_Implementation()
@@ -1482,6 +1585,30 @@ ECustomMovementMode APandorasCharacterBase::GetMovementMode_Implementation()
 	return CurrentMovementMode;
 }
 
+bool APandorasCharacterBase::IsPlayer_Implementation()
+{
+	return IsPlayerControlled();
+}
+
+AActor* APandorasCharacterBase::GetLockedEnemy_Implementation()
+{
+	return LockTarget;
+}
+
+float APandorasCharacterBase::GetStamina_Implementation()
+{
+	return BaseActorAttributes->Stamina.GetCurrentValue();
+}
+bool APandorasCharacterBase::IsLocalCharacter_Implementation()
+{
+	return IsLocallyControlled();
+}
+
+const UBaseActorAttributes* APandorasCharacterBase::GetBaseActorAttribute_Implementation()
+{
+	return BaseActorAttributes;
+}
+
 void APandorasCharacterBase::UpdateHealth_Implementation(float NewHealth)
 {
 	// 체력값이 0 이하인지 체크----------------------------------------------------------------------------------------
@@ -1502,13 +1629,7 @@ void APandorasCharacterBase::UpdateHealth_Implementation(float NewHealth)
 	if (IsPlayerControlled() && IsLocallyControlled())
 	{
 		// HUD의 체력바 갱신 (현재체력/최대체력)----------------------------------------------------------------
-		UBaseActorAttributes* AttrSet = nullptr;
-		if (GetClass()->ImplementsInterface(UCharacterInterface::StaticClass()))
-		{
-			AttrSet = ICharacterInterface::Execute_GetBaseActorAttribute(this);
-		}
-
-		if (AttrSet)
+		if (const UBaseActorAttributes* AttrSet = ICharacterInterface::Execute_GetBaseActorAttribute(this))
 		{
 			const float MaxHealth = AttrSet->GetMaxHealth(); // ATTRIBUTE_ACCESSORS 사용
 			const float Ratio = (MaxHealth > 0.f) ? (NewHealth / MaxHealth) : 0.f;

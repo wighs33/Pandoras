@@ -19,6 +19,6 @@ class PANDORAS_API IFactionsInterface
 
 public:
 	// 파벌 아이디 반환
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "Faction"))
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="C++", meta = (ReturnDisplayName = "Faction"))
 	int32 GetFactionId();
 };
