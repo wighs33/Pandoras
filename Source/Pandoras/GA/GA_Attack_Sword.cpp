@@ -1,6 +1,5 @@
 #include "GA/GA_Attack_Sword.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
@@ -120,10 +119,7 @@ void UGA_Attack_Sword::OnDelayFinished_GetAttackState()
 			/*Montage*/ MontageToPlay,
 			/*Rate*/ 1.f,
 			/*StartSection*/ NAME_None,
-			/*bStopWhenAbilityEnds*/ false,
-			/*AnimRootMotionTranslationScale*/ 1.f,
-			/*StartTimeSeconds*/ 0.f,
-			/*bAllowInterruptAfterBlendOut*/ false);
+			/*bStopWhenAbilityEnds*/ false);
 
 	if (!SCREEN_WARN(PMW)) return;
 
@@ -134,17 +130,10 @@ void UGA_Attack_Sword::OnDelayFinished_GetAttackState()
 	PMW->ReadyForActivation();
 
 	// 오너에 공격 중 GE 적용 (공격 중 태그)--------------------------------------------------------------------
-	if (AttackEffectClass)
-	{
-		BP_ApplyGameplayEffectToOwner(AttackEffectClass, /*Level*/1.f, /*Stacks*/1);
-	}
+	ApplyGameplayEffectToOwnerInCode(AttackEffectClass);
 
 	// 오너에 블로킹 GE 적용해제--------------------------------------------------------------------------------
-	FGameplayTagContainer WithGrantedTags;
-	WithGrantedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.Blocking")));
-
-	const int32 StacksToRemove = -1; // -1 = 전부 제거
-	BP_RemoveGameplayEffectFromOwnerWithGrantedTags(WithGrantedTags, StacksToRemove);
+	RemoveGameplayEffectFromOwnerInCode(TEXT("Character.State.Blocking"));
 
 	// 이벤트를 받았는 지 체크 (노티파이에서 전송)--------------------------------------------------------------
 	const FGameplayTag EventTag = FGameplayTag::RequestGameplayTag(TEXT("Notifier.AttackLanded"));
@@ -174,11 +163,7 @@ void UGA_Attack_Sword::OnPMW_Interrupted()
 	Interrupted = true;
 
 	// 공격GE 적용 해제 후 종료--------------------------------------------------------------------
-	FGameplayTagContainer WithGrantedTags;
-	WithGrantedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.Attacking")));
-
-	const int32 StacksToRemove = -1; // -1 = 전부 제거
-	BP_RemoveGameplayEffectFromOwnerWithGrantedTags(WithGrantedTags, StacksToRemove);
+	RemoveGameplayEffectFromOwnerInCode(TEXT("Character.State.Attacking"));
 
 	K2_EndAbility();
 }
@@ -186,12 +171,7 @@ void UGA_Attack_Sword::OnPMW_Interrupted()
 void UGA_Attack_Sword::OnPMW_Cancelled()
 {
 	// 공격GE 적용 해제 후 종료---------------------------------------------------------------------
-	FGameplayTagContainer WithGrantedTags;
-	WithGrantedTags.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.State.Attacking")));
-
-	const int32 StacksToRemove = -1; // -1 = 전부 제거
-	BP_RemoveGameplayEffectFromOwnerWithGrantedTags(WithGrantedTags, StacksToRemove);
-
+	RemoveGameplayEffectFromOwnerInCode(TEXT("Character.State.Attacking"));
 	K2_EndAbility();
 }
 
