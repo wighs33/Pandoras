@@ -112,10 +112,6 @@ void UGA_FinishAttack_Sword::RunNormal()
         return;
     }
 
-
-    // --- 공격시드 초기화 -------------------------------------
-    if (AttackSeed == 0) AttackSeed = FMath::RandRange(0, 10);
-
     // --- 스태미나 감소 GE 적용 (스테미나 계산) ----------------------------
     ApplyGameplayEffectToOwnerInCode(GE_DrainStamina);
 
@@ -153,8 +149,6 @@ void UGA_FinishAttack_Sword::RunNormal()
     }
     AActor* someactor;
     Victim = someactor;
-
-    ++AttackSeed;
 
     // --- 오너가 상대를 향해 돌아봄 -----------------------------------------------
     AActor* Avatar = GetAvatarActorFromActorInfo();

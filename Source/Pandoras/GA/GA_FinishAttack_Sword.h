@@ -53,9 +53,6 @@ protected:
     TSubclassOf<class UGameplayEffect> GE_MinorExperienceClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-    int32 AttackSeed = 0;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
     TObjectPtr<AActor> Victim = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
