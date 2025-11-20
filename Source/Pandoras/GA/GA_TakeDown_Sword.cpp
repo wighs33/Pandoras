@@ -93,9 +93,6 @@ void UGA_TakeDown_Sword::RunNormal()
         return;
     }
 
-    // --- 공격시드 초기화 -------------------------------------
-    if (AttackSeed == 0) AttackSeed = FMath::RandRange(0, 10);
-
     // --- 오너는 피니셔 공격 애니메이션 재생 (TODO : 적절한 피니셔 공격 애니메이션 필요) ---------
     const FPairedMontages& Pair = FinishAttackMontages[0];
 
@@ -130,8 +127,6 @@ void UGA_TakeDown_Sword::RunNormal()
     }
     AActor* someactor;
     Victim = someactor;
-
-    ++AttackSeed;
 
     // --- 오너가 상대를 향해 돌아봄 -----------------------------------------------
     AActor* Avatar = GetAvatarActorFromActorInfo();
