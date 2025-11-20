@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,9 +5,6 @@
 #include "Abilities/GameplayAbility.h"
 #include "GA_Evade.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class PANDORAS_API UGA_Evade : public UGA_Pandoras
 {
