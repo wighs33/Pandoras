@@ -10,7 +10,6 @@
 
 #include "Item/ItemBase.h"
 
-// 너의 프로젝트 인터페이스
 #include "Interface/ItemWielderInterface.h"
 #include "Interface/ItemInterface.h"
 
