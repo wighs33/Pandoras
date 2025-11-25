@@ -84,15 +84,19 @@ struct PANDORAS_API FItemCommonProperty
 {
     GENERATED_BODY()
 
+    // 아이템명
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
     FString Name = TEXT("ItemName");
 
+    // 설명
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	FString Description = TEXT("ItemDescription");
 
+    // 아이콘
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	TSoftObjectPtr<UTexture2D> Icon;
 
+    // 아이템 타입
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	EItem ItemType = EItem::UnArmed;
 };
@@ -104,18 +108,15 @@ struct PANDORAS_API FWeaponProperties
 {
     GENERATED_BODY()
 
+    // 데미지 GE
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-    float DamageRadius = 80.0;
+    TSoftClassPtr<UGameplayEffect> GEDamage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-	TSoftClassPtr<UGameplayEffect> GEDamageCharge;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-    TSoftClassPtr<UGameplayEffect> GEDamageLite;
-
+    // 스턴 GE
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
     TSoftClassPtr<UGameplayEffect> GEStun;
 
+    // 무기 스탯
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
     TMap<FString, int> WeaponStats;
 };
@@ -127,17 +128,17 @@ struct PANDORAS_API FEquipmentProperties
 {
     GENERATED_BODY()
     
+    // GC 태그
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	FGameplayTag GameplayCueTag;
 
+    // 장착 GE
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	TSoftClassPtr<UGameplayEffect> GameplayEffect;
 
+    // 장착 GA
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	TArray<TSoftClassPtr<UGameplayAbility>> GrantedAbilities;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
-	TSoftClassPtr<UGameplayEffect> AppliedgameplayEffects;
 };
 
 USTRUCT(BlueprintType)
@@ -145,12 +146,15 @@ struct PANDORAS_API FItemData : public FTableRowBase
 {
     GENERATED_BODY()
 
+    // 아이템 공통 속성
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
     FItemCommonProperty ItemCommonProperty;
 
+    // 무기 속성
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	FWeaponProperties WeaponProperties;
 
+    // 장비 속성
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	FEquipmentProperties EquipmentProperties;
 };

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Pandoras.h"
 #include "Blueprint/UserWidget.h"
 #include "GA/GA_Equip.h"
 #include "ItemListWidget.generated.h"
@@ -22,20 +22,26 @@ class PANDORAS_API UItemListWidget : public UUserWidget
 	virtual void NativeConstruct() override;
 
 public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION()
 	void OnBackButtonClicked();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void InitItems(const TArray<TSubclassOf<UGA_Equip>>& New_GA_Equip_Classes);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ChangeSelectedItem(UItemButtonWidget* NewSelectedItem);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintPure, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "C++")
 	bool IsAlreadyEquipped(TSubclassOf<UGA_Equip> EquipGA);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void PeekItemDetails(UItemButtonWidget* InItemButton, bool Hovered);
+
+	UFUNCTION()
+	void OnItemButtonPressed(int32 WeaponIndex);
+
+private:
+	FVector2D GetPosition(UWidget* Button, const FVector2D& OffsetScale);
 
 	// À§Á¬
 protected:

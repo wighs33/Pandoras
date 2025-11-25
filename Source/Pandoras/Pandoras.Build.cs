@@ -23,7 +23,8 @@ public class Pandoras : ModuleRules
 			"MotionTrajectory", 
 			"NavigationSystem", 
 			"AIModule",
-            "Niagara"
+            "Niagara",
+            "UMG"
         });
 	}
 }

@@ -32,10 +32,10 @@ void AItemBase::InitLeadPose_Implementation(USkeletalMeshComponent* LeadMesh)
 }
 
 // 아이템 데이터들 반환
-void AItemBase::GetItemData_Implementation(float& Out_DamageRadius, TSubclassOf<UGameplayEffect>& Out_GE_Damage_Charged, TSubclassOf<UGameplayEffect>& Out_GE_Damage_lite, TSubclassOf<UGameplayEffect>& Out_GE_Stun)
-{
-	Out_DamageRadius = DamageRadius;
-	Out_GE_Damage_Charged = GE_Damage_Charged;
-	Out_GE_Damage_lite = GE_Damage_lite;
-	Out_GE_Stun = GE_Stun;
-}
+//void AItemBase::GetItemData_Implementation(float& Out_DamageRadius, TSubclassOf<UGameplayEffect>& Out_GE_Damage_Charged, TSubclassOf<UGameplayEffect>& Out_GE_Damage_lite, TSubclassOf<UGameplayEffect>& Out_GE_Stun)
+//{
+//	Out_DamageRadius = DamageRadius;
+//	Out_GE_Damage_Charged = GE_Damage_Charged;
+//	Out_GE_Damage_lite = GE_Damage_lite;
+//	Out_GE_Stun = GE_Stun;
+//}

@@ -47,6 +47,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "C++")
 	void CallOnHoverDispatch(UItemButtonWidget* ItemButton, bool Hovered) { OnHoverDispatch.Broadcast(ItemButton, Hovered); }
 
+	void SetButtonIndex(int32 index) { ButtonIndex = index;}
+
 // 위젯
 protected:
 	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
@@ -73,6 +75,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	FItemData ItemData;
 
+public:
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
 	FOnItemButtonClicked OnClickDispatch;
 
