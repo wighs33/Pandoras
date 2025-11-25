@@ -50,6 +50,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ToggleSkillLocked(bool Lock);
 
+	FORCEINLINE FSkill GetSkillData() { return SkillData; }
+	FORCEINLINE bool GetSkillActivated() { return SkillActivated; }
+
 // 위젯
 protected:
 	// BindWidget: 이름만 맞춰두면 엔진이 자동으로 연결
@@ -83,7 +86,7 @@ protected:
 	bool Locked;
 
 // 델리게이트
-protected:
+public:
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
 	FOnSkillButtonClicked OnClickDispatch;
 

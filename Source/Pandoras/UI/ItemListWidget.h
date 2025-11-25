@@ -18,7 +18,7 @@ class PANDORAS_API UItemListWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
-	protected:
+protected:
 	virtual void NativeConstruct() override;
 
 public:

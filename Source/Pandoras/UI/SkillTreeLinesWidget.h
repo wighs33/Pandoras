@@ -14,7 +14,7 @@ class PANDORAS_API USkillTreeLinesWidget : public UUserWidget
 	GENERATED_BODY()
 
 // º¯¼ö
-protected:
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	TArray<TObjectPtr<USkillButtonWidget>> LineStartButtons;
 

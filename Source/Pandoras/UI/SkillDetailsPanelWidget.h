@@ -23,13 +23,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void Hide();
 
+	FORCEINLINE bool GetClickedShow() { return ClickedShow; }
+	FORCEINLINE void SetClickedShow(bool flag) { ClickedShow = flag; }
+
 // 변수
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	bool ClickedShow;
 	
 // 델리게이트
-protected:
+public:
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
 	FOnActivateSkillButtonClick OnActivateButtonClick;
 };
