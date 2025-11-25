@@ -29,7 +29,7 @@ protected:
 	virtual void InitLeadPose_Implementation(USkeletalMeshComponent* LeadMesh) override;
 	virtual FGameplayTagContainer GetItemTag_Implementation() override { return Tag; }
 	virtual EItem GetItemType_Implementation() override { return ItemType; }
-	virtual void GetItemData_Implementation(float& DamageRadius, TSubclassOf<UGameplayEffect>& GE_Damage_Charged, TSubclassOf<UGameplayEffect>& GE_Damage_lite, TSubclassOf<UGameplayEffect>& GE_Stun) override;
+	// virtual void GetItemData_Implementation(float& DamageRadius, TSubclassOf<UGameplayEffect>& GE_Damage_Charged, TSubclassOf<UGameplayEffect>& GE_Damage_lite, TSubclassOf<UGameplayEffect>& GE_Stun) override;
 
 // ÄÄÆ÷³ÍÆ®
 protected:
@@ -57,9 +57,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	float DamageRadius;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
-	TSubclassOf<UGameplayEffect> GE_Damage_Charged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TSubclassOf<UGameplayEffect> GE_Damage_lite;

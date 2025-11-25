@@ -13,6 +13,23 @@ UCLASS()
 class PANDORAS_API UInventoryMainWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
+public:
+	virtual void NativeConstruct() override;
+
+	UFUNCTION()
+	void OnSwordButtonPressed(int32 Index);
+	UFUNCTION()
+	void OnBowButtonPressed(int32 Index);
+	UFUNCTION()
+	void OnHelmetButtonPressed(int32 Index);
+	UFUNCTION()
+	void OnArmorButtonPressed(int32 Index);
+	UFUNCTION()
+	void OnGloveButtonPressed(int32 Index);
+	UFUNCTION()
+	void OnShoesButtonPressed(int32 Index);
+
 	
 // À§Á¬
 protected:

@@ -74,9 +74,7 @@ void AItemBox::Collect_Server_Implementation(AActor* OwnerActor)
 // 아이템 획득 (서버-> 모두)
 void AItemBox::Collect_Multicast_Implementation(AActor* OwnerActor)
 {
-    //BP_Collect_Multicast(OwnerActor);
-
-     // DoOnce: 하나의 상자는 한 번만 획득
+    // --- 하나의 상자는 한 번만 획득 -----------------------------------------
     if (bCollected)
     {
         return;
@@ -85,19 +83,19 @@ void AItemBox::Collect_Multicast_Implementation(AActor* OwnerActor)
 
     CachedOwnerActor = OwnerActor;
 
-    // 이펙트 활성화
+    // --- 이펙트 활성화 ---------------------------------------------------
     if (ChestFX)
     {
         ChestFX->Activate(true);
     }
 
-    // 사운드 재생
+    // --- 사운드 재생 ----------------------------------------------------
     if (OpenSound)
     {
         UGameplayStatics::PlaySoundAtLocation(this, OpenSound, GetActorLocation());
     }
 
-    // 뚜껑 열기: MoveComponentTo (0.4s, Ease In/Out)
+    // --- 뚜껑 열기 -----------------------------------------------------------
     if (Lid)
     {
         FLatentActionInfo LatentInfo;
@@ -123,7 +121,7 @@ void AItemBox::Collect_Multicast_Implementation(AActor* OwnerActor)
     }
     else
     {
-        // Lid가 없으면 바로 다음 단계로
+        // --- Lid가 없으면 바로 다음 단계로 ------------------------------------
         OnLidOpened();
     }
 }

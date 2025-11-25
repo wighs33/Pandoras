@@ -118,19 +118,16 @@ void ASword::ApplyDamageAndStun_Implementation()
     // Source ASC (공격자: 검이 붙어있는 액터)
     UAbilitySystemComponent* SourceASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetAttachParentActor());
 
-    // === Damage: MakeOutgoingSpec( GE_Damage_(lite/charged) ) ================================================
-    const TSubclassOf<UGameplayEffect> DamageGEClass =
-        WeaponCharged ? GE_Damage_Charged : GE_Damage_lite;
-
+    // === Damage: MakeOutgoingSpec ================================================
     if (WeaponCharged) DamageAmount *= 2;
 
-    if (SourceASC && *DamageGEClass)
+    if (SourceASC && *GE_Damage_lite)
     {
         FGameplayEffectContextHandle Ctx = SourceASC->MakeEffectContext();
         Ctx.AddSourceObject(this);
 
         FGameplayEffectSpecHandle SpecHandle =
-            SourceASC->MakeOutgoingSpec(DamageGEClass, /*Level*/0.f, Ctx);
+            SourceASC->MakeOutgoingSpec(GE_Damage_lite, /*Level*/0.f, Ctx);
 
         if (SpecHandle.IsValid())
         {
