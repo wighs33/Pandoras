@@ -13,6 +13,7 @@
 #include "AbilitySystemComponent.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Blueprint/SlateBlueprintLibrary.h"
+#include "GameplayTagAssetInterface.h"
 
 #include "UI/ItemButtonWidget.h"
 #include "UI/ItemDetailsPanel.h"
@@ -173,7 +174,42 @@ void UItemListWidget::ChangeSelectedItem_Implementation(UItemButtonWidget* NewSe
 
 bool UItemListWidget::IsAlreadyEquipped_Implementation(TSubclassOf<UGA_Equip> EquipGA)
 {
-    return true;
+    if (!EquipGA)
+    {
+        return false;
+    }
+
+    const UGA_Equip* EquipCDO = EquipGA->GetDefaultObject<UGA_Equip>();
+    if (!EquipCDO || !EquipCDO->GetItemClass())
+    {
+        return false;
+    }
+
+    AItemBase* ItemCDO = EquipCDO->GetItemClass()->GetDefaultObject<AItemBase>();
+    if (!ItemCDO)
+    {
+        return false;
+    }
+
+    const FGameplayTagContainer& ItemTags = IItemInterface::Execute_GetItemTag(ItemCDO);
+
+    ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
+    if (!PlayerCharacter)
+    {
+        return false;
+    }
+
+    const AActor* PlayerActor = PlayerCharacter;
+
+    UAbilitySystemComponent* ASC =
+        UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PlayerActor);
+
+    if (!ASC)
+    {
+        return false;
+    }
+
+    return ASC->HasAllMatchingGameplayTags(ItemTags);
 }
 
 void UItemListWidget::PeekItemDetails_Implementation(UItemButtonWidget* InItemButton, bool Hovered)
@@ -321,7 +357,6 @@ void UItemListWidget::OnItemButtonPressed(int32 WeaponIndex)
         }
         else
         {
-            // BP 브랜치 false: 바로 Equip 어빌리티 부여/실행
             GiveAndActivateSelectedAbility();
         }
 
