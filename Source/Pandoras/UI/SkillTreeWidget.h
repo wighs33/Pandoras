@@ -16,24 +16,37 @@ class PANDORAS_API USkillTreeWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual void NativeOnInitialized() override;
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+	UFUNCTION()
+	void OnActivateButtonClickEvent();
+
 public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void InitializeTree(UDataTable* InDTSkills, UVerticalBox* InVerticalBox);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void UpdateSkillStatus(USkillButtonWidget* SkillButton);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void RefreshSkillTree();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ShowSkillDetails(USkillButtonWidget* SkillButton);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void ClickedShowSkillDetails(USkillButtonWidget* SkillButton);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void PeekSkillDetails(USkillButtonWidget* SkillButton, bool Hovering);
+
+private:
+	FVector2D GetPosition(UWidget* Button, const FVector2D& OffsetScale);
 
 // À§Á¬
 protected:
@@ -68,17 +81,20 @@ protected:
 	TObjectPtr<UDataTable> DTMagicSkills;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TMap<FName, TObjectPtr<USkillButtonWidget>> SkillButtonMap;
+	TMap<FName, USkillButtonWidget*> SkillButtonMap;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TArray<TObjectPtr<USkillButtonWidget>> LineStartButtons;
+	TArray<USkillButtonWidget*> LineStartButtons;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
-	TArray<TObjectPtr<USkillButtonWidget>> LineEndButtons;
+	TArray<USkillButtonWidget*> LineEndButtons;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	bool MouseDown;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "C++")
 	FVector2D CachedMousePosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TSubclassOf<USkillButtonWidget> SkillButtonWidgetClass;
 };
