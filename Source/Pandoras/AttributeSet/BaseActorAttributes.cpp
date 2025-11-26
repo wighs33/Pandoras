@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "AttributeSet/BaseActorAttributes.h"
 #include "Net/UnrealNetwork.h"
 
@@ -19,6 +16,7 @@ void UBaseActorAttributes::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, SkillPoints, COND_None, REPNOTIFY_Always);
 }
 
+// 데미지 처리 전 방어력 적용하여 데미지량 감소
 void UBaseActorAttributes::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);

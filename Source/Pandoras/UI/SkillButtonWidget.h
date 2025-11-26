@@ -12,7 +12,7 @@ class UImage;
 class UBorder;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillButtonClicked, USkillButtonWidget*, SkillButton);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHoverButtonClicked, USkillButtonWidget*, SkillButton, bool, Hovering);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkillButtonHovered, USkillButtonWidget*, SkillButton, bool, Hovering);
 
 UCLASS()
 class PANDORAS_API USkillButtonWidget : public UUserWidget
@@ -52,6 +52,7 @@ public:
 
 	FORCEINLINE FSkill GetSkillData() { return SkillData; }
 	FORCEINLINE bool GetSkillActivated() { return SkillActivated; }
+	FORCEINLINE bool GetLocked() { return Locked; }
 
 // À§Á¬
 protected:
@@ -91,5 +92,5 @@ public:
 	FOnSkillButtonClicked OnClickDispatch;
 
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "C++")
-	FOnHoverButtonClicked OnHoverDispatch;
+	FOnSkillButtonHovered OnHoverDispatch;
 };
