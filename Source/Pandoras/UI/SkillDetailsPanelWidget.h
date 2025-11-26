@@ -26,7 +26,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void InitializeData(USkillButtonWidget* SkillButton);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "C++")
 	void Hide();
 
 	UFUNCTION()

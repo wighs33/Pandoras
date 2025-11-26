@@ -35,7 +35,7 @@ void USkillDetailsPanelWidget::HandleCancelClicked()
     Hide();
 }
 
-void USkillDetailsPanelWidget::Hide()
+void USkillDetailsPanelWidget::Hide_Implementation()
 {
     // ¼û±â±â
     SetVisibility(ESlateVisibility::Hidden);
