@@ -142,4 +142,6 @@ private:
 	static constexpr float RootMotionCheckInterval = 0.4f;
 
 	static constexpr float FocusMoveTime = 0.4f;
+
+	static constexpr int32 MeshRotationLatentUUID = 1;
 };

@@ -17,6 +17,14 @@
 #include "Item/ItemBase.h"
 #include "Interface/ItemWielderInterface.h"
 #include "Interface/CharacterInterface.h"
+#include "Net/UnrealNetwork.h"
+
+namespace
+{
+    // 뚜껑이 열린 뒤의 상대 위치
+    const FVector LidOpenedRelativeLocation(-60.f, -60.f, 0.f);
+    const FRotator LidOpenedRelativeRotation(0.f, 0.f, 0.f);
+}
 
 // 생성자
 // 리플리케이션 허용
@@ -58,6 +66,13 @@ void AItemBox::BeginPlay()
 }
 
 
+void AItemBox::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AItemBox, bCollected);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool AItemBox::Collect_Server_Validate(AActor* OwnerActor)
@@ -68,18 +83,43 @@ bool AItemBox::Collect_Server_Validate(AActor* OwnerActor)
 // 아이템 획득 (클라-> 서버)
 void AItemBox::Collect_Server_Implementation(AActor* OwnerActor)
 {
-    Collect_Multicast(OwnerActor);
+    // --- 하나의 상자는 한 번만 획득 -----------------------------------------
+    if (bCollected)
+    {
+        return;
+    }
+
+    BP_Collect_Server(OwnerActor);
+
+    // BP_Collect_Server가 이미 멀티캐스트한 상자는 다시 보내지 않는다.
+    if (!bCollected)
+    {
+        Collect_Multicast(OwnerActor);
+    }
 }
 
 // 아이템 획득 (서버-> 모두)
 void AItemBox::Collect_Multicast_Implementation(AActor* OwnerActor)
 {
     // --- 하나의 상자는 한 번만 획득 -----------------------------------------
-    if (bCollected)
+    if (bCollectStarted)
     {
         return;
     }
-    bCollected = true;
+    bCollectStarted = true;
+
+    // --- 획득 여부는 서버가 정해 복제한다 ---------------------------------------
+    if (HasAuthority())
+    {
+        bCollected = true;
+    }
+
+    // 연출과 보상이 그래프에 모두 있는 상자는 C++ 처리까지 돌면 아이템이 두 번 지급된다.
+    if (GetClass()->IsFunctionImplementedInScript(GET_FUNCTION_NAME_CHECKED(AItemBox, BP_Collect_Multicast)))
+    {
+        BP_Collect_Multicast(OwnerActor);
+        return;
+    }
 
     CachedOwnerActor = OwnerActor;
 
@@ -104,13 +144,10 @@ void AItemBox::Collect_Multicast_Implementation(AActor* OwnerActor)
         LatentInfo.Linkage = 0;
         LatentInfo.UUID = ++LidLatentUUID;
 
-        const FVector  TargetRelLoc(-60.f, -60.f, 0.f);
-        const FRotator TargetRelRot = FRotator::ZeroRotator;
-
         UKismetSystemLibrary::MoveComponentTo(
             Lid,
-            TargetRelLoc,
-            TargetRelRot,
+            LidOpenedRelativeLocation,
+            LidOpenedRelativeRotation,
             /*bEaseOut*/ true,
             /*bEaseIn*/  true,
             /*OverTime*/ 0.4f,
@@ -124,6 +161,23 @@ void AItemBox::Collect_Multicast_Implementation(AActor* OwnerActor)
         // --- Lid가 없으면 바로 다음 단계로 ------------------------------------
         OnLidOpened();
     }
+}
+
+// 멀티캐스트를 받지 못한 클라이언트(늦은 입장 등)는 복제값으로 상자 상태를 맞춘다
+void AItemBox::OnRep_Collected()
+{
+    // 멀티캐스트로 여는 중이면 연출이 끝나면서 마무리한다.
+    if (!bCollected || bCollectStarted)
+    {
+        return;
+    }
+
+    if (Lid)
+    {
+        Lid->SetRelativeLocationAndRotation(LidOpenedRelativeLocation, LidOpenedRelativeRotation);
+    }
+
+    HideBillboardAndDisableTrigger();
 }
 
 // MoveComponentTo 완료 후 실행

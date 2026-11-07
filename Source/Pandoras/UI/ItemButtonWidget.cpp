@@ -8,7 +8,7 @@ void UItemButtonWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     // 버튼 클릭 시점 바인딩
-    Button->OnClicked.AddDynamic(this, &UItemButtonWidget::OnButtonClicked);
-    Button->OnHovered.AddDynamic(this, &UItemButtonWidget::OnButtonHovered);
-    Button->OnUnhovered.AddDynamic(this, &UItemButtonWidget::OnButtonUnhovered);
+    Button->OnClicked.AddUniqueDynamic(this, &UItemButtonWidget::OnButtonClicked);
+    Button->OnHovered.AddUniqueDynamic(this, &UItemButtonWidget::OnButtonHovered);
+    Button->OnUnhovered.AddUniqueDynamic(this, &UItemButtonWidget::OnButtonUnhovered);
 }

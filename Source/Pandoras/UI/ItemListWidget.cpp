@@ -81,7 +81,12 @@ void UItemListWidget::InitItems_Implementation(const TArray<TSubclassOf<UGA_Equi
         else
         {
             // --- 아이템 버튼 위젯 하나 생성 후 저장 --------------------------------------
-            UItemButtonWidget* NewItemButton = CreateWidget<UItemButtonWidget>(GetOwningPlayer(), UItemButtonWidget::StaticClass());
+            if (!ItemButtonWidgetClass)
+            {
+                return;
+            }
+
+            UItemButtonWidget* NewItemButton = CreateWidget<UItemButtonWidget>(GetOwningPlayer(), ItemButtonWidgetClass);
             ItemButton = NewItemButton;
 
             // --- 버튼리스트에 추가 -------------------------------------
@@ -135,6 +140,7 @@ void UItemListWidget::InitItems_Implementation(const TArray<TSubclassOf<UGA_Equi
             // --- 클릭/Hover 델리게이트에 버튼 이벤트 구독 --------------------------
             ItemButton->OnClickDispatch.Clear();
             ItemButton->OnClickDispatch.AddDynamic(this,&UItemListWidget::OnItemButtonPressed);
+            ItemButton->OnHoverDispatch.Clear();
             ItemButton->OnHoverDispatch.AddDynamic(this,&UItemListWidget::PeekItemDetails);
         }
         else
@@ -315,12 +321,16 @@ void UItemListWidget::OnItemButtonPressed(int32 WeaponIndex)
     FGameplayTagContainer UnequipTag;
     UnequipTag.AddTag(FGameplayTag::RequestGameplayTag(TEXT("Character.Event.Unequip")));
 
-    auto GiveAndActivateSelectedAbility = [this, PlayerCharacter]()
+    const TWeakObjectPtr<ACharacter> WeakPlayerCharacter = PlayerCharacter;
+    auto GiveAndActivateSelectedAbility = [this, WeakPlayerCharacter]()
         {
-            IGASInterface::Execute_GiveAndActivateAbility_Replicate(
-                PlayerCharacter,
-                Selected_GA_Equip
-            );
+            if (ACharacter* TargetCharacter = WeakPlayerCharacter.Get())
+            {
+                IGASInterface::Execute_GiveAndActivateAbility_Replicate(
+                    TargetCharacter,
+                    Selected_GA_Equip
+                );
+            }
         };
 
     // 아이템 타입 스위치
@@ -343,13 +353,9 @@ void UItemListWidget::OnItemButtonPressed(int32 WeaponIndex)
         {
             if (UWorld* World = GetWorld())
             {
-                FTimerHandle TimerHandle;
-                FTimerDelegate TimerDel;
-                TimerDel.BindLambda(GiveAndActivateSelectedAbility);
-
                 World->GetTimerManager().SetTimer(
-                    TimerHandle,
-                    TimerDel,
+                    GiveEquipAbilityTimerHandle,
+                    FTimerDelegate::CreateWeakLambda(this, GiveAndActivateSelectedAbility),
                     1.5f,
                     /*bLoop=*/false
                 );

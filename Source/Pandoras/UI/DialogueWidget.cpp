@@ -28,6 +28,13 @@ void UDialogueWidget::ShowNext_Implementation()
 
     ++TalkIndex;
 
+    // 기존 보이스가 유효하면 멈추기
+    if (IsValid(CurrentVoice))
+    {
+        CurrentVoice->Stop();
+        CurrentVoice = nullptr;
+    }
+
     // 인덱스 유효성 검사
     if (!DialogueData.IsValidIndex(TalkIndex))
     {
@@ -60,13 +67,6 @@ void UDialogueWidget::ShowNext_Implementation()
     if (CharacterName)
     {
         CharacterName->SetText(FText::FromString(Row.CharacterName));
-    }
-
-    // 기존 보이스가 유효하면 멈추기
-    if (IsValid(CurrentVoice))
-    {
-        CurrentVoice->Stop();
-        CurrentVoice = nullptr;
     }
 
     // 플레이어 폰 Root에 보이스 스폰

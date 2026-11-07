@@ -30,6 +30,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// 변수 복제를 위해 반드시 GetLifetimeReplicatedProps 를 오버라이드
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void OnColliderBeginOverlap(
 		UPrimitiveComponent* OverlappedComp,
@@ -50,9 +53,13 @@ protected:
 protected:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "C++")
 	void Collect_Server(AActor* OwnerActor);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_Collect_Server(AActor* OwnerActor);
 
     UFUNCTION(NetMulticast, Reliable, BlueprintCallable, Category = "C++")
     void Collect_Multicast(AActor* OwnerActor);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
+	void BP_Collect_Multicast(AActor* OwnerActor);
 
 protected:
 	UFUNCTION() 
@@ -63,6 +70,9 @@ protected:
 
 	UFUNCTION() 
 	void HideBillboardAndDisableTrigger();
+
+	UFUNCTION()
+	void OnRep_Collected();
 
 // 컴포넌트
 protected:
@@ -112,7 +122,9 @@ protected:
     TObjectPtr<USoundBase> OpenSound = nullptr;
 
 private:
-	bool bCollected = false;                // DoOnce
+	UPROPERTY(ReplicatedUsing = OnRep_Collected)
+	bool bCollected = false;                // 서버가 정하는 획득 여부
+	bool bCollectStarted = false;           // 이 머신의 DoOnce
 	int32 LidLatentUUID = 0;                // latent 식별
 	TWeakObjectPtr<AActor> CachedOwnerActor; // 콜백에서 사용
 };

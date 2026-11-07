@@ -50,7 +50,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "C++")
 	void ToggleSkillLocked(bool Lock);
 
-	FORCEINLINE FSkill GetSkillData() { return SkillData; }
+	FORCEINLINE FSkill& GetSkillData() { return SkillData; }
 	FORCEINLINE bool GetSkillActivated() { return SkillActivated; }
 	FORCEINLINE bool GetLocked() { return Locked; }
 

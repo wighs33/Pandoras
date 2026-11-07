@@ -74,4 +74,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
 	TObjectPtr<UDataTable> DT_ItemTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
+	TSubclassOf<UItemButtonWidget> ItemButtonWidgetClass;
+
+	FTimerHandle GiveEquipAbilityTimerHandle;
 };
