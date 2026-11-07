@@ -79,9 +79,6 @@ void APandorasCharacterBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	// --- 락타겟에게 포커싱 ----------------------------------
-	FocusOnEnemy();
-
 	// --- 플레이어인지 체크 --------------------------------------------
 	const bool bIsPlayer = ICharacterInterface::Execute_IsPlayer(this);
 	if (!bIsPlayer)
@@ -140,12 +137,23 @@ void APandorasCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 클라이언트의 ASC는 생성 직후의 로컬 세트를 복제된 세트로 바꾸므로 다시 읽는다.
+	if (IsValid(AbilitySystemComponent))
+	{
+		BaseActorAttributes = AbilitySystemComponent->GetSet<UBaseActorAttributes>();
+	}
+
 	LoadCharacterData();
 
 	GetWorldTimerManager().SetTimer(
 		TimerHandle_RefreshUI,
-		this,
-		&APandorasCharacterBase::RefreshUI,
+		FTimerDelegate::CreateWeakLambda(this, [this]()
+			{
+				if (IsPlayerControlled() && IsLocallyControlled())
+				{
+					RefreshUI();
+				}
+			}),
 		/*Delay*/2.f,
 		/*bLoop*/false
 	);
@@ -165,6 +173,8 @@ void APandorasCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME(APandorasCharacterBase, MontageData);
 	DOREPLIFETIME(APandorasCharacterBase, WeaponType);
 	DOREPLIFETIME(APandorasCharacterBase, CurrentMovementMode);
+	DOREPLIFETIME(APandorasCharacterBase, OriginalMovementMode);
+	DOREPLIFETIME(APandorasCharacterBase, LockTarget);
 }
 
 
@@ -306,6 +316,13 @@ void APandorasCharacterBase::LoadAttributes(TMap<FGameplayAttribute, float> Save
 	{
 		FGameplayAttribute Attribute = Pair.Key;
 		float Value = Pair.Value;
+
+		// 저장된 방어력에는 장비 GE가 더해져 있어 덮어쓰면 로드할 때마다 누적된다.
+		if (Attribute == UBaseActorAttributes::GetDefenceAttribute())
+		{
+			continue;
+		}
+
 		AbilitySystemComponent->ApplyModToAttribute(Attribute, EGameplayModOp::Override, Value);
 	}
 }
@@ -334,7 +351,7 @@ void APandorasCharacterBase::EquipItem_Implementation(AItemBase* Item)
 		// 무기 별 장착 몽타주 재생--------------------------------------------------------------------------------------------
 		if (EquipMontage_Sword)
 		{
-			PlayMontageReplicated(EquipMontage_Sword, /*Rate*/1.f, /*Section*/NAME_None);
+			ICharacterInterface::Execute_PlayMontageReplicated(this, EquipMontage_Sword, /*Rate*/1.f, /*Section*/NAME_None);
 		}
 		break;
 		
@@ -342,7 +359,7 @@ void APandorasCharacterBase::EquipItem_Implementation(AItemBase* Item)
 		CurrentWeapon = Item;
 		if (EquipMontage_GreatSword)
 		{
-			PlayMontageReplicated(EquipMontage_GreatSword, /*Rate*/1.f, /*Section*/NAME_None);
+			ICharacterInterface::Execute_PlayMontageReplicated(this, EquipMontage_GreatSword, /*Rate*/1.f, /*Section*/NAME_None);
 		}
 		break;
 
@@ -492,7 +509,7 @@ void APandorasCharacterBase::UpdateWeapon_Implementation(EItem ItemType)
 	}
 
 	// 이동모드 갱신----------------------------------------------------------------------------------------------------
-	SetMovementMode(CurrentMovementMode);
+	ICharacterInterface::Execute_SetMovementMode(this, CurrentMovementMode);
 }
 
 void APandorasCharacterBase::OnRep_WeaponType_Implementation()
@@ -540,13 +557,13 @@ void APandorasCharacterBase::UnequipItem_Implementation()
 		break;
 	}
 
-	PlayMontageReplicated(Montage, /*InPlayRate*/1.f, /*StartSectionName*/NAME_None);
+	ICharacterInterface::Execute_PlayMontageReplicated(this, Montage, /*InPlayRate*/1.f, /*StartSectionName*/NAME_None);
 
 	// walk/run을 무기 해제 버전으로 변경---------------------------------------------------------------------------
 	UpdateWeapon(EItem::UnArmed);
 
 	// 아이템 삭제------------------------------------------------------------------------------------------------
-	if (CurrentWeapon->GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
+	if (GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
 	{
 		IItemWielderInterface::Execute_DestroyItem(this, ItemType);
 	}
@@ -740,9 +757,12 @@ void APandorasCharacterBase::SlowDown_Implementation(float Rate, float Duration)
 	// 애니메이션 속도 잠시동안 감속 후 원래대로-----------------------------------------------------------------------------
 	MeshComp->GlobalAnimRateScale = Rate;
 
-	FTimerDelegate ResetDelegate = FTimerDelegate::CreateWeakLambda(this, [&]()
+	FTimerDelegate ResetDelegate = FTimerDelegate::CreateWeakLambda(this, [this]()
 		{
-			MeshComp->GlobalAnimRateScale = 1.0f;
+			if (USkeletalMeshComponent* Skel = GetMesh())
+			{
+				Skel->GlobalAnimRateScale = 1.0f;
+			}
 		});
 
 	FTimerHandle Handle;
@@ -843,14 +863,14 @@ void APandorasCharacterBase::PlayMontageReplicated_Implementation(UAnimMontage* 
 	FTimerHandle Handle;
 	GetWorldTimerManager().SetTimer(
 		Handle,
-		[this]()
+		FTimerDelegate::CreateWeakLambda(this, [this]()
 		{
 			// AnimMontage 만 None으로 바꿔서 On_Rep 재호출 유도
 			auto Temp = MontageData;
 			Temp.AnimMontage = nullptr;
 			MontageData = Temp;
 			ForceNetUpdate();
-		},
+		}),
 		FMath::Max(Duration, 0.f),
 		false
 	);
@@ -915,7 +935,10 @@ void APandorasCharacterBase::SendGameplayEvent_Multicast_Implementation(AActor* 
 void APandorasCharacterBase::ExecuteGameplayCue_Replicated_Implementation(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters)
 {
 	// 게임플레이 큐 동기화
-	ExecuteGameplayCue_Server(TargetActor, GamplayCueTag, Parameters);
+	if (HasAuthority())
+	{
+		ExecuteGameplayCue_Multicast(TargetActor, GamplayCueTag, Parameters);
+	}
 }
 
 bool APandorasCharacterBase::ExecuteGameplayCue_Server_Validate(AActor* TargetActor, FGameplayTag GamplayCueTag, const FGameplayCueParameters Parameters)
@@ -1111,7 +1134,10 @@ void APandorasCharacterBase::SetMovementMode_Server_Implementation(ECustomMoveme
 	{
 		if (UAnimInstance* AnimInst = MeshComp->GetAnimInstance())
 		{
-			ICharacterAnimationInterface::Execute_UpdateMovementMode(AnimInst, CurrentMovementMode);
+			if (AnimInst->GetClass()->ImplementsInterface(UCharacterAnimationInterface::StaticClass()))
+			{
+				ICharacterAnimationInterface::Execute_UpdateMovementMode(AnimInst, CurrentMovementMode);
+			}
 		}
 	}
 }
@@ -1262,13 +1288,13 @@ void APandorasCharacterBase::Attack_Implementation()
 		FTimerHandle Handle;
 		GetWorldTimerManager().SetTimer(
 			Handle,
-			[this, AttackTagsCopy]()
+			FTimerDelegate::CreateWeakLambda(this, [this, AttackTagsCopy]()
 			{
 				if (AbilitySystemComponent)
 				{
 					AbilitySystemComponent->TryActivateAbilitiesByTag(AttackTagsCopy, /*bAllowRemoteActivation=*/true);
 				}
-			},
+			}),
 			0.5f,
 			false
 		);
@@ -1340,7 +1366,7 @@ void APandorasCharacterBase::ChargeAttack_Implementation()
 	FTimerHandle ChargeTimerHandle;
 	GetWorldTimerManager().SetTimer(
 		ChargeTimerHandle,
-		[this]()
+		FTimerDelegate::CreateWeakLambda(this, [this]()
 		{
 			UObject* WeaponObj = nullptr;
 			if (GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
@@ -1356,15 +1382,15 @@ void APandorasCharacterBase::ChargeAttack_Implementation()
 			FTimerHandle RestoreTimerHandle;
 			GetWorldTimerManager().SetTimer(
 				RestoreTimerHandle,
-				[this]()
+				FTimerDelegate::CreateWeakLambda(this, [this]()
 				{
 					if (USkeletalMeshComponent* Skel = GetMesh())
 					{
 						Skel->GlobalAnimRateScale = 1.0f;
 					}
-				},
+				}),
 				0.2f, false);
-		},
+		}),
 		0.2f, false);
 }
 
@@ -1394,10 +1420,10 @@ void APandorasCharacterBase::NotifyAttack_Implementation(bool IsNonBlockable)
 	FTimerHandle Handle;
 	GetWorldTimerManager().SetTimer(
 		Handle,
-		[this]()
+		FTimerDelegate::CreateWeakLambda(this, [this]()
 		{
 			bNotifyAttack_DoOnceClosed = false;
-		},
+		}),
 		2.0f, false);
 }
 
@@ -1442,11 +1468,17 @@ bool APandorasCharacterBase::ApplyGameplayEffect_Server_Validate(TSubclassOf<UGa
 
 void APandorasCharacterBase::ApplyGameplayEffect_Server_Implementation(TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
-	ApplyGameplayEffect_Server(GameplayEffectClass);
+	ApplyGameplayEffect_Replicate_Implementation(GameplayEffectClass);
 }
 
 void APandorasCharacterBase::ApplyGameplayEffect_Replicate_Implementation(TSubclassOf<UGameplayEffect> GameplayEffect)
 {
+	if (!HasAuthority())
+	{
+		ApplyGameplayEffect_Server(GameplayEffect);
+		return;
+	}
+
 	if (!AbilitySystemComponent || !GameplayEffect)
 	{
 		return;
@@ -1480,6 +1512,12 @@ void APandorasCharacterBase::LockOn_Implementation()
 
 void APandorasCharacterBase::SetLockTarget_Implementation(AActor* InLockTarget)
 {
+	// 첫 락온이면 락오프 때 돌아갈 이동 모드 저장---------------------------------------------
+	if (!LockTarget && InLockTarget)
+	{
+		OriginalMovementMode = CurrentMovementMode;
+	}
+
 	// 새로운 락타겟 저장------------------------------------------------------------
 	LockTarget = InLockTarget;
 
@@ -1504,7 +1542,7 @@ void APandorasCharacterBase::ClearLockTarget_Implementation()
 
 void APandorasCharacterBase::ResetMovementMode_Implementation()
 {
-	SetMovementMode(OriginalMovementMode);
+	ICharacterInterface::Execute_SetMovementMode(this, OriginalMovementMode);
 }
 
 void APandorasCharacterBase::FocusOnEnemy_Implementation()
@@ -1555,7 +1593,8 @@ void APandorasCharacterBase::FocusOnEnemy_Implementation()
 			{
 				Anim->StopAllMontages(0.f);
 
-				if (MontageToPlay)
+				// 델리게이트는 재생 중인 몽타주에만 묶이므로 재생을 먼저 시작한다.
+				if (MontageToPlay && Anim->Montage_Play(MontageToPlay, /*PlayRate*/1.f) > 0.f)
 				{
 					bTurningMontagePlaying_DoOnceClosed = true;
 
@@ -1572,8 +1611,6 @@ void APandorasCharacterBase::FocusOnEnemy_Implementation()
 							bTurningMontagePlaying_DoOnceClosed = false;
 						});
 					Anim->Montage_SetEndDelegate(Ended, MontageToPlay);
-
-					Anim->Montage_Play(MontageToPlay, /*PlayRate*/1.f);
 				}
 			}
 		}
@@ -1597,7 +1634,8 @@ AActor* APandorasCharacterBase::GetLockedEnemy_Implementation()
 
 float APandorasCharacterBase::GetStamina_Implementation()
 {
-	return BaseActorAttributes->Stamina.GetCurrentValue();
+	const UBaseActorAttributes* Attributes = GetCurrentAttributes();
+	return Attributes ? Attributes->Stamina.GetCurrentValue() : 0.f;
 }
 bool APandorasCharacterBase::IsLocalCharacter_Implementation()
 {
@@ -1606,7 +1644,12 @@ bool APandorasCharacterBase::IsLocalCharacter_Implementation()
 
 const UBaseActorAttributes* APandorasCharacterBase::GetBaseActorAttribute_Implementation()
 {
-	return BaseActorAttributes;
+	return GetCurrentAttributes();
+}
+
+const UBaseActorAttributes* APandorasCharacterBase::GetCurrentAttributes() const
+{
+	return AbilitySystemComponent ? AbilitySystemComponent->GetSet<UBaseActorAttributes>() : nullptr;
 }
 
 void APandorasCharacterBase::UpdateHealth_Implementation(float NewHealth)
@@ -1676,19 +1719,22 @@ void APandorasCharacterBase::UpdateXPPoints_Implementation(const float NewXPPoin
 	if (IsPlayerControlled())
 	{
 		// 10초동안 레벨 UI를 HUD에 표시------------------------------------------------------
-		if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+		if (IsLocallyControlled())
 		{
-			if (AHUD* HUD = PC->GetHUD())
+			if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
 			{
-				if (HUD->GetClass()->ImplementsInterface(UHudInterface::StaticClass()))
+				if (AHUD* HUD = PC->GetHUD())
 				{
-					IHudInterface::Execute_ShowCharacterLevel(HUD, 10.f);
+					if (HUD->GetClass()->ImplementsInterface(UHudInterface::StaticClass()))
+					{
+						IHudInterface::Execute_ShowCharacterLevel(HUD, 10.f);
+					}
 				}
 			}
 		}
 
 		// 레벨 업 어빌리티 실행--------------------------------------------------------------------
-		if (AbilitySystemComponent)
+		if (HasAuthority() && AbilitySystemComponent)
 		{
 			if (LevelUpAbilityClass)
 			{

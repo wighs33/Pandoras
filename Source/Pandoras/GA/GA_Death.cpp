@@ -12,8 +12,6 @@ void UGA_Death::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	AActor* Avatar = GetAvatarActorFromActorInfo();
 	if (!Avatar || !GetWorld())
 	{

@@ -60,20 +60,7 @@ void USkillTreeWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime
         return;
     }
 
-    APlayerController* PC = GetOwningPlayer();
-    if (!PC)
-    {
-        return;
-    }
-
-    float MouseX = 0.f;
-    float MouseY = 0.f;
-    if (!PC->GetMousePosition(MouseX, MouseY))
-    {
-        return;
-    }
-
-    const FVector2D CurrentMousePos(MouseX, MouseY);
+    const FVector2D CurrentMousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(this);
 
     // [현재 마우스 위치] - [캐시된 마우스 위치]
     const FVector2D Delta = CurrentMousePos - CachedMousePosition;

@@ -9,7 +9,6 @@ void UGA_Unequip::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActivationInfo ActivationInfo,
     const FGameplayEventData* TriggerEventData)
 {
-    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
     // --- 오너는 아이템 장착 해제 --------------------------------------
     AActor* AvatarActor = GetAvatarActorFromActorInfo();

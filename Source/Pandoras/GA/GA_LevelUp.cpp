@@ -11,8 +11,6 @@ void UGA_LevelUp::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	AActor* Avatar = GetAvatarActorFromActorInfo();
 
 	if (!Avatar || !GetWorld())

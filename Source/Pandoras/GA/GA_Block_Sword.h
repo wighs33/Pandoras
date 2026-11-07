@@ -6,6 +6,7 @@
 #include "GA/GA_Pandoras.h"
 #include "GA_Block_Sword.generated.h"
 
+class UAbilityTask_PlayMontageAndWait;
 
 UCLASS()
 class PANDORAS_API UGA_Block_Sword : public UGA_Pandoras
@@ -18,10 +19,14 @@ protected:
         const FGameplayAbilityActivationInfo ActivationInfo,
         const FGameplayEventData* TriggerEventData) override;
 
+    virtual void EndAbility(const FGameplayAbilitySpecHandle Handle,
+        const FGameplayAbilityActorInfo* ActorInfo,
+        const FGameplayAbilityActivationInfo ActivationInfo,
+        bool bReplicateEndAbility,
+        bool bWasCancelled) override;
+
     UFUNCTION()
     void HandleCancel();
-
-    void RemoveBlockEffectAndFinish();
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
@@ -32,4 +37,10 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "C++")
     TObjectPtr<AActor> Sword = nullptr;
+
+private:
+    UPROPERTY()
+    TObjectPtr<UAbilityTask_PlayMontageAndWait> BlockMontageTask = nullptr;
+
+    FTimerHandle BlockTimerHandle;
 };

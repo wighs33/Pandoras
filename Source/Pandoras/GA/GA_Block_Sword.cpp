@@ -5,6 +5,7 @@
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitCancel.h"
+#include "Animation/AnimMontage.h"
 #include "GameplayEffect.h"
 #include "TimerManager.h"
 
@@ -18,8 +19,6 @@ void UGA_Block_Sword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActivationInfo ActivationInfo,
     const FGameplayEventData* TriggerEventData)
 {
-    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
     // --- 오너의 무기 유효성 체크 -------------------------------------------------
     AActor* Avatar = GetAvatarActorFromActorInfo();
     AActor* Weapon = IItemWielderInterface::Execute_GetWeapon(Avatar);
@@ -37,10 +36,12 @@ void UGA_Block_Sword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     // --- 블로킹 애니메이션 -----------------------------------------------------
     if (BlockMontage)
     {
-        if (auto* Task = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-            this, NAME_None, BlockMontage))
+        BlockMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+            this, NAME_None, BlockMontage);
+
+        if (BlockMontageTask)
         {
-            Task->ReadyForActivation();
+            BlockMontageTask->ReadyForActivation();
         }
     }
 
@@ -57,13 +58,10 @@ void UGA_Block_Sword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     // --- 블로킹 대기 후 다음 진행 -----------------------------------------------
     if (UWorld* World = GetWorld())
     {
-        FTimerHandle TimerHandle;
         World->GetTimerManager().SetTimer(
-            TimerHandle,
-            [this]()
-            {
-                RemoveBlockEffectAndFinish();
-            },
+            BlockTimerHandle,
+            this,
+            &UGA_Block_Sword::K2_EndAbility,
             5.0f, false);
     }
 }
@@ -71,28 +69,46 @@ void UGA_Block_Sword::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 void UGA_Block_Sword::HandleCancel()
 {
     // --- 블로킹 애니메이션 마무리 -------------------------------------------------
-    if (BlockMontage)
+    const FName EndSection(TEXT("End"));
+    if (BlockMontage && BlockMontage->IsValidSectionName(EndSection))
     {
+        // 앞선 Task가 살아 있으면 Ability가 끝날 때 같은 몽타주를 멈춰 End 구간이 잘린다.
+        if (IsValid(BlockMontageTask))
+        {
+            BlockMontageTask->EndTask();
+        }
+
         if (auto* Task = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-            this, NAME_None, BlockMontage, 1.f, FName(TEXT("End"))))
+            this, NAME_None, BlockMontage, 1.f, EndSection, /*bStopWhenAbilityEnds*/ false))
         {
             Task->ReadyForActivation();
         }
     }
 
-    RemoveBlockEffectAndFinish();
+    K2_EndAbility();
 }
 
-void UGA_Block_Sword::RemoveBlockEffectAndFinish()
+void UGA_Block_Sword::EndAbility(const FGameplayAbilitySpecHandle Handle,
+    const FGameplayAbilityActorInfo* ActorInfo,
+    const FGameplayAbilityActivationInfo ActivationInfo,
+    bool bReplicateEndAbility,
+    bool bWasCancelled)
 {
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(BlockTimerHandle);
+    }
+
     // --- 오너에 블로킹GE 적용해제 -----------------------------------------------
     RemoveGameplayEffectFromOwnerInCode(TEXT("Character.State.Blocking"));
 
     // --- 블로킹 박스 비활성화 ------------------------------------------------
-    if (Sword)
+    if (IsValid(Sword))
     {
         IItemInterface::Execute_ToggleBlockBox(Sword, /*Enable*/false);
     }
 
-    K2_EndAbility();
+    BlockMontageTask = nullptr;
+
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

@@ -7,6 +7,8 @@
 #include "AbilitySystemComponent.h"
 #include "BaseActorAttributes.generated.h"
 
+struct FGameplayEffectModCallbackData;
+
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
@@ -53,6 +55,15 @@ protected:
 
 	// 속성값 변경 직전
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+
+	// GE 실행 직전
+	virtual bool PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data) override;
+
+	// GE 실행 직후
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+
+	// 스태미나 최댓값
+	static constexpr float MaxStamina = 100.f;
 
     UFUNCTION()
     virtual void OnRep_Health(const FGameplayAttributeData& OldHealth) 

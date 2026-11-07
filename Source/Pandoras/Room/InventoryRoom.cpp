@@ -78,7 +78,7 @@ bool AInventoryRoom::TogglePauseMode_Implementation()
 	{
 		bAlive = ICharacterInterface::Execute_IsAlive(PlayerCharacter_local);
 	}
-	if (!SCREEN_WARN(bAlive)) return false;
+	if (!bInPauseMode && !SCREEN_WARN(bAlive)) return false;
 
 	if (bInPauseMode)
 	{
@@ -130,7 +130,15 @@ void AInventoryRoom::OnSkillTreeStarted_Implementation()
 // 회전 활성화 시 시선(look) 입력
 void AInventoryRoom::OnLookTriggered_Implementation(float XValue)
 {
-	if (!bMeshRotating) return;
+	if (!bInPauseMode || !bMeshRotating) return;
+
+	// 캡슐 밖에서 버튼을 떼면 OnReleased가 오지 않으므로 여기서 회전을 끝낸다.
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	if (!PC || !PC->IsInputKeyDown(EKeys::LeftMouseButton))
+	{
+		bMeshRotating = false;
+		return;
+	}
 
 	const float DeltaSeconds = GetWorld() ? GetWorld()->GetDeltaSeconds() : 0.f;
 	const float DeltaYaw = XValue * DeltaSeconds * LookYawSpeed;
@@ -267,6 +275,7 @@ void AInventoryRoom::ExitPauseMode_Implementation()
 	if (!SCREEN_WARN(PlayerCharacter)) return;
 
 	StopMeshRotation();
+	bMeshRotating = false;
 
 	if (USkeletalMeshComponent* Mesh = PlayerCharacter->GetMesh())
 	{
@@ -281,11 +290,21 @@ void AInventoryRoom::ExitPauseMode_Implementation()
 		);
 	}
 
+	// 인벤토리를 연 채로 죽었으면 입력과 이동을 되살리지 않는다.
+	bool bAlive = true;
+	if (PlayerCharacter->GetClass()->ImplementsInterface(UCharacterInterface::StaticClass()))
+	{
+		bAlive = ICharacterInterface::Execute_IsAlive(PlayerCharacter);
+	}
+
 	// 캐릭터 입력 다시 활성화하고 캐릭터의 시점으로 다시 전환---------------------------------------------------
 	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
 	if (PC)
 	{
-		PlayerCharacter->EnableInput(PC);
+		if (bAlive)
+		{
+			PlayerCharacter->EnableInput(PC);
+		}
 
 		PC->SetViewTargetWithBlend(
 			PlayerCharacter,
@@ -299,7 +318,8 @@ void AInventoryRoom::ExitPauseMode_Implementation()
 	bInPauseMode = false;
 
 	// 캐릭터의 움직임을 걷기로 설정--------------------------------------------------------------------------
-	if (UCharacterMovementComponent* MoveComp = PlayerCharacter->GetCharacterMovement())
+	UCharacterMovementComponent* MoveComp = PlayerCharacter->GetCharacterMovement();
+	if (bAlive && MoveComp)
 	{
 		MoveComp->SetMovementMode(MOVE_Walking);
 	}
@@ -321,7 +341,7 @@ void AInventoryRoom::ExitPauseMode_Implementation()
 	}
 
 	// 무기 가지고 있으면 락온 실행-----------------------------------------------------------------------------
-	if (PlayerCharacter->GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
+	if (bAlive && PlayerCharacter->GetClass()->ImplementsInterface(UItemWielderInterface::StaticClass()))
 	{
 		AItemBase* WeaponObj = IItemWielderInterface::Execute_GetWeapon(PlayerCharacter);
 		if (WeaponObj)
@@ -426,6 +446,11 @@ void AInventoryRoom::SetMeshRotation(EMoveComponentAction::Type Action)
 	const FVector  TargetLoc = MeshRelativeTransformInventory.GetLocation();
 	const FRotator TargetRot = MeshRelativeTransformInventory.GetRotation().Rotator();
 
+	// CallbackTarget이 없는 지연 액션은 소유 객체가 없는 것으로 처리되어 첫 틱에 지워진다.
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget = this;
+	LatentInfo.UUID = MeshRotationLatentUUID;
+
 	UKismetSystemLibrary::MoveComponentTo(
 		Comp,
 		TargetLoc,
@@ -435,6 +460,6 @@ void AInventoryRoom::SetMeshRotation(EMoveComponentAction::Type Action)
 		/*OverTime*/0.8f,
 		/*bForceShortestRotationPath*/true,
 		Action,
-		FLatentActionInfo()
+		LatentInfo
 	);
 }

@@ -7,6 +7,7 @@
 #include "BehaviorTree/BTFunctionLibrary.h"
 #include "NavigationSystem.h"
 #include "Navigation/PathFollowingComponent.h"
+#include "TimerManager.h"
 
 EBTNodeResult::Type UBTTask_SearchAroundLocation::ExecuteTask(
 	UBehaviorTreeComponent& OwnerComp,
@@ -24,7 +25,12 @@ EBTNodeResult::Type UBTTask_SearchAroundLocation::ExecuteTask(
 
 	// 2) 블랙보드에서 원점 가져오기
 	UBlackboardComponent* BB = OwnerComp.GetBlackboardComponent();
-	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(SearchLocationKey.SelectedKeyName);
+	if (!BB)
+	{
+		return EBTNodeResult::Failed;
+	}
+
+	FVector Origin = BB->GetValueAsVector(SearchLocationKey.SelectedKeyName);
 
 	// 3) 범위 내 랜덤 도달 지점 계산
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(Pawn->GetWorld());
@@ -33,30 +39,104 @@ EBTNodeResult::Type UBTTask_SearchAroundLocation::ExecuteTask(
 		return EBTNodeResult::Failed;
 	}
 	FNavLocation RandomLoc;
-	NavSystem->GetRandomReachablePointInRadius(Origin, Radius, RandomLoc);
+	if (!NavSystem->GetRandomReachablePointInRadius(Origin, Radius, RandomLoc))
+	{
+		return EBTNodeResult::Failed;
+	}
 
 	// 4) 이동
 	const EPathFollowingRequestResult::Type MoveResult = AICon->MoveToLocation(RandomLoc.Location, AcceptanceRadius, false);
+	if (MoveResult == EPathFollowingRequestResult::Failed)
+	{
+		return EBTNodeResult::Failed;
+	}
+	if (MoveResult == EPathFollowingRequestResult::AlreadyAtGoal)
+	{
+		return EBTNodeResult::Succeeded;
+	}
+
+	UPathFollowingComponent* PathFollowing = AICon->GetPathFollowingComponent();
+	if (!PathFollowing)
+	{
+		return EBTNodeResult::Failed;
+	}
 
 	// 5) 이동 완료 바인딩 : 이동 완료 후 2초 기다리고 성공반환
-	FDelegateHandle Handle = AICon->GetPathFollowingComponent()->OnRequestFinished.AddLambda(
-		[&](FAIRequestID RequestID, const FPathFollowingResult& Result)
-		{
-			AICon->GetPathFollowingComponent()->OnRequestFinished.Remove(Handle);
-
-			FTimerHandle DelayHandle;
-			OwnerComp.GetWorld()->GetTimerManager().SetTimer(
-				DelayHandle,
-				[&]()
-				{
-					FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-				},
-				2.0f,
-				false
-			);
-		}
-	);
+	CachedOwnerComp = &OwnerComp;
+	CachedPathFollowing = PathFollowing;
+	MoveRequestId = AICon->GetCurrentMoveRequestID();
+	MoveFinishedHandle = PathFollowing->OnRequestFinished.AddUObject(this, &UBTTask_SearchAroundLocation::OnMoveFinished);
 
 	// 6) InProgress 반환
 	return EBTNodeResult::InProgress;
+}
+
+EBTNodeResult::Type UBTTask_SearchAroundLocation::AbortTask(
+	UBehaviorTreeComponent& OwnerComp,
+	uint8* NodeMemory
+)
+{
+	const bool bWasMoving = MoveFinishedHandle.IsValid();
+	UnbindMoveFinished();
+
+	UPathFollowingComponent* PathFollowing = CachedPathFollowing.Get();
+	if (bWasMoving && PathFollowing && PathFollowing->GetStatus() != EPathFollowingStatus::Idle)
+	{
+		PathFollowing->AbortMove(*this, FPathFollowingResultFlags::OwnerFinished, MoveRequestId);
+	}
+
+	if (UWorld* World = OwnerComp.GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(WaitTimerHandle);
+	}
+
+	return EBTNodeResult::Aborted;
+}
+
+void UBTTask_SearchAroundLocation::OnMoveFinished(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	if (!RequestID.IsEquivalent(MoveRequestId))
+	{
+		return;
+	}
+
+	UnbindMoveFinished();
+
+	UBehaviorTreeComponent* OwnerComp = CachedOwnerComp.Get();
+	if (!OwnerComp)
+	{
+		return;
+	}
+
+	if (!Result.IsSuccess())
+	{
+		FinishLatentTask(*OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+
+	OwnerComp->GetWorld()->GetTimerManager().SetTimer(
+		WaitTimerHandle,
+		this,
+		&UBTTask_SearchAroundLocation::OnWaitFinished,
+		PostMoveWaitSeconds,
+		false
+	);
+}
+
+void UBTTask_SearchAroundLocation::OnWaitFinished()
+{
+	if (UBehaviorTreeComponent* OwnerComp = CachedOwnerComp.Get())
+	{
+		FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
+	}
+}
+
+void UBTTask_SearchAroundLocation::UnbindMoveFinished()
+{
+	if (UPathFollowingComponent* PathFollowing = CachedPathFollowing.Get())
+	{
+		PathFollowing->OnRequestFinished.Remove(MoveFinishedHandle);
+	}
+
+	MoveFinishedHandle.Reset();
 }
