@@ -119,7 +119,7 @@ void ASword::ApplyDamageAndStun_Implementation()
     UAbilitySystemComponent* SourceASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(GetAttachParentActor());
 
     // === Damage: MakeOutgoingSpec ================================================
-    if (WeaponCharged) DamageAmount *= 2;
+    const float FinalDamage = WeaponCharged ? DamageAmount * 2 : DamageAmount;
 
     if (SourceASC && *GE_Damage_lite)
     {
@@ -133,7 +133,7 @@ void ASword::ApplyDamageAndStun_Implementation()
         {
             if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
             {
-                Spec->SetSetByCallerMagnitude(DamageTag, DamageAmount);
+                Spec->SetSetByCallerMagnitude(DamageTag, FinalDamage);
             }
 
             SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);

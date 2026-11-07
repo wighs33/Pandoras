@@ -7,6 +7,7 @@
 #include "GA_Pandoras.generated.h"
 
 
+// 자식 Ability는 블루프린트 그래프가 함께 돌지 않도록 부모 ActivateAbility를 호출하지 않는다.
 UCLASS()
 class PANDORAS_API UGA_Pandoras : public UGameplayAbility
 {

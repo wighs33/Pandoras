@@ -19,7 +19,6 @@ void UGA_LockOn::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 	OnDelayCompleted();
 }
 
@@ -38,7 +37,10 @@ void UGA_LockOn::ScheduleDelay()
 void UGA_LockOn::OnDelayCompleted()
 {
 	Step_LockOnTick();
-	ScheduleDelay();
+	if (IsActive())
+	{
+		ScheduleDelay();
+	}
 }
 
 void UGA_LockOn::Step_LockOnTick()
@@ -92,5 +94,7 @@ void UGA_LockOn::Step_LockOnTick()
 				ASC->TryActivateAbilitiesByTag(Container, /*bAllowRemoteActivation*/ true);
 			}
 		}
+
+		K2_EndAbility();
 	}
 }

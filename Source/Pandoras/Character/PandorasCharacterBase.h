@@ -218,6 +218,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Base Actor Attributes")
 	void LoadAttributes(TMap<FGameplayAttribute, float> SavedAttributesMap);
 
+	// ASC가 현재 들고 있는 어트리뷰트 세트
+	const UBaseActorAttributes* GetCurrentAttributes() const;
+
 // 인터페이스
 protected:
 	// IItemWielderInterface

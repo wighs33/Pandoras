@@ -27,8 +27,6 @@ void UGA_FinishAttack_Sword::ActivateAbility(const FGameplayAbilitySpecHandle Ha
     const FGameplayAbilityActivationInfo ActivationInfo,
     const FGameplayEventData* TriggerEventData)
 {
-    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
     if (TriggerEventData) RunFromEvent(TriggerEventData);  // 이벤트 활성화 경로
     else                  RunNormal();                      // 일반 활성화 경로
 }
@@ -147,8 +145,6 @@ void UGA_FinishAttack_Sword::RunNormal()
             /*StartSectionName*/ NAME_None
         );
     }
-    AActor* someactor;
-    Victim = someactor;
 
     // --- 오너가 상대를 향해 돌아봄 -----------------------------------------------
     AActor* Avatar = GetAvatarActorFromActorInfo();
@@ -177,7 +173,7 @@ void UGA_FinishAttack_Sword::RunNormal()
     UAbilityTask_WaitGameplayEvent* StabOutTask =
         UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
             this,
-            FGameplayTag::RequestGameplayTag(FName("Notifier.Attack.StabIOut"))
+            FGameplayTag::RequestGameplayTag(FName("Notifier.Attack.StabOut"))
         );
 
     StabOutTask->EventReceived.AddDynamic(
@@ -193,6 +189,10 @@ void UGA_FinishAttack_Sword::ShowBlood(FGameplayEventData Payload)
     // --- 오너의 무기에 출혈 이펙트 재생 -------------------------------------------
     AActor* Avatar = GetAvatarActorFromActorInfo();
     UObject* WeaponObject = IItemWielderInterface::Execute_GetWeapon(Avatar);
+    if (!IsValid(WeaponObject))
+    {
+        return;
+    }
     IItemInterface::Execute_TriggerBlood(WeaponObject);
 }
 

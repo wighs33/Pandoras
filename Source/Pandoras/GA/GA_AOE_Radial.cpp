@@ -23,7 +23,11 @@ void UGA_AOE_Radial::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	Allowed.AddTag(FGameplayTag::RequestGameplayTag(FName("Item.Weapon.Sword")));
 	Allowed.AddTag(FGameplayTag::RequestGameplayTag(FName("Item.Weapon.GreatSword")));
 
-	if (!ASC->HasAnyMatchingGameplayTags(Allowed)) return;
+	if (!ASC->HasAnyMatchingGameplayTags(Allowed))
+	{
+		K2_EndAbility();
+		return;
+	}
 
 	// --- 검을 땅으로 내리치는 애니메이션 ---------------------------------
 	UAbilityTask_PlayMontageAndWait* MontageTask =
@@ -35,7 +39,14 @@ void UGA_AOE_Radial::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 
 	MontageTask->OnCompleted.AddDynamic(this, &UGA_AOE_Radial::OnMontageFinished);
 	MontageTask->OnInterrupted.AddDynamic(this, &UGA_AOE_Radial::OnMontageFinished);
+	MontageTask->OnCancelled.AddDynamic(this, &UGA_AOE_Radial::OnMontageFinished);
 	MontageTask->ReadyForActivation();
+
+	// 몽타주 재생에 실패하면 OnCancelled로 이미 끝났으므로 이후 이펙트를 시작하지 않는다.
+	if (!IsActive())
+	{
+		return;
+	}
 
 	// --- 이펙트시작 노티파이 대기 ------------------------------------------
 	UAbilityTask_WaitGameplayEvent* EventTask =

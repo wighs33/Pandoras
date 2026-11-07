@@ -23,8 +23,6 @@ void UGA_HitReactLite::ActivateAbility(
 	const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
 	// 공격자 저장 --------------------------------------------------------------------------------------------------------
 	if (TriggerEventData)
 	{
@@ -258,13 +256,15 @@ void UGA_HitReactLite::OnDeath()
 	AActor* InstigatorActor = const_cast<AActor*>(Data.Instigator.Get());
 
 	// 공격자가 플레이어인지 체크---------------------------------------------------------------------------------------------------
-	if (InstigatorActor && InstigatorActor->GetClass()->ImplementsInterface(UCharacterInterface::StaticClass()))
+	const bool bAttackerIsPlayer =
+		InstigatorActor &&
+		InstigatorActor->GetClass()->ImplementsInterface(UCharacterInterface::StaticClass()) &&
+		ICharacterInterface::Execute_IsPlayer(InstigatorActor);
+
+	if (!bAttackerIsPlayer)
 	{
-		if (ICharacterInterface::Execute_IsPlayer(InstigatorActor))
-		{
-			K2_EndAbility();
-			return;
-		}
+		K2_EndAbility();
+		return;
 	}
 
 	// 공격자에 경험치 획득 GE 적용--------------------------------------------------------------------------------------------------------------
@@ -280,6 +280,9 @@ void UGA_HitReactLite::OnDeath()
 	// 게임 전체 진행 속도를 느리게 설정-----------------------------------------------------------------------------------------------
 	if (UWorld* World = GetWorld())
 	{
+		// 0.5초 종료 Delay가 먼저 끝나면 EndAbility가 복구 타이머까지 지워 시간이 느린 채로 남는다.
+		World->GetLatentActionManager().RemoveActionsForObject(this);
+
 		UGameplayStatics::SetGlobalTimeDilation(World, 0.1f);
 	}
 

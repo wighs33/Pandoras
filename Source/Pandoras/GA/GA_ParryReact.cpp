@@ -12,8 +12,6 @@ void UGA_ParryReact::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
     const FGameplayAbilityActivationInfo ActivationInfo,
     const FGameplayEventData* TriggerEventData)
 {
-    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
     // --- 휘청거리는 애니메이션 재생 ----------------------------------------
     if (ParryReactMontage)
     {

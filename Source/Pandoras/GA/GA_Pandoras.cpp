@@ -155,6 +155,11 @@ void UGA_Pandoras::GrantAbilities_Implementation()
     {
         if (!ensure(AbilityClass)) return;
 
+        if (ASC->FindAbilitySpecFromClass(AbilityClass))
+        {
+            continue;
+        }
+
         FGameplayAbilitySpec AbilitySpec(
             AbilityClass,       // 어빌리티 클래스
             0, 

@@ -24,8 +24,6 @@ void UGA_TakeDown_Sword::ActivateAbility(const FGameplayAbilitySpecHandle Handle
     const FGameplayAbilityActivationInfo ActivationInfo,
     const FGameplayEventData* TriggerEventData)
 {
-    Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
     if (TriggerEventData) RunFromEvent(TriggerEventData);  // 이벤트 활성화 경로
     else                  RunNormal();                      // 일반 활성화 경로
 }
@@ -125,8 +123,6 @@ void UGA_TakeDown_Sword::RunNormal()
             /*StartSectionName*/ NAME_None
         );
     }
-    AActor* someactor;
-    Victim = someactor;
 
     // --- 오너가 상대를 향해 돌아봄 -----------------------------------------------
     AActor* Avatar = GetAvatarActorFromActorInfo();
@@ -155,7 +151,7 @@ void UGA_TakeDown_Sword::RunNormal()
     UAbilityTask_WaitGameplayEvent* StabOutTask =
         UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
             this,
-            FGameplayTag::RequestGameplayTag(FName("Notifier.Attack.StabIOut"))
+            FGameplayTag::RequestGameplayTag(FName("Notifier.Attack.StabOut"))
         );
 
     StabOutTask->EventReceived.AddDynamic(
@@ -171,6 +167,10 @@ void UGA_TakeDown_Sword::ShowBlood(FGameplayEventData Payload)
     // --- 오너의 무기에 출혈 이펙트 재생 -------------------------------------------
     AActor* Avatar = GetAvatarActorFromActorInfo();
     UObject* WeaponObject = IItemWielderInterface::Execute_GetWeapon(Avatar);
+    if (!IsValid(WeaponObject))
+    {
+        return;
+    }
     IItemInterface::Execute_TriggerBlood(WeaponObject);
 }
 
@@ -261,16 +261,11 @@ bool UGA_TakeDown_Sword::EquipWeapon()
             ASC->TryActivateAbilitiesByTag(EquipTags, /*bAllowRemoteActivation=*/true);
         }
 
-        FTimerHandle Handle;
-        GetWorld()->GetTimerManager().SetTimer(
-            Handle,
-            [&]()
-            {
-                return ASC->HasMatchingGameplayTag(WeaponTag);
-            },
-            0.4f,
-            /*bLoop=*/false
-        );
+        // 장착 Ability는 서버에서 바로 끝나므로 서버만 판정한다. 클라이언트는 태그 복제 전이라 알 수 없다.
+        if (ASC->IsOwnerActorAuthoritative() && !ASC->HasMatchingGameplayTag(WeaponTag))
+        {
+            return false;
+        }
     }
 
     return true;

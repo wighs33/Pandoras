@@ -73,7 +73,7 @@ void AAreaOfEffect_RadialImpact::OnRingBeginOverlap_Implementation(
 	const FGameplayTag ChargedTag = FGameplayTag::RequestGameplayTag(FName("Character.Event.HitReact.Charged"));
 
 	FGameplayEventData Payload;
-	Payload.Instigator = this;
+	Payload.Instigator = Attacker;
 
 	ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 	if (!PlayerCharacter) return;

@@ -1,4 +1,5 @@
 #include "AttributeSet/BaseActorAttributes.h"
+#include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
 void UBaseActorAttributes::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -12,25 +13,40 @@ void UBaseActorAttributes::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Stamina, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, Defence, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, XPPoints, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, CharacterLevel, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UBaseActorAttributes, SkillPoints, COND_None, REPNOTIFY_Always);
 }
 
-// 데미지 처리 전 방어력 적용하여 데미지량 감소
 void UBaseActorAttributes::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 	if (Attribute == GetHealthAttribute())
 	{
-		float Delta = NewValue - Health.GetCurrentValue();
-		if (Delta < 0)
-		{
-			float Def = FMath::Clamp(Defence.GetCurrentValue(), 0.f, 100.f);
-			// 방어력 수치에 따라 데미지 량 감소
-			Delta = Delta * (200 - Def) / 200;
-			UE_LOG(LogTemp, Warning, TEXT("Defence : %f"), Def);
-			NewValue = Delta + Health.GetCurrentValue();
-		}
 		NewValue = FMath::Clamp(NewValue, 0.f, MaxHealth.GetCurrentValue());
+	}
+}
+
+// 데미지 처리 전 방어력 적용하여 데미지량 감소
+bool UBaseActorAttributes::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+{
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute() && Data.EvaluatedData.Magnitude < 0.f)
+	{
+		float Def = FMath::Clamp(Defence.GetCurrentValue(), 0.f, 100.f);
+		// 방어력 수치에 따라 데미지 량 감소
+		Data.EvaluatedData.Magnitude = Data.EvaluatedData.Magnitude * (200 - Def) / 200;
+		UE_LOG(LogTemp, Warning, TEXT("Defence : %f"), Def);
+	}
+
+	return true;
+}
+
+void UBaseActorAttributes::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		SetStamina(FMath::Clamp(Stamina.GetBaseValue(), 0.f, MaxStamina));
 	}
 }
